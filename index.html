@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TayangNews PV Price Index - SynapSun</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f8f9fa;color:#1a1a2e;padding:24px;max-width:1200px;margin:0 auto}
+  h1{font-size:1.6rem;color:#1a1a2e;font-weight:600}
+  .sub{color:#6b7280;font-size:.85rem;margin:4px 0 20px}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .cb{padding:8px 18px;border:1px solid #e5e7eb;background:#fff;color:#4b5563;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s;font-weight:500}
+  .cb:hover{background:#f3f4f6;border-color:#d1d5db}
+  .cb.active{background:#2563eb;border-color:#2563eb;color:#fff}
+  .cc{background:#fff;border-radius:14px;padding:24px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  canvas{max-height:480px}
+  .leg{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .li{display:flex;align-items:center;gap:5px;font-size:.78rem;color:#6b7280;cursor:pointer;padding:4px 10px;border-radius:6px;background:#f9fafb;border:1px solid #f3f4f6;transition:all .2s}
+  .li:hover{background:#f3f4f6}
+  .li.hid{opacity:.35;text-decoration:line-through}
+  .lc{width:14px;height:3px;border-radius:2px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+  .sc{background:#fff;border-radius:10px;padding:16px;border:1px solid #e5e7eb}
+  .sl{color:#9ca3af;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .sv{font-size:1.5rem;font-weight:700;color:#1a1a2e;margin-top:4px}
+  .sch{font-size:.8rem;margin-top:3px}
+  .down{color:#dc2626}.up{color:#16a34a}.flat{color:#9ca3af}
+  .logo{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .badge{background:#eef2ff;color:#4338ca;font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.03em}
+  .loading{text-align:center;padding:60px 20px;color:#9ca3af}
+  .loading .spin{display:inline-block;width:24px;height:24px;border:3px solid #e5e7eb;border-top-color:#2563eb;border-radius:50%;animation:sp .8s linear infinite;margin-bottom:12px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .err{color:#dc2626;text-align:center;padding:40px;font-size:.9rem}
+  .updated{color:#9ca3af;font-size:.72rem;text-align:right;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="logo">
+  <h1>TayangNews PV Price Index</h1>
+  <span class="badge">LIVE</span>
+</div>
+<p class="sub">Barometre hebdomadaire des prix photovoltaiques &mdash; Donnees en direct depuis Google Sheets</p>
+<div id="stats" class="stats"></div>
+<div class="controls" id="ctrls"></div>
+<div class="cc">
+  <div id="load" class="loading"><div class="spin"></div><br>Chargement des donnees...</div>
+  <canvas id="pc" style="display:none"></canvas>
+  <div class="leg" id="leg"></div>
+</div>
+<div id="upd" class="updated"></div>
+<p style="text-align:center;color:#d1d5db;font-size:.7rem;margin-top:12px">Source: TayangNews &bull; Dashboard SynapSun/Barsolo</p>
+
+<script>
+const SHEET_ID='1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw';
+const CATS={all:'Tout',polysilicon:'Polysilicium',wafer:'Wafers',cell:'Cellules',module:'Modules',glass:'Verre solaire'};
+const PAL=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#db2777','#0891b2','#ea580c','#0d9488','#9333ea','#e11d48','#65a30d','#0284c7','#c026d3','#f43f5e','#059669','#4f46e5','#ca8a04'];
+let chart=null,hidden=new Set(),curCat='all',allData=null;
+
+function parseCSV(t){
+  const ls=t.trim().split('\n');
+  const hdr=ls[0].split('","').map(h=>h.replace(/"/g,''));
+  const weeks=hdr.slice(1);
+  const prods=[];
+  for(let i=1;i<ls.length;i++){
+    if(!ls[i].trim())continue;
+    const c=ls[i].split('","').map(x=>x.replace(/"/g,''));
+    prods.push({n:c[0],v:c.slice(1).map(x=>x===''?null:+x)});
+  }
+  return{weeks,prods};
+}
+function match(n,c){const l=n.toLowerCase();return c==='all'||l.includes(c==='glass'?'glass':c);}
+function short(n){return n.replace(/Polysilicon RMB\/kg \(USD\/kg\) — /,'Poly: ').replace(/Wafer RMB\/piece — /,'Wafer: ').replace(/Cells RMB\/W — /,'Cell: ').replace(/Modules RMB\/W — /,'Mod: ').replace(/Solar Glass RMB\/m2 — /,'Glass: ');}
+
+function stats(d){
+  const el=document.getElementById('stats');
+  const ps=d.prods.filter(p=>match(p.n,curCat)).slice(0,4);
+  el.innerHTML=ps.map(p=>{
+    const vs=p.v.filter(v=>v!==null);if(!vs.length)return'';
+    const c=vs[vs.length-1],pr=vs.length>1?vs[vs.length-2]:c,f=vs[0];
+    const pw=pr?((c-pr)/pr*100).toFixed(1):0;
+    const pt=f?((c-f)/f*100).toFixed(1):0;
+    const cl=pw>0?'up':pw<0?'down':'flat';
+    const ar=pw>0?'&#9650;':pw<0?'&#9660;':'&#9679;';
+    return '<div class="sc"><div class="sl">'+short(p.n)+'</div><div class="sv">'+c+'</div><div class="sch '+cl+'">'+ar+' '+pw+'% sem. | '+pt+'% total</div></div>';
+  }).join('');
+}
+
+function draw(d){
+  document.getElementById('pc').style.display='block';
+  const ctx=document.getElementById('pc');
+  const ps=d.prods.filter(p=>match(p.n,curCat));
+  const ds=ps.map((p,i)=>({label:short(p.n),data:p.v,borderColor:PAL[i%PAL.length],backgroundColor:PAL[i%PAL.length]+'12',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:.3,hidden:hidden.has(p.n),spanGaps:true}));
+  if(chart)chart.destroy();
+  chart=new Chart(ctx,{type:'line',data:{labels:d.weeks,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1a1a2e',bodyColor:'#4b5563',borderColor:'#e5e7eb',borderWidth:1,padding:12,cornerRadius:8,titleFont:{weight:'600'}}},scales:{x:{ticks:{color:'#9ca3af',maxRotation:45,autoSkip:true,maxTicksLimit:18,font:{size:11}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:11}},grid:{color:'#f3f4f6'}}}}});
+  const leg=document.getElementById('leg');
+  leg.innerHTML=ps.map((p,i)=>'<div class="li'+(hidden.has(p.n)?' hid':'')+'" data-n="'+p.n+'"><span class="lc" style="background:'+PAL[i%PAL.length]+'"></span>'+short(p.n)+'</div>').join('');
+  leg.querySelectorAll('.li').forEach(el=>{el.onclick=()=>{const n=el.dataset.n;hidden.has(n)?hidden.delete(n):hidden.add(n);draw(d);}});
+  stats(d);
+}
+
+function buildCats(){
+  const el=document.getElementById('ctrls');
+  el.innerHTML=Object.entries(CATS).map(([k,v])=>'<button class="cb'+(k===curCat?' active':'')+'" data-c="'+k+'">'+v+'</button>').join('');
+  el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{curCat=b.dataset.c;hidden.clear();buildCats();if(allData)draw(allData);}});
+}
+
+buildCats();
+
+fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid=0')
+  .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
+  .then(csv=>{
+    document.getElementById('load').style.display='none';
+    allData=parseCSV(csv);
+    draw(allData);
+    const now=new Date();
+    document.getElementById('upd').textContent='Derniere mise a jour: '+now.toLocaleDateString('fr-FR')+' '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  })
+  .catch(e=>{
+    document.getElementById('load').innerHTML='<div class="err">Erreur de chargement: '+e.message+'<br><small>Verifiez que le Google Sheet est partage en lecture publique.</small></div>';
+  });
+</script>
+</body>
+</html>
