@@ -59,16 +59,27 @@
 <div id="stats" class="stats"></div>
 <div class="controls" id="ctrls"></div>
 <div class="cc">
-  <div id="load" class="loading"><div class="spin"></div><br><span data-i18n="loading">Chargement des donnees...</span></div>
+  <div id="load" class="loading"><div class="spin"></div><br><span id="loadTxt">Chargement des donnees...</span></div>
   <canvas id="pc" style="display:none"></canvas>
   <div class="leg" id="leg"></div>
 </div>
 <div id="upd" class="updated"></div>
-<p style="text-align:center;color:#9ca3af;font-size:.72rem;margin-top:12px">Source: <a href="https://taiyangnews.info/" target="_blank" style="color:#6b7280;text-decoration:underline">taiyangnews.info</a> &bull; Dashboard SynapSun/Barsolo</p>
+<p style="text-align:center;color:#9ca3af;font-size:.72rem;margin-top:12px">Source: <a href="https://taiyangnews.info/" target="_blank" style="color:#6b7280;text-decoration:underline">taiyangnews.info</a></p>
 
 <script>
 const SHEET_ID='1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw';
 const PAL=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#db2777','#0891b2','#ea580c','#0d9488','#9333ea','#e11d48','#65a30d','#0284c7','#c026d3','#f43f5e','#059669','#4f46e5','#ca8a04'];
+
+const EXCLUDED=['Polysilicon RMB/kg (USD/kg) — Global (USD/kg)'];
+
+const KPI_MAP={
+  all:null,
+  polysilicon:['N-Type Silicon in China','Granular Silicon','Chinese 9N','Reusable Chinese 9N'],
+  wafer:['n-type 210mm, 130','n-type 182mm, 130'],
+  cell:['TOPCon - n-type 182mm'],
+  module:['TOPCon bifacial - n-type, 182mm, 72 cells'],
+  glass:null
+};
 
 let lang='fr';
 const I18N={
@@ -102,7 +113,9 @@ function parseCSV(txt){
   for(let i=1;i<ls.length;i++){
     if(!ls[i].trim())continue;
     const c=ls[i].split('","').map(x=>x.replace(/"/g,''));
-    prods.push({n:c[0],v:c.slice(1).map(x=>x===''?null:+x)});
+    const name=c[0];
+    if(EXCLUDED.some(ex=>name.includes(ex)))continue;
+    prods.push({n:name,v:c.slice(1).map(x=>x===''?null:+x)});
   }
   return{weeks,dates,prods};
 }
@@ -111,11 +124,21 @@ function getUnit(n){
   if(n.includes('RMB/kg'))return'RMB/kg';
   if(n.includes('RMB/piece'))return'RMB/pc';
   if(n.includes('RMB/W'))return'RMB/W';
-  if(n.includes('RMB/m2'))return'RMB/m2';
+  if(n.includes('RMB/m2'))return'RMB/m²';
   return'';
 }
 
-function match(n,c){const l=n.toLowerCase();return c==='all'||l.includes(c==='glass'?'glass':c);}
+function matchChart(n,c){
+  const l=n.toLowerCase();
+  if(c==='all')return true;
+  if(c==='polysilicon')return l.includes('polysilicon');
+  if(c==='wafer')return l.includes('wafer');
+  if(c==='cell')return l.includes('cell')&&!l.includes('module');
+  if(c==='module')return l.includes('module');
+  if(c==='glass')return l.includes('glass');
+  return false;
+}
+
 function short(n){return n.replace(/Polysilicon RMB\/kg \(USD\/kg\) — /,'Poly: ').replace(/Wafer RMB\/piece — /,'Wafer: ').replace(/Cells RMB\/W — /,'Cell: ').replace(/Modules RMB\/W — /,'Mod: ').replace(/Solar Glass RMB\/m2 — /,'Glass: ');}
 
 function getFilteredRange(){
@@ -135,19 +158,36 @@ function getFilteredRange(){
   return{start:si,end:ei};
 }
 
+function getKpiProducts(d){
+  const kpiKeys=KPI_MAP[curCat];
+  if(kpiKeys===null){
+    return d.prods.filter(p=>matchChart(p.n,curCat)).slice(0,4);
+  }
+  const result=[];
+  for(const key of kpiKeys){
+    const found=d.prods.find(p=>p.n.includes(key));
+    if(found)result.push(found);
+  }
+  return result;
+}
+
 function stats(d){
   const el=document.getElementById('stats');
   const{start,end}=getFilteredRange();
-  const ps=d.prods.filter(p=>match(p.n,curCat)).slice(0,4);
+  const ps=getKpiProducts(d);
   el.innerHTML=ps.map(p=>{
     const sliced=p.v.slice(start,end+1);
     const vs=sliced.filter(v=>v!==null);
     if(!vs.length)return'';
     const cur=vs[vs.length-1];
-    const prev=vs.length>1?vs[vs.length-2]:cur;
     const first=vs[0];
     const unit=getUnit(p.n);
-    const pw=prev&&prev!==cur?((cur-prev)/prev*100).toFixed(1):prev===cur&&vs.length>2?((cur-vs[vs.length-3])/vs[vs.length-3]*100).toFixed(1):'0.0';
+    let pw=0;
+    if(vs.length>=2){
+      const prev=vs[vs.length-2];
+      pw=((cur-prev)/prev*100);
+    }
+    pw=pw.toFixed(1);
     const pt=first?((cur-first)/first*100).toFixed(1):'0.0';
     const cl=pw>0?'up':pw<0?'down':'flat';
     const ar=pw>0?'&#9650;':pw<0?'&#9660;':'&#9679;';
@@ -159,7 +199,7 @@ function draw(d){
   document.getElementById('pc').style.display='block';
   const{start,end}=getFilteredRange();
   const filteredWeeks=d.weeks.slice(start,end+1);
-  const ps=d.prods.filter(p=>match(p.n,curCat));
+  const ps=d.prods.filter(p=>matchChart(p.n,curCat));
   const ds=ps.map((p,i)=>({label:short(p.n),data:p.v.slice(start,end+1),borderColor:PAL[i%PAL.length],backgroundColor:PAL[i%PAL.length]+'12',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:.3,hidden:hidden.has(p.n),spanGaps:true}));
   if(chart)chart.destroy();
   chart=new Chart(document.getElementById('pc'),{type:'line',data:{labels:filteredWeeks,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1a1a2e',bodyColor:'#4b5563',borderColor:'#e5e7eb',borderWidth:1,padding:12,cornerRadius:8,titleFont:{weight:'600'}}},scales:{x:{ticks:{color:'#9ca3af',maxRotation:45,autoSkip:true,maxTicksLimit:18,font:{size:11}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:11}},grid:{color:'#f3f4f6'}}}}});
@@ -169,15 +209,28 @@ function draw(d){
   stats(d);
 }
 
+function setDateLimits(){
+  if(!allData)return;
+  const validDates=allData.dates.filter(d=>d);
+  if(!validDates.length)return;
+  const minD=validDates[0].toISOString().slice(0,10);
+  const maxD=validDates[validDates.length-1].toISOString().slice(0,10);
+  const ds=document.getElementById('dStart');
+  const de=document.getElementById('dEnd');
+  if(ds){ds.setAttribute('min',minD);ds.setAttribute('max',maxD);}
+  if(de){de.setAttribute('min',minD);de.setAttribute('max',maxD);}
+}
+
 function buildCats(){
   const cats={all:t('all'),polysilicon:t('polysilicon'),wafer:t('wafer'),cell:t('cell'),module:t('module'),glass:t('glass')};
   const el=document.getElementById('ctrls');
   let html=Object.entries(cats).map(([k,v])=>'<button class="cb'+(k===curCat?' active':'')+'" data-c="'+k+'">'+v+'</button>').join('');
   html+='<div class="date-filter"><label>'+t('from')+'</label><input type="date" id="dStart" '+(dateStart?'value="'+dateStart.toISOString().slice(0,10)+'"':'')+'><label>'+t('to')+'</label><input type="date" id="dEnd" '+(dateEnd?'value="'+dateEnd.toISOString().slice(0,10)+'"':'')+'></div>';
   el.innerHTML=html;
-  el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{curCat=b.dataset.c;hidden.clear();buildCats();if(allData)draw(allData);}});
+  el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{curCat=b.dataset.c;hidden.clear();buildCats();setDateLimits();if(allData)draw(allData);}});
   document.getElementById('dStart').onchange=function(){dateStart=this.value?new Date(this.value):null;if(allData)draw(allData);};
   document.getElementById('dEnd').onchange=function(){dateEnd=this.value?new Date(this.value+'T23:59:59'):null;if(allData)draw(allData);};
+  setDateLimits();
 }
 
 function toggleLang(){
@@ -200,12 +253,7 @@ fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&g
   .then(csv=>{
     document.getElementById('load').style.display='none';
     allData=parseCSV(csv);
-    if(allData.dates.length){
-      const first=allData.dates.find(d=>d);
-      const last=[...allData.dates].reverse().find(d=>d);
-      if(first)document.getElementById('dStart').setAttribute('min',first.toISOString().slice(0,10));
-      if(last)document.getElementById('dEnd').setAttribute('max',last.toISOString().slice(0,10));
-    }
+    setDateLimits();
     draw(allData);
     updateTimestamp();
   })
