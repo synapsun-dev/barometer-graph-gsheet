@@ -23,7 +23,7 @@
   .cb.active{background:#2563eb;border-color:#2563eb;color:#fff}
   .date-filter{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
   .date-filter label{font-size:.78rem;color:#6b7280;font-weight:500}
-  .date-filter input[type=date]{padding:6px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:.82rem;color:#4b5563;background:#fff}
+  .date-filter select{padding:6px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:.82rem;color:#4b5563;background:#fff;max-width:180px}
   .cc{background:#fff;border-radius:14px;padding:24px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)}
   canvas{max-height:480px}
   .leg{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
@@ -92,8 +92,8 @@ const I18N={
 };
 function t(key){return I18N[lang][key]||key;}
 
-let chart=null,hidden=new Set(),curCat='all',allData=null;
-let dateStart=null,dateEnd=null;
+let chart=null,hidden=new Set(),curCat='polysilicon',allData=null;
+let startIdx=0,endIdx=0;
 
 function weekToDate(w){
   const m=w.match(/W(\d+)-(\d+)/);
@@ -142,20 +142,7 @@ function matchChart(n,c){
 function short(n){return n.replace(/Polysilicon RMB\/kg \(USD\/kg\) — /,'Poly: ').replace(/Wafer RMB\/piece — /,'Wafer: ').replace(/Cells RMB\/W — /,'Cell: ').replace(/Modules RMB\/W — /,'Mod: ').replace(/Solar Glass RMB\/m2 — /,'Glass: ');}
 
 function getFilteredRange(){
-  if(!allData)return{start:0,end:0};
-  let si=0,ei=allData.weeks.length-1;
-  if(dateStart){
-    for(let i=0;i<allData.dates.length;i++){
-      if(allData.dates[i]&&allData.dates[i]>=dateStart){si=i;break;}
-    }
-  }
-  if(dateEnd){
-    for(let i=allData.dates.length-1;i>=0;i--){
-      if(allData.dates[i]&&allData.dates[i]<=dateEnd){ei=i;break;}
-    }
-  }
-  if(si>ei)si=ei;
-  return{start:si,end:ei};
+  return{start:startIdx,end:endIdx};
 }
 
 function getKpiProducts(d){
@@ -185,7 +172,7 @@ function stats(d){
     let pw=0;
     if(vs.length>=2){
       const prev=vs[vs.length-2];
-      pw=((cur-prev)/prev*100);
+      if(prev!==0)pw=((cur-prev)/prev*100);
     }
     pw=pw.toFixed(1);
     const pt=first?((cur-first)/first*100).toFixed(1):'0.0';
@@ -209,28 +196,32 @@ function draw(d){
   stats(d);
 }
 
-function setDateLimits(){
-  if(!allData)return;
-  const validDates=allData.dates.filter(d=>d);
-  if(!validDates.length)return;
-  const minD=validDates[0].toISOString().slice(0,10);
-  const maxD=validDates[validDates.length-1].toISOString().slice(0,10);
-  const ds=document.getElementById('dStart');
-  const de=document.getElementById('dEnd');
-  if(ds){ds.setAttribute('min',minD);ds.setAttribute('max',maxD);}
-  if(de){de.setAttribute('min',minD);de.setAttribute('max',maxD);}
+function weekLabel(w,d){
+  if(!d)return w;
+  const loc=lang==='fr'?'fr-FR':'en-GB';
+  return w+' ('+d.toLocaleDateString(loc,{day:'2-digit',month:'short',year:'numeric'})+')';
 }
 
 function buildCats(){
-  const cats={all:t('all'),polysilicon:t('polysilicon'),wafer:t('wafer'),cell:t('cell'),module:t('module'),glass:t('glass')};
+  const cats={polysilicon:t('polysilicon'),wafer:t('wafer'),cell:t('cell'),module:t('module'),glass:t('glass'),all:t('all')};
   const el=document.getElementById('ctrls');
   let html=Object.entries(cats).map(([k,v])=>'<button class="cb'+(k===curCat?' active':'')+'" data-c="'+k+'">'+v+'</button>').join('');
-  html+='<div class="date-filter"><label>'+t('from')+'</label><input type="date" id="dStart" '+(dateStart?'value="'+dateStart.toISOString().slice(0,10)+'"':'')+'><label>'+t('to')+'</label><input type="date" id="dEnd" '+(dateEnd?'value="'+dateEnd.toISOString().slice(0,10)+'"':'')+'></div>';
+  html+='<div class="date-filter"><label>'+t('from')+'</label><select id="dStart"></select><label>'+t('to')+'</label><select id="dEnd"></select></div>';
   el.innerHTML=html;
-  el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{curCat=b.dataset.c;hidden.clear();buildCats();setDateLimits();if(allData)draw(allData);}});
-  document.getElementById('dStart').onchange=function(){dateStart=this.value?new Date(this.value):null;if(allData)draw(allData);};
-  document.getElementById('dEnd').onchange=function(){dateEnd=this.value?new Date(this.value+'T23:59:59'):null;if(allData)draw(allData);};
-  setDateLimits();
+  el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{curCat=b.dataset.c;hidden.clear();buildCats();populateWeekSelects();if(allData)draw(allData);}});
+  populateWeekSelects();
+}
+
+function populateWeekSelects(){
+  if(!allData)return;
+  const ds=document.getElementById('dStart');
+  const de=document.getElementById('dEnd');
+  if(!ds||!de)return;
+  const opts=allData.weeks.map((w,i)=>({w,d:allData.dates[i],i})).filter(x=>x.d);
+  ds.innerHTML=opts.map(o=>'<option value="'+o.i+'"'+(o.i===startIdx?' selected':'')+'>'+weekLabel(o.w,o.d)+'</option>').join('');
+  de.innerHTML=opts.map(o=>'<option value="'+o.i+'"'+(o.i===endIdx?' selected':'')+'>'+weekLabel(o.w,o.d)+'</option>').join('');
+  ds.onchange=function(){startIdx=+this.value;if(startIdx>endIdx){endIdx=startIdx;de.value=endIdx;}if(allData)draw(allData);};
+  de.onchange=function(){endIdx=+this.value;if(endIdx<startIdx){startIdx=endIdx;ds.value=startIdx;}if(allData)draw(allData);};
 }
 
 function toggleLang(){
@@ -253,7 +244,9 @@ fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&g
   .then(csv=>{
     document.getElementById('load').style.display='none';
     allData=parseCSV(csv);
-    setDateLimits();
+    startIdx=0;
+    endIdx=allData.weeks.length-1;
+    populateWeekSelects();
     draw(allData);
     updateTimestamp();
   })
