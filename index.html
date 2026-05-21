@@ -10,6 +10,7 @@
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f8f9fa;color:#1a1a2e;padding:24px;max-width:1200px;margin:0 auto}
   h1{font-size:1.6rem;color:#1a1a2e;font-weight:600}
+  h2{font-size:1.2rem;color:#1a1a2e;font-weight:600;margin:32px 0 12px 0;padding-top:20px;border-top:1px solid #e5e7eb}
   .hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
   .logo{display:flex;align-items:center;gap:12px}
   .badge{background:#eef2ff;color:#4338ca;font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.03em}
@@ -22,8 +23,8 @@
   .cb:hover{background:#f3f4f6;border-color:#d1d5db}
   .cb.active{background:#2563eb;border-color:#2563eb;color:#fff}
   .date-filter{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
-  .date-filter label{font-size:.78rem;color:#6b7280;font-weight:500}
   .date-filter select{padding:6px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:.82rem;color:#4b5563;background:#fff;max-width:180px}
+  .date-filter label{font-size:.78rem;color:#6b7280;font-weight:500}
   .cc{background:#fff;border-radius:14px;padding:24px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)}
   canvas{max-height:480px}
   .leg{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
@@ -31,7 +32,7 @@
   .li:hover{background:#f3f4f6}
   .li.hid{opacity:.35;text-decoration:line-through}
   .lc{width:14px;height:3px;border-radius:2px}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
   .sc{background:#fff;border-radius:10px;padding:16px;border:1px solid #e5e7eb}
   .sl{color:#9ca3af;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
   .sv{font-size:1.5rem;font-weight:700;color:#1a1a2e;margin-top:4px}
@@ -43,6 +44,7 @@
   @keyframes sp{to{transform:rotate(360deg)}}
   .err{color:#dc2626;text-align:center;padding:40px;font-size:.9rem}
   .updated{color:#9ca3af;font-size:.72rem;text-align:right;margin-top:8px}
+  .cat-section{margin-top:8px}
 </style>
 </head>
 <body>
@@ -56,144 +58,100 @@
     <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
   </div>
 </div>
-<div id="stats" class="stats"></div>
-<div class="controls" id="ctrls"></div>
+
+<!-- Main interactive chart -->
+<div id="main-stats" class="stats"></div>
+<div class="controls" id="main-ctrls"></div>
 <div class="cc">
-  <div id="load" class="loading"><div class="spin"></div><br><span id="loadTxt">Chargement des donnees...</span></div>
-  <canvas id="pc" style="display:none"></canvas>
-  <div class="leg" id="leg"></div>
+  <div id="load" class="loading"><div class="spin"></div><br><span>Chargement des donnees...</span></div>
+  <canvas id="main-chart" style="display:none"></canvas>
+  <div class="leg" id="main-leg"></div>
 </div>
-<div id="upd" class="updated"></div>
-<p style="text-align:center;color:#9ca3af;font-size:.72rem;margin-top:12px">Source: <a href="https://taiyangnews.info/" target="_blank" style="color:#6b7280;text-decoration:underline">taiyangnews.info</a></p>
+<div id="main-upd" class="updated"></div>
+
+<!-- Individual category charts rendered here -->
+<div id="cat-sections"></div>
+
+<p style="text-align:center;color:#9ca3af;font-size:.72rem;margin-top:24px">Source: <a href="https://taiyangnews.info/" target="_blank" style="color:#6b7280;text-decoration:underline">taiyangnews.info</a></p>
 
 <script>
 const SHEET_ID='1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw';
 const PAL=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#db2777','#0891b2','#ea580c','#0d9488','#9333ea','#e11d48','#65a30d','#0284c7','#c026d3','#f43f5e','#059669','#4f46e5','#ca8a04'];
+const CATS=['Polysilicon','Wafer','Cell','Module','Glass'];
+const MODULE_START_WEEK='W38-2024';
 
-const EXCLUDED=['Polysilicon RMB/kg (USD/kg) — Global (USD/kg)'];
-
-const KPI_MAP={
-  all:null,
-  polysilicon:['N-Type Silicon in China','Granular Silicon','Chinese 9N','Reusable Chinese 9N'],
-  wafer:['n-type 210mm, 130','n-type 182mm, 130'],
-  cell:['TOPCon - n-type 182mm'],
-  module:['TOPCon bifacial - n-type, 182mm, 72 cells'],
-  glass:null
-};
+const KPI_RENAME={'Granular Silicon (RMB/kg)':'FBR Granular Silicon (RMB/kg)'};
 
 let lang='fr';
 const I18N={
-  fr:{all:'Tout',polysilicon:'Polysilicium',wafer:'Wafers',cell:'Cellules',module:'Modules',glass:'Verre solaire',
+  fr:{Polysilicon:'Polysilicium',Wafer:'Wafers',Cell:'Cellules',Module:'Modules',Glass:'Verre solaire',
       from:'Du',to:'Au',week:'sem.',total:'periode',loading:'Chargement des donnees...',
       updated:'Derniere mise a jour',error:'Erreur de chargement',errorSub:'Verifiez que le Google Sheet est partage en lecture publique.'},
-  en:{all:'All',polysilicon:'Polysilicon',wafer:'Wafers',cell:'Cells',module:'Modules',glass:'Solar glass',
+  en:{Polysilicon:'Polysilicon',Wafer:'Wafers',Cell:'Cells',Module:'Modules',Glass:'Solar glass',
       from:'From',to:'To',week:'week',total:'period',loading:'Loading data...',
       updated:'Last update',error:'Loading error',errorSub:'Check that the Google Sheet is shared for public reading.'}
 };
-function t(key){return I18N[lang][key]||key;}
+function t(k){return I18N[lang][k]||k;}
 
-let chart=null,hidden=new Set(),curCat='polysilicon',allData=null;
-let startIdx=0,endIdx=0;
+let allData=null;
+
+/* ── Proper CSV parser ── */
+function parseCsvLine(line){
+  const r=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(inQ){
+      if(line[i]==='"'&&line[i+1]==='"'){cur+='"';i++;}
+      else if(line[i]==='"'){inQ=false;}
+      else{cur+=line[i];}
+    }else{
+      if(line[i]==='"'){inQ=true;}
+      else if(line[i]===','){r.push(cur);cur='';}
+      else{cur+=line[i];}
+    }
+  }
+  r.push(cur);return r;
+}
+
+function parseCSV(txt){
+  const ls=txt.trim().split('\n');
+  const hdr=parseCsvLine(ls[0]);
+  // Col A=Category, B=Product, C=Show, D+=weeks
+  const weeks=hdr.slice(3);
+  const dates=weeks.map(weekToDate);
+  const prods=[];
+  for(let i=1;i<ls.length;i++){
+    if(!ls[i].trim())continue;
+    const c=parseCsvLine(ls[i]);
+    const cat=c[0].trim();
+    const name=c[1].trim();
+    const show=c[2].trim().toUpperCase();
+    if(show!=='YES')continue;
+    if(!cat||!name)continue;
+    prods.push({cat:cat,n:name,v:c.slice(3).map(x=>x===''?null:+x)});
+  }
+  return{weeks,dates,prods};
+}
 
 function weekToDate(w){
   const m=w.match(/W(\d+)-(\d+)/);
   if(!m)return null;
   const year=+m[2],week=+m[1];
   const jan4=new Date(year,0,4);
-  const d=new Date(jan4.getTime()+((week-1)*7-jan4.getDay()+1)*86400000);
-  return d;
-}
-
-function parseCSV(txt){
-  const ls=txt.trim().split('\n');
-  const hdr=ls[0].split('","').map(h=>h.replace(/"/g,''));
-  const weeks=hdr.slice(1);
-  const dates=weeks.map(weekToDate);
-  const prods=[];
-  for(let i=1;i<ls.length;i++){
-    if(!ls[i].trim())continue;
-    const c=ls[i].split('","').map(x=>x.replace(/"/g,''));
-    const name=c[0];
-    if(EXCLUDED.some(ex=>name.includes(ex)))continue;
-    prods.push({n:name,v:c.slice(1).map(x=>x===''?null:+x)});
-  }
-  return{weeks,dates,prods};
+  return new Date(jan4.getTime()+((week-1)*7-jan4.getDay()+1)*86400000);
 }
 
 function getUnit(n){
-  if(n.includes('RMB/kg'))return'RMB/kg';
+  if(n.includes('RMB/kg')||n.includes('USD/kg'))return n.includes('USD')?'USD/kg':'RMB/kg';
   if(n.includes('RMB/piece'))return'RMB/pc';
   if(n.includes('RMB/W'))return'RMB/W';
   if(n.includes('RMB/m2'))return'RMB/m²';
   return'';
 }
 
-function matchChart(n,c){
-  const l=n.toLowerCase();
-  if(c==='all')return true;
-  if(c==='polysilicon')return l.includes('polysilicon');
-  if(c==='wafer')return l.includes('wafer');
-  if(c==='cell')return l.includes('cell')&&!l.includes('module');
-  if(c==='module')return l.includes('module');
-  if(c==='glass')return l.includes('glass');
-  return false;
-}
-
-function short(n){return n.replace(/Polysilicon RMB\/kg \(USD\/kg\) — /,'Poly: ').replace(/Wafer RMB\/piece — /,'Wafer: ').replace(/Cells RMB\/W — /,'Cell: ').replace(/Modules RMB\/W — /,'Mod: ').replace(/Solar Glass RMB\/m2 — /,'Glass: ');}
-
-function getFilteredRange(){
-  return{start:startIdx,end:endIdx};
-}
-
-function getKpiProducts(d){
-  const kpiKeys=KPI_MAP[curCat];
-  if(kpiKeys===null){
-    return d.prods.filter(p=>matchChart(p.n,curCat)).slice(0,4);
-  }
-  const result=[];
-  for(const key of kpiKeys){
-    const found=d.prods.find(p=>p.n.includes(key));
-    if(found)result.push(found);
-  }
-  return result;
-}
-
-function stats(d){
-  const el=document.getElementById('stats');
-  const{start,end}=getFilteredRange();
-  const ps=getKpiProducts(d);
-  el.innerHTML=ps.map(p=>{
-    const sliced=p.v.slice(start,end+1);
-    const vs=sliced.filter(v=>v!==null);
-    if(!vs.length)return'';
-    const cur=vs[vs.length-1];
-    const first=vs[0];
-    const unit=getUnit(p.n);
-    let pw=0;
-    if(vs.length>=2){
-      const prev=vs[vs.length-2];
-      if(prev!==0)pw=((cur-prev)/prev*100);
-    }
-    pw=pw.toFixed(1);
-    const pt=first?((cur-first)/first*100).toFixed(1):'0.0';
-    const cl=pw>0?'up':pw<0?'down':'flat';
-    const ar=pw>0?'&#9650;':pw<0?'&#9660;':'&#9679;';
-    return '<div class="sc"><div class="sl">'+short(p.n)+'</div><div class="sv">'+cur+'<span class="su">'+unit+'</span></div><div class="sch '+cl+'">'+ar+' '+pw+'% '+t('week')+' | '+pt+'% '+t('total')+'</div></div>';
-  }).join('');
-}
-
-function draw(d){
-  document.getElementById('pc').style.display='block';
-  const{start,end}=getFilteredRange();
-  const filteredWeeks=d.weeks.slice(start,end+1);
-  const ps=d.prods.filter(p=>matchChart(p.n,curCat));
-  const ds=ps.map((p,i)=>({label:short(p.n),data:p.v.slice(start,end+1),borderColor:PAL[i%PAL.length],backgroundColor:PAL[i%PAL.length]+'12',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:.3,hidden:hidden.has(p.n),spanGaps:true}));
-  if(chart)chart.destroy();
-  chart=new Chart(document.getElementById('pc'),{type:'line',data:{labels:filteredWeeks,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1a1a2e',bodyColor:'#4b5563',borderColor:'#e5e7eb',borderWidth:1,padding:12,cornerRadius:8,titleFont:{weight:'600'}}},scales:{x:{ticks:{color:'#9ca3af',maxRotation:45,autoSkip:true,maxTicksLimit:18,font:{size:11}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:11}},grid:{color:'#f3f4f6'}}}}});
-  const leg=document.getElementById('leg');
-  leg.innerHTML=ps.map((p,i)=>'<div class="li'+(hidden.has(p.n)?' hid':'')+'" data-n="'+p.n+'"><span class="lc" style="background:'+PAL[i%PAL.length]+'"></span>'+short(p.n)+'</div>').join('');
-  leg.querySelectorAll('.li').forEach(el=>{el.onclick=()=>{const n=el.dataset.n;hidden.has(n)?hidden.delete(n):hidden.add(n);draw(d);}});
-  stats(d);
+function displayName(n){
+  let s=n;
+  if(KPI_RENAME[s])s=KPI_RENAME[s];
+  return s;
 }
 
 function weekLabel(w,d){
@@ -202,53 +160,175 @@ function weekLabel(w,d){
   return w+' ('+d.toLocaleDateString(loc,{day:'2-digit',month:'short',year:'numeric'})+')';
 }
 
-function buildCats(){
-  const cats={polysilicon:t('polysilicon'),wafer:t('wafer'),cell:t('cell'),module:t('module'),glass:t('glass'),all:t('all')};
-  const el=document.getElementById('ctrls');
-  let html=Object.entries(cats).map(([k,v])=>'<button class="cb'+(k===curCat?' active':'')+'" data-c="'+k+'">'+v+'</button>').join('');
-  html+='<div class="date-filter"><label>'+t('from')+'</label><select id="dStart"></select><label>'+t('to')+'</label><select id="dEnd"></select></div>';
-  el.innerHTML=html;
-  el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{curCat=b.dataset.c;hidden.clear();buildCats();populateWeekSelects();if(allData)draw(allData);}});
-  populateWeekSelects();
+/* ── Chart Section factory ── */
+function createSection(id,cat,isMain){
+  const state={
+    chart:null,
+    hidden:new Set(),
+    startIdx:0,
+    endIdx:0,
+    cat:cat,
+    curCat:cat // for main, this changes; for individual, fixed
+  };
+
+  function prods(){
+    return allData.prods.filter(p=>p.cat===state.curCat);
+  }
+
+  function getDefaultStart(){
+    if(state.curCat==='Module'){
+      const idx=allData.weeks.indexOf(MODULE_START_WEEK);
+      return idx>=0?idx:0;
+    }
+    return 0;
+  }
+
+  function buildKPI(){
+    const el=document.getElementById(id+'-stats');
+    if(!el)return;
+    const ps=prods().slice(0,4);
+    const s=state.startIdx,e=state.endIdx;
+    el.innerHTML=ps.map(p=>{
+      const sliced=p.v.slice(s,e+1);
+      const vs=sliced.filter(v=>v!==null);
+      if(!vs.length)return'';
+      const cur=vs[vs.length-1];
+      const first=vs[0];
+      const unit=getUnit(p.n);
+      let pw=0;
+      if(vs.length>=2){const prev=vs[vs.length-2];if(prev!==0)pw=((cur-prev)/prev*100);}
+      pw=pw.toFixed(1);
+      const pt=first?((cur-first)/first*100).toFixed(1):'0.0';
+      const cl=pw>0?'up':pw<0?'down':'flat';
+      const ar=pw>0?'&#9650;':pw<0?'&#9660;':'&#9679;';
+      return '<div class="sc"><div class="sl">'+displayName(p.n)+'</div><div class="sv">'+cur+'<span class="su">'+unit+'</span></div><div class="sch '+cl+'">'+ar+' '+pw+'% '+t('week')+' | '+pt+'% '+t('total')+'</div></div>';
+    }).join('');
+  }
+
+  function draw(){
+    const canvas=document.getElementById(id+'-chart');
+    if(!canvas)return;
+    canvas.style.display='block';
+    const s=state.startIdx,e=state.endIdx;
+    const filteredWeeks=allData.weeks.slice(s,e+1);
+    const ps=prods();
+    const ds=ps.map((p,i)=>({label:displayName(p.n),data:p.v.slice(s,e+1),borderColor:PAL[i%PAL.length],backgroundColor:PAL[i%PAL.length]+'12',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:.3,hidden:state.hidden.has(p.n),spanGaps:true}));
+    if(state.chart)state.chart.destroy();
+    state.chart=new Chart(canvas,{type:'line',data:{labels:filteredWeeks,datasets:ds},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#fff',titleColor:'#1a1a2e',bodyColor:'#4b5563',borderColor:'#e5e7eb',borderWidth:1,padding:12,cornerRadius:8,titleFont:{weight:'600'}}},scales:{x:{ticks:{color:'#9ca3af',maxRotation:45,autoSkip:true,maxTicksLimit:18,font:{size:11}},grid:{color:'#f3f4f6'}},y:{ticks:{color:'#9ca3af',font:{size:11}},grid:{color:'#f3f4f6'}}}}});
+    // Legend
+    const leg=document.getElementById(id+'-leg');
+    if(leg){
+      leg.innerHTML=ps.map((p,i)=>'<div class="li'+(state.hidden.has(p.n)?' hid':'')+'" data-n="'+p.n+'"><span class="lc" style="background:'+PAL[i%PAL.length]+'"></span>'+displayName(p.n)+'</div>').join('');
+      leg.querySelectorAll('.li').forEach(el=>{el.onclick=()=>{const n=el.dataset.n;state.hidden.has(n)?state.hidden.delete(n):state.hidden.add(n);draw();}});
+    }
+    buildKPI();
+  }
+
+  function populateWeeks(){
+    const ds=document.getElementById(id+'-dStart');
+    const de=document.getElementById(id+'-dEnd');
+    if(!ds||!de||!allData)return;
+    const opts=allData.weeks.map((w,i)=>({w,d:allData.dates[i],i})).filter(x=>x.d);
+    ds.innerHTML=opts.map(o=>'<option value="'+o.i+'"'+(o.i===state.startIdx?' selected':'')+'>'+weekLabel(o.w,o.d)+'</option>').join('');
+    de.innerHTML=opts.map(o=>'<option value="'+o.i+'"'+(o.i===state.endIdx?' selected':'')+'>'+weekLabel(o.w,o.d)+'</option>').join('');
+    ds.onchange=function(){state.startIdx=+this.value;if(state.startIdx>state.endIdx){state.endIdx=state.startIdx;de.value=state.endIdx;}draw();};
+    de.onchange=function(){state.endIdx=+this.value;if(state.endIdx<state.startIdx){state.startIdx=state.endIdx;ds.value=state.startIdx;}draw();};
+  }
+
+  function setCat(c){
+    state.curCat=c;
+    state.hidden.clear();
+    state.startIdx=getDefaultStart();
+    state.endIdx=allData.weeks.length-1;
+  }
+
+  function init(){
+    state.startIdx=getDefaultStart();
+    state.endIdx=allData.weeks.length-1;
+    populateWeeks();
+    draw();
+  }
+
+  function rebuild(){
+    populateWeeks();
+    draw();
+  }
+
+  return{state,setCat,init,rebuild,draw,populateWeeks,buildKPI};
 }
 
-function populateWeekSelects(){
-  if(!allData)return;
-  const ds=document.getElementById('dStart');
-  const de=document.getElementById('dEnd');
-  if(!ds||!de)return;
-  const opts=allData.weeks.map((w,i)=>({w,d:allData.dates[i],i})).filter(x=>x.d);
-  ds.innerHTML=opts.map(o=>'<option value="'+o.i+'"'+(o.i===startIdx?' selected':'')+'>'+weekLabel(o.w,o.d)+'</option>').join('');
-  de.innerHTML=opts.map(o=>'<option value="'+o.i+'"'+(o.i===endIdx?' selected':'')+'>'+weekLabel(o.w,o.d)+'</option>').join('');
-  ds.onchange=function(){startIdx=+this.value;if(startIdx>endIdx){endIdx=startIdx;de.value=endIdx;}if(allData)draw(allData);};
-  de.onchange=function(){endIdx=+this.value;if(endIdx<startIdx){startIdx=endIdx;ds.value=startIdx;}if(allData)draw(allData);};
+/* ── Main section ── */
+const mainSec=createSection('main','Polysilicon',true);
+
+function buildMainControls(){
+  const el=document.getElementById('main-ctrls');
+  let html=CATS.map(c=>'<button class="cb'+(c===mainSec.state.curCat?' active':'')+'" data-c="'+c+'">'+t(c)+'</button>').join('');
+  html+='<div class="date-filter"><label>'+t('from')+'</label><select id="main-dStart"></select><label>'+t('to')+'</label><select id="main-dEnd"></select></div>';
+  el.innerHTML=html;
+  el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{
+    mainSec.setCat(b.dataset.c);
+    buildMainControls();
+    mainSec.init();
+  }});
+  mainSec.populateWeeks();
+}
+
+/* ── Individual category sections ── */
+const catSections={};
+
+function buildCatSections(){
+  const container=document.getElementById('cat-sections');
+  container.innerHTML='';
+  CATS.forEach(cat=>{
+    const secId='sec-'+cat.toLowerCase();
+    const html=`
+      <div class="cat-section">
+        <h2>${t(cat)}</h2>
+        <div id="${secId}-stats" class="stats"></div>
+        <div class="controls">
+          <div class="date-filter"><label>${t('from')}</label><select id="${secId}-dStart"></select><label>${t('to')}</label><select id="${secId}-dEnd"></select></div>
+        </div>
+        <div class="cc">
+          <canvas id="${secId}-chart"></canvas>
+          <div class="leg" id="${secId}-leg"></div>
+        </div>
+      </div>`;
+    container.insertAdjacentHTML('beforeend',html);
+    catSections[cat]=createSection(secId,cat,false);
+  });
+}
+
+function initAll(){
+  buildMainControls();
+  mainSec.init();
+  buildCatSections();
+  CATS.forEach(cat=>{catSections[cat].init();});
+  updateTimestamp();
 }
 
 function toggleLang(){
   lang=lang==='fr'?'en':'fr';
   document.getElementById('langBtn').textContent=lang==='fr'?'EN':'FR';
-  buildCats();
-  if(allData){draw(allData);updateTimestamp();}
+  buildMainControls();
+  mainSec.rebuild();
+  buildCatSections();
+  CATS.forEach(cat=>{catSections[cat].init();});
+  updateTimestamp();
 }
 
 function updateTimestamp(){
   const now=new Date();
   const loc=lang==='fr'?'fr-FR':'en-GB';
-  document.getElementById('upd').textContent=t('updated')+': '+now.toLocaleDateString(loc)+' '+now.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('main-upd').textContent=t('updated')+': '+now.toLocaleDateString(loc)+' '+now.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'});
 }
 
-buildCats();
-
+/* ── Load data ── */
 fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid=0')
   .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
   .then(csv=>{
     document.getElementById('load').style.display='none';
     allData=parseCSV(csv);
-    startIdx=0;
-    endIdx=allData.weeks.length-1;
-    populateWeekSelects();
-    draw(allData);
-    updateTimestamp();
+    initAll();
   })
   .catch(e=>{
     document.getElementById('load').innerHTML='<div class="err">'+t('error')+': '+e.message+'<br><small>'+t('errorSub')+'</small></div>';
