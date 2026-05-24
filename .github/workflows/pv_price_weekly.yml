@@ -1,0 +1,48 @@
+name: TaiyangNews PV Price Index
+
+on:
+  schedule:
+    # Chaque lundi à 08:00 UTC
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode : 'weekly' (semaine courante) ou 'backfill' (tout depuis W1-2024)"
+        required: false
+        default: "weekly"
+
+concurrency:
+  group: pv-scraper
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r pv-price-scraper/requirements.txt
+
+      - name: Run backfill complet
+        if: ${{ github.event.inputs.mode == 'backfill' || github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'backfill' }}
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: cd pv-price-scraper && python backfill.py
+
+      - name: Run weekly scraper
+        if: ${{ github.event.inputs.mode != 'backfill' }}
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: cd pv-price-scraper && python taiyangnews_pv_scraper.py
