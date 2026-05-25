@@ -343,11 +343,9 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <!-- Graph Taiyang — section polysilicon -->
-      <!-- ► INTÉGRER : src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#polysilicon" -->
-      <div class="ifr-wrap" style="height:520px">
+      <div class="ifr-wrap" style="height:620px">
         <iframe
-          src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/"
+          src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#polysilicon"
           height="100%"
           title="Polysilicon price index — Taiyang News / Synapsun"
           loading="lazy"
@@ -377,7 +375,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       <span style="font-size:12px;font-weight:500;color:var(--g400);font-family:var(--body)" data-i18n="s2_wafer_unit">RMB / pièce</span>
     </h3>
     <div class="split fi" style="margin-bottom:32px">
-      <div class="ifr-wrap" style="height:420px">
+      <div class="ifr-wrap" style="height:620px">
         <iframe src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#wafer"
           height="100%" width="100%"
           title="Wafer price index — Taiyang News / Synapsun"
@@ -397,7 +395,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       <span style="font-size:12px;font-weight:500;color:var(--g400);font-family:var(--body)" data-i18n="s2_cell_unit">USD / W</span>
     </h3>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:420px">
+      <div class="ifr-wrap" style="height:620px">
         <iframe src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#cell"
           height="100%" width="100%"
           title="Cell price index — Taiyang News / Synapsun"
@@ -627,7 +625,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
 const SHEET_ID   = '1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw'; // Sheet Taiyang existant
 const SHEET_TAB          = 'Analysis_Barometer';
 const CERTISOLIS_TAB    = 'Certisolis_DB';
-const TAIYANG_PRICES_TAB = 'taiyangnews-srapping';
+const TAIYANG_PRICES_TAB = 'taiyangnews_scrapping';
 const SILVER_MG_PER_WC  = 9.03;
 const MODULE_COST_USD_WC = { topcon: 0.095, topcon_large: 0.085 };
 
@@ -1208,44 +1206,63 @@ function renderBreakdown() {
 // ═══════════════════════════════════════════════════════════════
 // TOC ACTIVE STATE
 // ═══════════════════════════════════════════════════════════════
-// ─── SILVER PRICE (CoinGecko API — free, no key) ─────────────────────
+// ─── SILVER PRICE ─────────────────────────────────────────────────────
 let silverChart = null;
 async function loadSilverPrice() {
+  // Source 1 : Yahoo Finance (XAG=X — COMEX spot hebdomadaire, CORS OK)
   try {
-    // Stooq — gratuit, sans clé API, données COMEX XAG/USD hebdomadaires
-    const resp = await fetch('https://stooq.com/q/d/l/?s=xagusd&i=w');
-    if (!resp.ok) throw new Error('Stooq XAG/USD failed');
-    const csv = await resp.text();
-    if (csv.trim().startsWith('<')) throw new Error('Stooq returned HTML, not CSV');
+    const resp = await fetch('https://query2.finance.yahoo.com/v8/finance/chart/XAG=X?range=1y&interval=1wk');
+    if (!resp.ok) throw new Error('Yahoo Finance XAG ' + resp.status);
+    const json = await resp.json();
+    const result = json?.chart?.result?.[0];
+    if (!result) throw new Error('No Yahoo result');
+    const tsList    = result.timestamp || [];
+    const closeList = result.indicators?.quote?.[0]?.close || [];
+    const pairs = tsList.map((ts, i) => ({
+      date:  new Date(ts * 1000).toISOString().slice(0, 7),
+      close: closeList[i]
+    })).filter(p => p.close != null && p.close > 5 && p.close < 500);
+    if (pairs.length < 4) throw new Error('Not enough Yahoo data');
+    window._silverUsdOz = result.meta?.regularMarketPrice || pairs[pairs.length - 1].close;
+    const dates  = pairs.map(p => p.date);
+    const prices = pairs.map(p => parseFloat(p.close.toFixed(2)));
+    window._silverPrices = { dates, prices };
+    renderSilverChart(dates, prices);
+    renderBreakdown();
+    return;
+  } catch(e) {
+    console.warn('Yahoo Finance XAG failed, trying Stooq:', e.message);
+  }
 
-    // Stooq : Date,Open,High,Low,Close,Volume — ordre antéchronologique
+  // Source 2 : Stooq (COMEX XAG/USD hebdomadaire, ordre antéchronologique)
+  try {
+    const resp = await fetch('https://stooq.com/q/d/l/?s=xagusd&i=w');
+    if (!resp.ok) throw new Error('Stooq XAG/USD ' + resp.status);
+    const csv = await resp.text();
+    if (csv.trim().startsWith('<')) throw new Error('Stooq returned HTML');
     const lines = csv.trim().split('\n').filter(l => l.trim() && !l.toLowerCase().startsWith('date'));
     if (lines.length < 4) throw new Error('Not enough Stooq rows');
-
     const parsed = lines.map(l => {
       const cols = l.split(',');
       return { date: cols[0] || '', close: parseFloat(cols[4]) };
-    }).filter(p => p.close > 5 && p.close < 200 && p.date);
-
+    }).filter(p => p.close > 5 && p.close < 500 && p.date);
     if (parsed.length < 4) throw new Error('Invalid Stooq data');
-
-    // Prix live = ligne la plus récente (première du CSV)
-    window._silverUsdOz = parsed[0].close;
-
-    // Historique : remettre en ordre chronologique, garder les 52 dernières semaines
+    window._silverUsdOz = parsed[0].close; // antéchronologique → premier = plus récent
     const chron = parsed.slice().reverse().slice(-52);
     const dates  = chron.map(p => p.date.slice(0, 7));
     const prices = chron.map(p => parseFloat(p.close.toFixed(2)));
     window._silverPrices = { dates, prices };
     renderSilverChart(dates, prices);
     renderBreakdown();
-
+    return;
   } catch(e) {
-    console.warn('Silver price Stooq failed:', e);
-    window._silverUsdOz = window._silverUsdOz || 32.5;
-    buildSilverMock(window._silverUsdOz);
-    renderBreakdown();
+    console.warn('Stooq also failed:', e.message);
   }
+
+  // Source 3 : mock basé sur le dernier prix connu
+  window._silverUsdOz = window._silverUsdOz || 33;
+  buildSilverMock(window._silverUsdOz);
+  renderBreakdown();
 }
 
 function buildSilverMock(spotPrice) {
@@ -1329,86 +1346,64 @@ function renderSilverChart(dates, prices) {
 }
 
 // ─── COST EVOLUTION CHART ────────────────────────────────────────────
-// Lit les prix Taiyang (poly, wafer, cell) depuis le Sheet + silver historique
-// Calcule la contribution de chaque composant au coût du module sur 12 mois
+// Lit le tab taiyangnews_scrapping (format : produits en lignes, semaines en colonnes)
+// et reconstruit une série temporelle poly/wafer/cell sur 52 semaines.
 async function loadCostEvolution() {
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TAIYANG_PRICES_TAB)}`;
   try {
     const resp = await fetch(csvUrl);
-    if (!resp.ok) throw new Error('Taiyang prices tab not found');
+    if (!resp.ok) throw new Error('Sheet not reachable: ' + resp.status);
     const text = await resp.text();
     if (text.trim().startsWith('<!')) throw new Error('Sheet not public or tab missing');
 
     const rows = parseCSV(text);
-    if (rows.length < 3) throw new Error('Pas assez de données');
+    // Row 0 = headers : Category | Product | Show | W1-2024 | W2-2024 | …
+    // Row 1 = URL row (skip)
+    // Row 2+ = produits
+    if (rows.length < 3) throw new Error('Not enough rows');
 
-    const hdrs = rows[0].map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g,''));
-    // Détection flexible : cherche par mots-clés dans les en-têtes
-    const findCol = (...keywords) => hdrs.findIndex(h => keywords.some(k => h.includes(k)));
-    const iDate  = findCol('date','semaine','week','time');
-    const iPoly  = findCol('poly','silicium','silicon','polysi');
-    const iWafer = findCol('wafer','plaquette','lingot','wafers');
-    const iCell  = findCol('cell','cellule','cells');
-    const iModule = findCol('module','modul');
+    const weekHdrs = rows[0].slice(3); // ['W1-2024', 'W2-2024', …]
 
-    console.log('Taiyang cols → date:'+iDate+' poly:'+iPoly+' wafer:'+iWafer+' cell:'+iCell);
-    if (iDate < 0 || iPoly < 0) {
-      console.warn('Headers dispo:', hdrs.join(' | '));
-      // Fallback : essayer les colonnes numériques (col 0=date, col 1=poly, col 2=wafer, col 3=cell)
-      // Si le sheet a des données numériques sans headers clairs
-      const hasNumericData = rows.slice(1, 5).some(r =>
-        r.some(v => !isNaN(parseFloat(v)) && parseFloat(v) > 0)
-      );
-      if (hasNumericData && rows[0].length >= 3) {
-        // Utiliser colonnes positionnelles : on garde les 4 premières colonnes numériques
-        console.log('Fallback colonnes positionnelles');
-        const numCols = rows[0].map((_, ci) =>
-          rows.slice(1,10).filter(r => !isNaN(parseFloat(r[ci])) && parseFloat(r[ci]) > 0).length
-        );
-        // Colonne date = première colonne non-numérique
-        const guessDate  = numCols.findIndex(n => n < 3);
-        const guessNums  = numCols.map((n,i) => n >= 3 ? i : -1).filter(i => i >= 0);
-        if (guessDate >= 0 && guessNums.length >= 2) {
-          const dataRows2 = rows.slice(1)
-            .filter(r => r[guessDate] && r[guessDate].trim())
-            .map(r => ({
-              date:   r[guessDate].trim(),
-              poly:   parseFloat((r[guessNums[0]]||'').replace(',','.')) || 0,
-              wafer:  guessNums[1] ? parseFloat((r[guessNums[1]]||'').replace(',','.')) || 0 : 0,
-              cell:   guessNums[2] ? parseFloat((r[guessNums[2]]||'').replace(',','.')) || 0 : 0,
-              module: guessNums[3] ? parseFloat((r[guessNums[3]]||'').replace(',','.')) || 0 : 0,
-            }))
-            .filter(r => r.poly > 0)
-            .slice(-52);
-          if (dataRows2.length > 4) {
-            window._taiyangPrices = dataRows2;
-            renderCostEvolutionChart(dataRows2);
-            return;
-          }
-        }
+    // Cherche la première ligne visible d'une catégorie donnée
+    const findRow = (catKeyword, nameKeywords = []) => {
+      for (let i = 2; i < rows.length; i++) {
+        const r = rows[i];
+        const cat  = (r[0] || '').trim().toLowerCase();
+        const name = (r[1] || '').trim().toLowerCase();
+        const show = (r[2] || '').trim().toUpperCase();
+        if (show !== 'YES') continue;
+        if (!cat.includes(catKeyword.toLowerCase())) continue;
+        if (nameKeywords.length && !nameKeywords.some(k => name.includes(k))) continue;
+        return r;
       }
-      throw new Error('Colonnes Taiyang non identifiées. Headers: ' + rows[0].slice(0,8).join(' | '));
+      return null;
+    };
+
+    const polyRow  = findRow('polysilicon');        // prix en RMB/kg
+    const waferRow = findRow('wafer');              // prix en RMB/pièce
+    const cellRow  = findRow('cell', ['topcon','perc','cell']); // prix en USD/W
+
+    if (!polyRow && !waferRow && !cellRow) throw new Error('No product rows found');
+
+    // Prendre les 52 dernières semaines
+    const n = weekHdrs.length;
+    const start = Math.max(0, n - 52);
+    const dataRows = [];
+    for (let wi = start; wi < n; wi++) {
+      const ci = wi + 3; // +3 pour les colonnes Category/Product/Show
+      const poly  = polyRow  ? parseFloat(polyRow[ci]  || '') || 0 : 0;
+      const wafer = waferRow ? parseFloat(waferRow[ci] || '') || 0 : 0;
+      const cell  = cellRow  ? parseFloat(cellRow[ci]  || '') || 0 : 0;
+      if (poly > 0 || wafer > 0 || cell > 0) {
+        dataRows.push({ date: weekHdrs[wi], poly, wafer, cell, module: 0 });
+      }
     }
 
-    // Filtrer les 52 dernières semaines
-    const now = new Date();
-    const cutoff = new Date(); cutoff.setMonth(now.getMonth() - 12);
-    const dataRows = rows.slice(1)
-      .filter(r => r[iDate] && r[iDate].trim())
-      .map(r => ({
-        date:   r[iDate].trim(),
-        poly:   parseFloat((r[iPoly]  || '').replace(',','.')) || 0,
-        wafer:  iWafer  >= 0 ? parseFloat((r[iWafer]  || '').replace(',','.')) || 0 : 0,
-        cell:   iCell   >= 0 ? parseFloat((r[iCell]   || '').replace(',','.')) || 0 : 0,
-        module: iModule >= 0 ? parseFloat((r[iModule] || '').replace(',','.')) || 0 : 0,
-      }))
-      .filter(r => !isNaN(r.poly) && r.poly > 0)
-      .slice(-52); // 52 dernières semaines // 52 dernières semaines max
-
+    if (dataRows.length < 4) throw new Error('Not enough data points');
     window._taiyangPrices = dataRows;
     renderCostEvolutionChart(dataRows);
   } catch(e) {
-    console.warn('Cost evolution:', e.message);
+    console.warn('Cost evolution load failed:', e.message);
     renderCostEvolutionMock();
   }
 }
@@ -1431,14 +1426,18 @@ function renderCostEvolutionChart(rows) {
     // Coût par Wc en USD pour chaque composant
     const polyCost   = r.poly  > 0 ? (r.poly  / cnyUsd) * polySiKgPerWc : 0;
     const waferCost  = r.wafer > 0 ? (r.wafer / cnyUsd) / 23 : 0;  // ~23W/wafer
-    const cellCost   = r.cell  > 0 ?  r.cell  : 0;                  // USD/W direct
     const silverCost = silverMgPerWc * (silverOz / 31103);
+    // cellCost = valeur ajoutée nette de la cellule (prix cellule − poly − wafer − argent
+    // déjà comptés séparément), pour éviter le double-comptage.
+    const cellNetCost = r.cell > 0
+      ? Math.max(0.002, r.cell - polyCost - waferCost - silverCost)
+      : 0;
     const glassCost  = 0.006;
     const evaCost    = 0.002;
-    const modRef     = r.module > 0 ? r.module : Math.max(0.08, polyCost + waferCost + cellCost + silverCost + 0.025);
+    const modRef     = Math.max(0.08, polyCost + waferCost + cellNetCost + silverCost + 0.025);
     const otherCost  = Math.max(0.003, modRef * 0.08);
 
-    const raw   = { poly:polyCost, wafer:waferCost, cell:cellCost, silver:silverCost, glass:glassCost, eva:evaCost, other:otherCost };
+    const raw   = { poly:polyCost, wafer:waferCost, cell:cellNetCost, silver:silverCost, glass:glassCost, eva:evaCost, other:otherCost };
     const total = Object.values(raw).reduce((s,v) => s+v, 0) || 1;
     Object.keys(raw).forEach(k => series[k].push(parseFloat((raw[k]/total*100).toFixed(1))));
   });

@@ -80,6 +80,10 @@ const PAL=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#db2777','#0891b2'
 const CATS=['Polysilicon','Wafer','Cell','Module','Glass'];
 const MODULE_START_WEEK='W38-2024';
 
+// Mode intégration iframe : activé quand l'URL contient un hash correspondant à une catégorie
+const EMBED_CAT=(()=>{const h=window.location.hash.replace('#','');return CATS.find(c=>c.toLowerCase()===h.toLowerCase())||null;})();
+if(EMBED_CAT){document.body.style.padding='12px';}
+
 const KPI_RENAME={'Granular Silicon (RMB/kg)':'FBR Granular Silicon (RMB/kg)'};
 
 let lang='fr';
@@ -119,6 +123,7 @@ function parseCSV(txt){
   const weeks=hdr.slice(3);
   const dates=weeks.map(weekToDate);
   const prods=[];
+  let lastDataIdx=0;
   for(let i=1;i<ls.length;i++){
     if(!ls[i].trim())continue;
     const c=parseCsvLine(ls[i]);
@@ -127,9 +132,11 @@ function parseCSV(txt){
     const show=c[2].trim().toUpperCase();
     if(show!=='YES')continue;
     if(!cat||!name)continue;
-    prods.push({cat:cat,n:name,v:c.slice(3).map(x=>x===''?null:+x)});
+    const vals=c.slice(3);
+    vals.forEach((v,j)=>{if(v!=='')lastDataIdx=Math.max(lastDataIdx,j);});
+    prods.push({cat:cat,n:name,v:vals.map(x=>x===''?null:+x)});
   }
-  return{weeks,dates,prods};
+  return{weeks,dates,prods,lastDataIdx};
 }
 
 function weekToDate(w){
@@ -239,12 +246,12 @@ function createSection(id,cat,isMain){
     state.curCat=c;
     state.hidden.clear();
     state.startIdx=getDefaultStart();
-    state.endIdx=allData.weeks.length-1;
+    state.endIdx=allData.lastDataIdx;
   }
 
   function init(){
     state.startIdx=getDefaultStart();
-    state.endIdx=allData.weeks.length-1;
+    state.endIdx=allData.lastDataIdx;
     populateWeeks();
     draw();
   }
@@ -262,7 +269,10 @@ const mainSec=createSection('main','Polysilicon',true);
 
 function buildMainControls(){
   const el=document.getElementById('main-ctrls');
-  let html=CATS.map(c=>'<button class="cb'+(c===mainSec.state.curCat?' active':'')+'" data-c="'+c+'">'+t(c)+'</button>').join('');
+  let html='';
+  if(!EMBED_CAT){
+    html=CATS.map(c=>'<button class="cb'+(c===mainSec.state.curCat?' active':'')+'" data-c="'+c+'">'+t(c)+'</button>').join('');
+  }
   html+='<div class="date-filter"><label>'+t('from')+'</label><select id="main-dStart"></select><label>'+t('to')+'</label><select id="main-dEnd"></select></div>';
   el.innerHTML=html;
   el.querySelectorAll('.cb').forEach(b=>{b.onclick=()=>{
@@ -299,10 +309,22 @@ function buildCatSections(){
 }
 
 function initAll(){
+  if(EMBED_CAT){
+    mainSec.setCat(EMBED_CAT);
+    const hdr=document.querySelector('.hdr');
+    if(hdr)hdr.style.display='none';
+    const src=document.querySelector('p[style*="text-align:center"]');
+    if(src)src.style.display='none';
+    // Réduire la hauteur du canvas pour que tout tienne sans scroll
+    const cv=document.getElementById('main-chart');
+    if(cv)cv.style.maxHeight='360px';
+  }
   buildMainControls();
   mainSec.init();
-  buildCatSections();
-  CATS.forEach(cat=>{catSections[cat].init();});
+  if(!EMBED_CAT){
+    buildCatSections();
+    CATS.forEach(cat=>{catSections[cat].init();});
+  }
   updateTimestamp();
 }
 
