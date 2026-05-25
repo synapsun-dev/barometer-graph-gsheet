@@ -503,7 +503,11 @@ def upsert_week(ws, prices: dict, header: str, page_url: str):
         )
         existing_products = existing_products + new_products
 
-    new_col_idx = len(headers) + 1
+    # Strip trailing empty headers before computing next column index.
+    # get_all_values() pads rows to equal width, which can produce hundreds of
+    # phantom empty columns that would push new weeks far to the right.
+    last_real_col = len([h for h in headers if h.strip()])
+    new_col_idx = last_real_col + 1
     col_letter = col_index_to_letter(new_col_idx)
     logger.info("Writing column '%s' at %s", header, col_letter)
 
