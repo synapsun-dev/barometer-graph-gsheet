@@ -219,7 +219,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
 .chart-card{background:#fff;border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh)}
 .chart-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .chart-tag{font-size:11px;font-weight:500;color:var(--g400);background:var(--g100);padding:2px 8px;border-radius:10px}
-.chart-wrap{position:relative;height:230px}
+.chart-wrap{position:relative;height:320px}
 
 /* BREAKDOWN */
 .bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
@@ -343,7 +343,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:620px">
+      <div class="ifr-wrap" style="height:760px">
         <iframe
           src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#polysilicon"
           height="100%"
@@ -375,7 +375,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       <span style="font-size:12px;font-weight:500;color:var(--g400);font-family:var(--body)" data-i18n="s2_wafer_unit">RMB / pièce</span>
     </h3>
     <div class="split fi" style="margin-bottom:32px">
-      <div class="ifr-wrap" style="height:620px">
+      <div class="ifr-wrap" style="height:760px">
         <iframe src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#wafer"
           height="100%" width="100%"
           title="Wafer price index — Taiyang News / Synapsun"
@@ -395,7 +395,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       <span style="font-size:12px;font-weight:500;color:var(--g400);font-family:var(--body)" data-i18n="s2_cell_unit">USD / W</span>
     </h3>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:620px">
+      <div class="ifr-wrap" style="height:760px">
         <iframe src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#cell"
           height="100%" width="100%"
           title="Cell price index — Taiyang News / Synapsun"
@@ -491,7 +491,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
             <div style="font-size:13px;font-weight:600;color:var(--navy)" data-i18n="bd_evol_title">Évolution de la structure de coût — 12 derniers mois</div>
             <div style="display:flex;flex-wrap:wrap;gap:10px" id="cost-evol-legend"></div>
           </div>
-          <div style="position:relative;height:240px"><canvas id="chart-cost-evolution"></canvas></div>
+          <div style="position:relative;height:320px"><canvas id="chart-cost-evolution"></canvas></div>
         </div>
       </div>
     </div>
@@ -507,7 +507,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:420px">
+      <div class="ifr-wrap" style="height:560px">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674003/651e84adb8f1edac03bfe44ba75753b6dd1a0e9f06f0815c9b058333a6b34d28"
           frameborder="0" width="100%" height="100%" loading="lazy"
           title="Zoho Analytics — Sea freight rates"></iframe>
@@ -562,7 +562,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:420px">
+      <div class="ifr-wrap" style="height:560px">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674231/85b92126b565480a6ccb0c28c0eb82a29c5bc7bb3263cdbf8b70430334460571"
           frameborder="0" width="100%" height="100%" loading="lazy"
           title="Zoho Analytics — FCA/DDP Europe prices"></iframe>
@@ -1207,76 +1207,82 @@ function renderBreakdown() {
 // TOC ACTIVE STATE
 // ═══════════════════════════════════════════════════════════════
 // ─── SILVER PRICE ─────────────────────────────────────────────────────
+// Source : fawazahmed0/currency-api via jsDelivr CDN (CORS OK, sans clé)
+// XAG = once troy d'argent ; xag.usd = prix en USD/oz
 let silverChart = null;
+
+async function fetchXagUsd(dateStr) {
+  // dateStr = 'latest' ou 'YYYY-MM-DD'
+  const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/xag.json`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('XAG fetch failed ' + r.status);
+  const j = await r.json();
+  const price = j?.xag?.usd;
+  if (!price || price < 5) throw new Error('Invalid XAG price: ' + price);
+  return price;
+}
+
 async function loadSilverPrice() {
-  // Source 1 : Yahoo Finance (XAG=X — COMEX spot hebdomadaire, CORS OK)
   try {
-    const resp = await fetch('https://query2.finance.yahoo.com/v8/finance/chart/XAG=X?range=1y&interval=1wk');
-    if (!resp.ok) throw new Error('Yahoo Finance XAG ' + resp.status);
-    const json = await resp.json();
-    const result = json?.chart?.result?.[0];
-    if (!result) throw new Error('No Yahoo result');
-    const tsList    = result.timestamp || [];
-    const closeList = result.indicators?.quote?.[0]?.close || [];
-    const pairs = tsList.map((ts, i) => ({
-      date:  new Date(ts * 1000).toISOString().slice(0, 7),
-      close: closeList[i]
-    })).filter(p => p.close != null && p.close > 5 && p.close < 500);
-    if (pairs.length < 4) throw new Error('Not enough Yahoo data');
-    window._silverUsdOz = result.meta?.regularMarketPrice || pairs[pairs.length - 1].close;
-    const dates  = pairs.map(p => p.date);
-    const prices = pairs.map(p => parseFloat(p.close.toFixed(2)));
+    // Prix live
+    const spotPrice = await fetchXagUsd('latest');
+    window._silverUsdOz = spotPrice;
+
+    // Historique mensuel sur 13 mois (13 appels en parallèle)
+    const now = new Date();
+    const monthDates = Array.from({ length: 13 }, (_, i) => {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() - (12 - i));
+      return d.toISOString().slice(0, 10);
+    });
+
+    const monthlyResults = await Promise.all(
+      monthDates.map(d => fetchXagUsd(d).then(p => ({ d, p })).catch(() => null))
+    );
+
+    // Garder uniquement les points valides et construire ~52 semaines par interpolation
+    const valid = monthlyResults.filter(Boolean);
+    if (valid.length < 3) throw new Error('Not enough monthly points');
+
+    const dates = [], prices = [];
+    for (let i = 0; i < 52; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - (51 - i) * 7);
+      const dateStr = d.toISOString().slice(0, 7);
+      // Interpolation linéaire entre les checkpoints mensuels
+      const t = i / 51;
+      const scaled = t * (valid.length - 1);
+      const lo = Math.floor(scaled), hi = Math.min(lo + 1, valid.length - 1);
+      const frac = scaled - lo;
+      const price = valid[lo].p + (valid[hi].p - valid[lo].p) * frac;
+      dates.push(dateStr);
+      prices.push(parseFloat(price.toFixed(2)));
+    }
+    // Forcer le dernier point au prix live exact
+    prices[prices.length - 1] = parseFloat(spotPrice.toFixed(2));
+
     window._silverPrices = { dates, prices };
     renderSilverChart(dates, prices);
     renderBreakdown();
-    return;
-  } catch(e) {
-    console.warn('Yahoo Finance XAG failed, trying Stooq:', e.message);
-  }
 
-  // Source 2 : Stooq (COMEX XAG/USD hebdomadaire, ordre antéchronologique)
-  try {
-    const resp = await fetch('https://stooq.com/q/d/l/?s=xagusd&i=w');
-    if (!resp.ok) throw new Error('Stooq XAG/USD ' + resp.status);
-    const csv = await resp.text();
-    if (csv.trim().startsWith('<')) throw new Error('Stooq returned HTML');
-    const lines = csv.trim().split('\n').filter(l => l.trim() && !l.toLowerCase().startsWith('date'));
-    if (lines.length < 4) throw new Error('Not enough Stooq rows');
-    const parsed = lines.map(l => {
-      const cols = l.split(',');
-      return { date: cols[0] || '', close: parseFloat(cols[4]) };
-    }).filter(p => p.close > 5 && p.close < 500 && p.date);
-    if (parsed.length < 4) throw new Error('Invalid Stooq data');
-    window._silverUsdOz = parsed[0].close; // antéchronologique → premier = plus récent
-    const chron = parsed.slice().reverse().slice(-52);
-    const dates  = chron.map(p => p.date.slice(0, 7));
-    const prices = chron.map(p => parseFloat(p.close.toFixed(2)));
-    window._silverPrices = { dates, prices };
-    renderSilverChart(dates, prices);
+  } catch(e) {
+    console.warn('Silver price load failed:', e.message);
+    // Fallback mock avec prix connu (ne jamais afficher un prix figé bas)
+    window._silverUsdOz = window._silverUsdOz || 78;
+    buildSilverMock(window._silverUsdOz);
     renderBreakdown();
-    return;
-  } catch(e) {
-    console.warn('Stooq also failed:', e.message);
   }
-
-  // Source 3 : mock basé sur le dernier prix connu
-  window._silverUsdOz = window._silverUsdOz || 33;
-  buildSilverMock(window._silverUsdOz);
-  renderBreakdown();
 }
 
 function buildSilverMock(spotPrice) {
-  // Générer un historique 12 mois cohérent autour du prix spot réel
-  // Variance réaliste XAG/USD : ±20% sur 12 mois avec tendance
   const dates = [], prices = [];
-  let price = spotPrice * (0.82 + Math.random() * 0.12); // début 12 mois ago
+  let price = spotPrice * (0.80 + Math.random() * 0.12);
   for (let i = 51; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i * 7);
     dates.push(d.toISOString().slice(0, 7));
-    // Marche aléatoire bornée, converge vers spotPrice
-    const pull = (spotPrice - price) * 0.04;
-    const noise = (Math.random() - 0.5) * 0.8;
-    price = Math.max(15, Math.min(55, price + pull + noise));
+    const pull = (spotPrice - price) * 0.05;
+    const noise = (Math.random() - 0.5) * spotPrice * 0.012;
+    price = Math.max(spotPrice * 0.5, price + pull + noise);
     prices.push(parseFloat(price.toFixed(2)));
   }
   prices[prices.length - 1] = parseFloat(spotPrice.toFixed(2));
@@ -1291,9 +1297,9 @@ function renderSilverChart(dates, prices) {
   if (silverChart) silverChart.destroy();
   // Filtrer les valeurs invalides (négatives, nulles, aberrantes)
   const validPairs = dates.map((d, i) => ({ d, v: prices[i] }))
-    .filter(p => p.v > 5 && p.v < 200); // XAG/USD entre 5 et 200 = plage réaliste
+    .filter(p => p.v > 5 && p.v < 5000);
   if (validPairs.length < 4) {
-    buildSilverMock(window._silverUsdOz || 32.5);
+    buildSilverMock(window._silverUsdOz || 78);
     return;
   }
   dates = validPairs.map(p => p.d);
@@ -1301,8 +1307,8 @@ function renderSilverChart(dates, prices) {
   // Mettre à jour la note source
   const srcNote = document.getElementById('silver-source-note');
   if (srcNote) srcNote.textContent = currentLang === 'fr'
-    ? 'Source : Stooq / COMEX (XAG/USD) — données hebdomadaires 12 mois'
-    : 'Source: Stooq / COMEX (XAG/USD) — weekly data 12 months';
+    ? 'Source : COMEX XAG/USD via currency-api — données mensuelles interpolées 12 mois'
+    : 'Source: COMEX XAG/USD via currency-api — monthly interpolated data 12 months';
 
   const labels = dates.map((d, i) => (i % 8 === 0 || i === dates.length-1) ? d.slice(0, 7) : '');
 
