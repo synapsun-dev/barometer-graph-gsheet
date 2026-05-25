@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Mode : 'weekly' (semaine courante) ou 'backfill' (tout depuis W1-2024)"
+        description: "Mode : 'weekly' | 'backfill' | 'force' (re-scrappe et écrase tout)"
         required: false
         default: "weekly"
 
@@ -33,15 +33,22 @@ jobs:
       - name: Install dependencies
         run: pip install -r pv-price-scraper/requirements.txt
 
+      - name: Run force rescrape (overwrite all weeks)
+        if: ${{ github.event.inputs.mode == 'force' }}
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: cd pv-price-scraper && python backfill.py --force
+
       - name: Run backfill complet
-        if: ${{ github.event.inputs.mode == 'backfill' || github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'backfill' }}
+        if: ${{ github.event.inputs.mode == 'backfill' }}
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: cd pv-price-scraper && python backfill.py
 
       - name: Run weekly scraper
-        if: ${{ github.event.inputs.mode != 'backfill' }}
+        if: ${{ github.event.inputs.mode != 'backfill' && github.event.inputs.mode != 'force' }}
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

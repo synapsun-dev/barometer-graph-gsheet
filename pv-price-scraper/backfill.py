@@ -7,8 +7,10 @@ Lance en séquence :
   3. Supprime les lignes bloquées
 
 Usage :
-    python backfill.py
+    python backfill.py                          # normal : skip semaines existantes
+    python backfill.py --force                  # re-scrappe ET écrase toutes les semaines
     python backfill.py --start-week 1 --start-year 2024
+    python backfill.py --force --start-week 38 --start-year 2024
 """
 
 import argparse
@@ -56,23 +58,36 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--start-week", type=int, default=1)
     parser.add_argument("--start-year", type=int, default=2024)
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-scrape and overwrite ALL weeks (including already-present ones). "
+             "Does not add new products — use after a sheet cleanup.",
+    )
     args = parser.parse_args()
 
-    logger.info("Backfill TaiyangNews — W%d-%d → today", args.start_week, args.start_year)
+    mode = "FORCE (overwrite all)" if args.force else "normal (skip existing)"
+    logger.info("Backfill TaiyangNews — W%d-%d → today [%s]", args.start_week, args.start_year, mode)
+
+    if args.force:
+        logger.warning(
+            "FORCE MODE: all existing week columns will be overwritten with fresh Vision data."
+        )
 
     ws = get_sheet()
     weeks = list(all_weeks_from(args.start_week, args.start_year))
     total = len(weeks)
-    logger.info("%d week(s) to check", total)
+    logger.info("%d week(s) to process", total)
 
     existing_headers = get_existing_headers(ws)
-    skipped = added = not_found = 0
+    skipped = updated = added = not_found = 0
 
     for i, (w, y) in enumerate(weeks, 1):
         hdr = col_header(w, y)
-        logger.info("[%d/%d] %s", i, total, hdr)
+        already_present = hdr in existing_headers
+        logger.info("[%d/%d] %s%s", i, total, hdr, " (exists)" if already_present else "")
 
-        if hdr in existing_headers:
+        if already_present and not args.force:
             logger.info("  Already present — skipping")
             skipped += 1
             continue
@@ -97,15 +112,26 @@ def main():
 
         canonical = get_canonical_products(ws)
         prices = normalize_with_difflib(prices_raw, canonical)
-        upsert_week(ws, prices, hdr, build_url(w, y))
-        existing_headers.append(hdr)
-        added += 1
+        upsert_week(ws, prices, hdr, build_url(w, y), force=args.force)
+
+        if already_present:
+            updated += 1
+        else:
+            added += 1
+            existing_headers.append(hdr)
+
         time.sleep(3)
 
-    logger.info(
-        "Scraping complete: %d added | %d already present | %d not found",
-        added, skipped, not_found,
-    )
+    if args.force:
+        logger.info(
+            "Scraping complete: %d updated | %d new | %d not found (404/no images)",
+            updated, added, not_found,
+        )
+    else:
+        logger.info(
+            "Scraping complete: %d added | %d already present | %d not found",
+            added, skipped, not_found,
+        )
 
     remove_blocked_rows(ws)
     clean_units(ws)
