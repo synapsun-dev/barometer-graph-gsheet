@@ -457,11 +457,16 @@ def remove_blocked_rows(ws) -> None:
         logger.info("No blocked rows found")
 
 
-def upsert_week(ws, prices: dict, header: str, page_url: str):
+def upsert_week(ws, prices: dict, header: str, page_url: str, force: bool = False):
     """
-    Adds a week column. Header, URL, and data are written in one batch_update
-    call so a mid-run crash cannot leave a header-only column that would be
-    silently skipped on the next run.
+    Adds or updates a week column.
+
+    Normal mode  : skips if header already exists.
+    Force mode   : overwrites existing column prices without touching product
+                   rows or the Show-in-Barometer column. Does NOT add new
+                   products in force mode (structure must be clean first).
+
+    All writes use batch_update so a crash cannot leave a partial column.
     """
     all_values = ws.get_all_values()
 
@@ -486,12 +491,26 @@ def upsert_week(ws, prices: dict, header: str, page_url: str):
         return list(prices.keys())
 
     headers = all_values[0]
+    existing_products = [row[1] for row in all_values[2:] if len(row) > 1 and row[1]]
 
     if header in headers:
-        logger.warning("'%s' already present — skipping.", header)
-        return [row[1] for row in all_values[2:] if len(row) > 1 and row[1]]
+        if not force:
+            logger.warning("'%s' already present — skipping.", header)
+            return existing_products
 
-    existing_products = [row[1] for row in all_values[2:] if len(row) > 1 and row[1]]
+        # Force mode: overwrite existing column, no structural changes
+        col_idx = headers.index(header) + 1
+        col_letter = col_index_to_letter(col_idx)
+        logger.info("Force-updating '%s' at column %s", header, col_letter)
+        price_values = [[prices.get(p, {}).get("value") or ""] for p in existing_products]
+        ws.batch_update([
+            {"range": f"{col_letter}2", "values": [[page_url]]},
+            {"range": f"{col_letter}3", "values": price_values},
+        ])
+        logger.info("Force-updated %d row(s)", len(price_values))
+        return existing_products
+
+    # Normal mode: add new column
     new_products = [p for p in prices.keys() if p not in existing_products]
 
     if new_products:
