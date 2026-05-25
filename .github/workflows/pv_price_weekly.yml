@@ -7,9 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Mode : 'weekly' | 'backfill' | 'force' (re-scrappe et écrase tout)"
+        description: "Mode d'exécution"
         required: false
         default: "weekly"
+        type: choice
+        options:
+          - weekly
+          - backfill
+          - force
 
 concurrency:
   group: pv-scraper
