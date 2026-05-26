@@ -80,6 +80,9 @@ const PAL=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#db2777','#0891b2'
 const CATS=['Polysilicon','Wafer','Cell','Module','Glass'];
 const MODULE_START_WEEK='W38-2024';
 
+// Produits masqués dans l'affichage (restent dans le Sheet)
+const HIDDEN_PRODUCTS=['Chinese 9N'];
+
 // Mode intégration iframe : activé quand l'URL contient un hash correspondant à une catégorie
 const EMBED_CAT=(()=>{const h=window.location.hash.replace('#','');return CATS.find(c=>c.toLowerCase()===h.toLowerCase())||null;})();
 if(EMBED_CAT){document.body.style.padding='12px';}
@@ -132,6 +135,7 @@ function parseCSV(txt){
     const show=c[2].trim().toUpperCase();
     if(show!=='YES')continue;
     if(!cat||!name)continue;
+    if(HIDDEN_PRODUCTS.some(h=>name.toLowerCase().includes(h.toLowerCase())))continue;
     const vals=c.slice(3);
     vals.forEach((v,j)=>{if(v!=='')lastDataIdx=Math.max(lastDataIdx,j);});
     prods.push({cat:cat,n:name,v:vals.map(x=>x===''?null:+x)});
