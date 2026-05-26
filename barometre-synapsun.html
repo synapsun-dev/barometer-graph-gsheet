@@ -508,8 +508,8 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <h2 class="section-title" data-i18n="s5_title">Fret maritime Shanghai → Europe</h2>
       </div>
     </div>
-    <div class="fi">
-      <div class="ifr-wrap" style="height:560px;margin-bottom:20px">
+    <div class="split fi">
+      <div class="ifr-wrap" style="height:560px">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674003/651e84adb8f1edac03bfe44ba75753b6dd1a0e9f06f0815c9b058333a6b34d28"
           frameborder="0" width="100%" height="100%" loading="lazy"
           title="Zoho Analytics — Sea freight rates"></iframe>
@@ -563,8 +563,8 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <h2 class="section-title" data-i18n="s7_title">Prix des modules DDP Europe</h2>
       </div>
     </div>
-    <div class="fi">
-      <div class="ifr-wrap" style="height:560px;margin-bottom:20px">
+    <div class="split fi">
+      <div class="ifr-wrap" style="height:560px">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674231/85b92126b565480a6ccb0c28c0eb82a29c5bc7bb3263cdbf8b70430334460571"
           frameborder="0" width="100%" height="100%" loading="lazy"
           title="Zoho Analytics — DDP Europe prices"></iframe>
@@ -1052,7 +1052,11 @@ function renderFxChart(dates, usdArr, cnyArr, S) {
   if (fxChart) fxChart.destroy();
 
   // Show every ~15th label for readability
-  const labels = dates.map((d, i) => (i % 15 === 0 || i === dates.length - 1) ? d.slice(5) : '');
+  const labels = dates.map((d, i) => {
+    if (i % 8 !== 0 && i !== dates.length - 1) return '';
+    const [y, m] = d.split('-');
+    return m + '-' + y;
+  });
 
   fxChart = new Chart(ctx, {
     type: 'line',
