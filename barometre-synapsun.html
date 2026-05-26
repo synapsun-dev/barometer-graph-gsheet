@@ -343,7 +343,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:760px">
+      <div class="ifr-wrap" style="height:912px">
         <iframe
           src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#polysilicon"
           height="100%"
@@ -375,7 +375,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       <span style="font-size:12px;font-weight:500;color:var(--g400);font-family:var(--body)" data-i18n="s2_wafer_unit">RMB / pièce</span>
     </h3>
     <div class="split fi" style="margin-bottom:32px">
-      <div class="ifr-wrap" style="height:760px">
+      <div class="ifr-wrap" style="height:912px">
         <iframe src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#wafer"
           height="100%" width="100%"
           title="Wafer price index — Taiyang News / Synapsun"
@@ -395,15 +395,17 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       <span style="font-size:12px;font-weight:500;color:var(--g400);font-family:var(--body)" data-i18n="s2_cell_unit">USD / W</span>
     </h3>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:760px">
+      <div class="ifr-wrap" style="height:912px">
         <iframe src="https://it-dev-synapsun.github.io/graph-gsheet-tayang/#cell"
           height="100%" width="100%"
           title="Cell price index — Taiyang News / Synapsun"
           loading="lazy" frameborder="0" allowtransparency="true">
         </iframe>
       </div>
-      <div style="display:flex;flex-direction:column;justify-content:flex-start">
-        <p style="font-size:13.5px;line-height:1.7;color:var(--g600);padding:16px 4px" data-i18n="s2_cell_note">Les cellules TOPCon (Tunnel Oxide Passivated Contact) représentent aujourd'hui la technologie dominante dans les appels d'offres en Europe. Leur prix est coté en USD/W et évolue en fonction des prix du wafer et de la pâte d'argent.</p>
+      <div class="ac">
+        <div class="ac-body">
+          <p data-i18n="s2_cell_note">Les cellules TOPCon (Tunnel Oxide Passivated Contact) représentent aujourd'hui la technologie dominante dans les appels d'offres en Europe. Leur prix est coté en USD/W et évolue en fonction des prix du wafer et de la pâte d'argent.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -425,7 +427,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
             <span class="chart-tag" id="silver-source-tag">Stooq / COMEX</span>
           </div>
           <div class="chart-wrap"><canvas id="chart-silver"></canvas></div>
-          <p style="font-size:11px;color:var(--g400);margin-top:10px;font-style:italic" id="silver-src-note">Source : <a href="https://stooq.com/q/d/l/?s=xagusd&i=w" target="_blank" style="color:var(--orange)">Stooq / COMEX</a> — cours XAG/USD spot hebdomadaire. Données gratuites, sans clé API.</p>
+          <p style="font-size:11px;color:var(--g400);margin-top:10px;font-style:italic" id="silver-src-note">Source : <a href="https://github.com/fawazahmed0/currency-api" target="_blank" style="color:var(--orange)">currency-api / COMEX</a> — cours XAG/USD hebdomadaire.</p>
         </div>
       </div>
       <!-- Analyse card -->
@@ -506,8 +508,8 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <h2 class="section-title" data-i18n="s5_title">Fret maritime Shanghai → Europe</h2>
       </div>
     </div>
-    <div class="split fi">
-      <div class="ifr-wrap" style="height:560px">
+    <div class="fi">
+      <div class="ifr-wrap" style="height:560px;margin-bottom:20px">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674003/651e84adb8f1edac03bfe44ba75753b6dd1a0e9f06f0815c9b058333a6b34d28"
           frameborder="0" width="100%" height="100%" loading="lazy"
           title="Zoho Analytics — Sea freight rates"></iframe>
@@ -558,14 +560,14 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     <div class="section-header">
       <div>
         <div class="section-step" data-i18n="s7_step">Étape 7 · Prix livré Europe</div>
-        <h2 class="section-title" data-i18n="s7_title">Prix des modules FCA / DDP Europe</h2>
+        <h2 class="section-title" data-i18n="s7_title">Prix des modules DDP Europe</h2>
       </div>
     </div>
-    <div class="split fi">
-      <div class="ifr-wrap" style="height:560px">
+    <div class="fi">
+      <div class="ifr-wrap" style="height:560px;margin-bottom:20px">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674231/85b92126b565480a6ccb0c28c0eb82a29c5bc7bb3263cdbf8b70430334460571"
           frameborder="0" width="100%" height="100%" loading="lazy"
-          title="Zoho Analytics — FCA/DDP Europe prices"></iframe>
+          title="Zoho Analytics — DDP Europe prices"></iframe>
       </div>
       <div class="ac" id="ac-modules_ddp">
         <div class="ac-body" id="text-modules_ddp"><p class="sk" style="height:13px;margin-bottom:8px">&nbsp;</p><p class="sk" style="height:13px;width:88%">&nbsp;</p></div>
@@ -662,7 +664,7 @@ const STRINGS = {
     s4_step:'Étape 5 · Sortie usine',     s4_title:'Prix des modules FOB Chine',
     s5_step:'Étape 6 · Transport',        s5_title:'Fret maritime Shanghai → Europe',
     s6_step:'Étape 7 · Change',           s6_title:'Taux de change',
-    s7_step:'Étape 8 · Prix livré Europe',s7_title:'Prix des modules FCA / DDP Europe',
+    s7_step:'Étape 8 · Prix livré Europe',s7_title:'Prix des modules DDP Europe',
     s8_step:'',         s8_title:'Analyse Synapsun',
     freq_weekly:'Mise à jour hebdo', freq_daily:'Mise à jour quotidienne',
     freq_monthly:'Mise à jour mensuelle', src_bnef:'Source : BNEF / Synapsun',
@@ -674,8 +676,8 @@ const STRINGS = {
     ph_zoho_fob_sub:'TOPCon + Back Contact · USD/Wc · FOB Shanghai',
     ph_zoho_freight:'Graphique Zoho Analytics — Fret maritime',
     ph_zoho_freight_sub:'Shanghai → Rotterdam / Le Havre · USD/40HC',
-    ph_zoho_ddp:'Graphique Zoho Analytics — Prix FCA / DDP Europe',
-    ph_zoho_ddp_sub:'TOPCon + Back Contact · €/Wc · FCA & DDP',
+    ph_zoho_ddp:'Graphique Zoho Analytics — Prix DDP Europe',
+    ph_zoho_ddp_sub:'TOPCon + Back Contact · €/Wc · DDP',
     bd_note:'Répartition calculée depuis les consommations de matière indiquées sur des certificats Certisolis.',
     bd_evol_title:'Évolution de la structure de coût — 12 derniers mois',
     
@@ -721,7 +723,7 @@ const STRINGS = {
     s4_step:'Step 5 · Factory gate',  s4_title:'FOB China module prices',
     s5_step:'Step 6 · Shipping',      s5_title:'Sea freight Shanghai → Europe',
     s6_step:'Step 7 · FX',            s6_title:'Exchange rates',
-    s7_step:'Step 8 · Delivered price',s7_title:'FCA / DDP Europe module prices',
+    s7_step:'Step 8 · Delivered price',s7_title:'DDP Europe module prices',
     s8_step:'',           s8_title:'Synapsun Analysis',
     freq_weekly:'Weekly update', freq_daily:'Daily update',
     freq_monthly:'Monthly update', src_bnef:'Source: BNEF / Synapsun',
@@ -733,8 +735,8 @@ const STRINGS = {
     ph_zoho_fob_sub:'TOPCon + Back Contact · USD/Wp · FOB Shanghai',
     ph_zoho_freight:'Zoho Analytics chart — Sea freight',
     ph_zoho_freight_sub:'Shanghai → Rotterdam / Le Havre · USD/40HC',
-    ph_zoho_ddp:'Zoho Analytics chart — FCA / DDP Europe',
-    ph_zoho_ddp_sub:'TOPCon + Back Contact · €/Wp · FCA & DDP',
+    ph_zoho_ddp:'Zoho Analytics chart — DDP Europe',
+    ph_zoho_ddp_sub:'TOPCon + Back Contact · €/Wp · DDP',
     bd_note:'Breakdown calculated from material consumption data from Certisolis certificates.',
     bd_evol_title:'Cost structure evolution — last 12 months',
     
@@ -1248,7 +1250,7 @@ async function loadSilverPrice() {
     for (let i = 0; i < 52; i++) {
       const d = new Date(now);
       d.setDate(d.getDate() - (51 - i) * 7);
-      const dateStr = d.toISOString().slice(0, 7);
+      const dateStr = d.toISOString().slice(0, 10);
       // Interpolation linéaire entre les checkpoints mensuels
       const t = i / 51;
       const scaled = t * (valid.length - 1);
@@ -1279,7 +1281,7 @@ function buildSilverMock(spotPrice) {
   let price = spotPrice * (0.80 + Math.random() * 0.12);
   for (let i = 51; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i * 7);
-    dates.push(d.toISOString().slice(0, 7));
+    dates.push(d.toISOString().slice(0, 10));
     const pull = (spotPrice - price) * 0.05;
     const noise = (Math.random() - 0.5) * spotPrice * 0.012;
     price = Math.max(spotPrice * 0.5, price + pull + noise);
@@ -1310,7 +1312,11 @@ function renderSilverChart(dates, prices) {
     ? 'Source : COMEX XAG/USD via currency-api — données mensuelles interpolées 12 mois'
     : 'Source: COMEX XAG/USD via currency-api — monthly interpolated data 12 months';
 
-  const labels = dates.map((d, i) => (i % 8 === 0 || i === dates.length-1) ? d.slice(0, 7) : '');
+  const labels = dates.map((d, i) => {
+    if (i % 4 !== 0 && i !== dates.length - 1) return '';
+    const [y, m, day] = d.slice(0, 10).split('-');
+    return day + '/' + m + '/' + y;
+  });
 
   silverChart = new Chart(canvas.getContext('2d'), {
     type: 'line',
