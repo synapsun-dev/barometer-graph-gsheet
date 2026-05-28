@@ -198,8 +198,52 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
 .ac-sources a:hover{text-decoration:underline}
 
 /* IFRAME PLACEHOLDER */
-.ifr-wrap{border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);background:#fff}
-.ifr-wrap iframe{display:block;width:100%;height:100%;border:none}
+.ifr-wrap{
+  width:100% !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  position:relative;
+  border-radius:var(--r);
+  background:#fff;
+  box-shadow:var(--sh);
+}
+.ifr-wrap iframe{
+  display:block;
+  border:0 !important;
+  overflow:hidden !important;
+  scrollbar-width:none;
+}
+.ifr-wrap iframe::-webkit-scrollbar{
+  display:none;
+}
+.ifr-wrap.zoho-responsive{
+  --iframe-w:800;
+  --iframe-h:700;
+  height:calc((100vw - 40px) * var(--iframe-h) / var(--iframe-w));
+  max-height:calc(var(--iframe-h) * 1px);
+}
+.ifr-wrap.zoho-responsive iframe{
+  width:calc(var(--iframe-w) * 1px) !important;
+  height:calc(var(--iframe-h) * 1px) !important;
+  transform:scale(min(1, (100vw - 40px) / var(--iframe-w)));
+  transform-origin:top left;
+}
+@media(min-width:881px){
+  .split .ifr-wrap.zoho-responsive{
+    height:calc((100vw - 390px - 40px) * var(--iframe-h) / var(--iframe-w));
+  }
+  .split .ifr-wrap.zoho-responsive iframe{
+    transform:scale(min(1, (100vw - 390px - 40px) / var(--iframe-w)));
+  }
+}
+@media(max-width:880px){
+  .ifr-wrap.zoho-responsive{
+    height:calc((100vw - 32px) * var(--iframe-h) / var(--iframe-w));
+  }
+  .ifr-wrap.zoho-responsive iframe{
+    transform:scale(min(1, (100vw - 32px) / var(--iframe-w)));
+  }
+}
 .ifr-ph{background:var(--g50);border:2px dashed var(--g200);border-radius:var(--r);min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:var(--g400);font-size:13px;text-align:center;padding:28px}
 .ifr-ph svg{width:30px;height:30px;opacity:.35}
 .ifr-ph strong{color:var(--g600);font-size:13.5px}
@@ -509,9 +553,9 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:700px;width:800px">
+      <div class="ifr-wrap zoho-responsive" style="--iframe-w:800;--iframe-h:700">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674003"
-          frameborder="0" width="800" height="700" loading="lazy"
+          width="800" height="700" loading="lazy" scrolling="no"
           title="Zoho Analytics — Sea freight rates"></iframe>
       </div>
       <div class="ac" id="ac-sea_freight">
@@ -564,9 +608,9 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <div class="ifr-wrap" style="height:500px;width:800px">
+      <div class="ifr-wrap zoho-responsive" style="--iframe-w:800;--iframe-h:500">
         <iframe src="https://analytics.zoho.com/open-view/1373627000026674231/85b92126b565480a6ccb0c28c0eb82a29c5bc7bb3263cdbf8b70430334460571"
-          frameborder="0" width="800" height="500" loading="lazy"
+          width="800" height="500" loading="lazy" scrolling="no"
           title="Zoho Analytics — DDP Europe prices"></iframe>
       </div>
       <div class="ac" id="ac-modules_ddp">
