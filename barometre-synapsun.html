@@ -221,30 +221,22 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
 .ifr-wrap.zoho-responsive{
   --iframe-w:800;
   --iframe-h:700;
-  height:calc((100vw - 40px) * var(--iframe-h) / var(--iframe-w));
+  position:relative;
+  width:100%;
+  overflow:hidden !important;
+  aspect-ratio:calc(var(--iframe-w) / var(--iframe-h));
+  height:auto;
   max-height:calc(var(--iframe-h) * 1px);
+  container-type:inline-size;
 }
 .ifr-wrap.zoho-responsive iframe{
+  position:absolute;
+  top:0;
+  left:0;
   width:calc(var(--iframe-w) * 1px) !important;
   height:calc(var(--iframe-h) * 1px) !important;
-  transform:scale(min(1, (100vw - 40px) / var(--iframe-w)));
   transform-origin:top left;
-}
-@media(min-width:881px){
-  .split .ifr-wrap.zoho-responsive{
-    height:calc((100vw - 390px - 40px) * var(--iframe-h) / var(--iframe-w));
-  }
-  .split .ifr-wrap.zoho-responsive iframe{
-    transform:scale(min(1, (100vw - 390px - 40px) / var(--iframe-w)));
-  }
-}
-@media(max-width:880px){
-  .ifr-wrap.zoho-responsive{
-    height:calc((100vw - 32px) * var(--iframe-h) / var(--iframe-w));
-  }
-  .ifr-wrap.zoho-responsive iframe{
-    transform:scale(min(1, (100vw - 32px) / var(--iframe-w)));
-  }
+  transform:scale(calc(100cqw / var(--iframe-w)));
 }
 .ifr-ph{background:var(--g50);border:2px dashed var(--g200);border-radius:var(--r);min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:var(--g400);font-size:13px;text-align:center;padding:28px}
 .ifr-ph svg{width:30px;height:30px;opacity:.35}
