@@ -224,9 +224,9 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
   position:relative;
   width:100%;
   overflow:hidden !important;
-  aspect-ratio:calc(var(--iframe-w) / var(--iframe-h));
+  aspect-ratio:calc(var(--scale-w, var(--iframe-w)) / var(--scale-h, var(--iframe-h)));
   height:auto;
-  max-height:calc(var(--iframe-h) * 1px);
+  max-height:calc(var(--scale-h, var(--iframe-h)) * 1px);
   container-type:inline-size;
 }
 .ifr-wrap.zoho-responsive iframe{
@@ -546,7 +546,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi">
-      <div class="ifr-wrap zoho-responsive" style="--iframe-w:800;--iframe-h:600">
+      <div class="ifr-wrap zoho-responsive" style="--iframe-w:800;--iframe-h:600;--scale-w:560;--scale-h:520">
         <iframe src="https://analytics.zoho.com/open-view/1373627000027120086/d6435972ee5651e23d81649703e4b2320b5f037c5a75c8bb38c908c5e858f431"
           scrolling="no" loading="lazy"
           title="Zoho Analytics — Sea freight rates"></iframe>
@@ -1679,7 +1679,8 @@ function scaleZohoIframes() {
   document.querySelectorAll('.ifr-wrap.zoho-responsive').forEach(wrap => {
     const iframe = wrap.querySelector('iframe');
     if (!iframe) return;
-    const ifrW = parseFloat(getComputedStyle(wrap).getPropertyValue('--iframe-w')) || 800;
+    const scaleW = parseFloat(getComputedStyle(wrap).getPropertyValue('--scale-w'));
+    const ifrW = scaleW || parseFloat(getComputedStyle(wrap).getPropertyValue('--iframe-w')) || 800;
     const containerW = wrap.getBoundingClientRect().width;
     const scale = containerW / ifrW;
     iframe.style.transform = `scale(${scale})`;
