@@ -128,12 +128,19 @@ def validate_price(name: str, category: str, value) -> None:
 
 # ── URL HELPERS ───────────────────────────────────────────────────────────────
 
-def build_url(week: int, year: int) -> str:
+def build_url_candidates(week: int, year: int) -> list:
+    """Retourne les URLs candidates à essayer dans l'ordre (TaiyangNews change parfois le format)."""
+    base = "https://taiyangnews.info/price-index/taiyangnews-pv-price-index"
     if year >= 2026:
-        slug = f"taiyangnews-pv-price-index-cw{week}-{year}"
-    else:
-        slug = f"taiyangnews-pv-price-index-{year}-cw{week}"
-    return f"https://taiyangnews.info/price-index/{slug}"
+        return [
+            f"{base}-cw{week}-{year}",
+            f"{base}-cw-{week}-{year}",
+        ]
+    return [f"{base}-{year}-cw{week}"]
+
+
+def build_url(week: int, year: int) -> str:
+    return build_url_candidates(week, year)[0]
 
 
 def col_header(week: int, year: int) -> str:
@@ -164,34 +171,88 @@ def col_index_to_letter(index: int) -> str:
 
 # ── FETCH & PARSE ─────────────────────────────────────────────────────────────
 
-def fetch_page(week: int, year: int):
-    """Fetch TaiyangNews page with up to 3 attempts. Returns None on 404."""
-    url = build_url(week, year)
-    logger.info("Fetching %s", url)
+def _get(url: str):
+    """GET avec 3 tentatives. Retourne (resp, url) ou (None, None)."""
     for attempt in range(3):
         try:
             resp = requests.get(url, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
             if resp.status_code == 404:
-                logger.info("404 — page not yet published")
-                return None
+                return None, None
             resp.raise_for_status()
-            return resp.text
+            return resp, url
         except requests.HTTPError as e:
             status = e.response.status_code if e.response else 0
             if status < 500:
                 logger.error("HTTP %s — not retrying", status)
-                return None
+                return None, None
             if attempt < 2:
                 time.sleep(2 ** attempt)
             else:
                 logger.error("HTTP error after 3 attempts: %s", e)
-                return None
+                return None, None
         except requests.RequestException as e:
             if attempt < 2:
                 time.sleep(2 ** attempt)
             else:
                 logger.error("Request failed after 3 attempts: %s", e)
-                return None
+                return None, None
+    return None, None
+
+
+def discover_url_from_index(week: int, year: int):
+    """
+    Scrape la page index TaiyangNews pour trouver l'URL exacte d'une semaine.
+    Utilisé comme fallback si les formats connus échouent.
+    Retourne l'URL ou None.
+    """
+    index_url = "https://taiyangnews.info/price-index"
+    logger.info("Discovering URL from index page for W%d-%d...", week, year)
+    resp, _ = _get(index_url)
+    if not resp:
+        return None
+
+    # Extrait tous les slugs pv-price-index du HTML
+    slugs = re.findall(r'pv-price-index[^"\'> &]+', resp.text, re.IGNORECASE)
+
+    for slug in slugs:
+        slug = slug.rstrip("/.,;)")
+        # Format 2026+ : cw-20-2026 ou cw20-2026
+        m = re.search(r'cw-?(\d+)-(\d{4})$', slug, re.IGNORECASE)
+        if m and int(m.group(1)) == week and int(m.group(2)) == year:
+            url = f"https://taiyangnews.info/price-index/taiyangnews-{slug}"
+            logger.info("Found URL via index: %s", url)
+            return url
+        # Format 2024/2025 : 2025-cw22
+        m = re.search(r'(\d{4})-cw(\d+)$', slug, re.IGNORECASE)
+        if m and int(m.group(2)) == week and int(m.group(1)) == year:
+            url = f"https://taiyangnews.info/price-index/taiyangnews-{slug}"
+            logger.info("Found URL via index: %s", url)
+            return url
+
+    logger.info("W%d-%d not found in index page", week, year)
+    return None
+
+
+def fetch_page(week: int, year: int):
+    """
+    Essaie les formats d'URL connus puis l'index TaiyangNews en fallback.
+    Retourne (html, url) ou (None, None).
+    """
+    for url in build_url_candidates(week, year):
+        logger.info("Fetching %s", url)
+        resp, actual_url = _get(url)
+        if resp:
+            return resp.text, actual_url
+
+    # Fallback : découverte via la page index
+    discovered = discover_url_from_index(week, year)
+    if discovered:
+        resp, actual_url = _get(discovered)
+        if resp:
+            return resp.text, actual_url
+
+    logger.info("404 — page not yet published")
+    return None, None
 
 
 def extract_image_urls(html: str) -> list:
@@ -550,23 +611,23 @@ def resolve_week(week: int, year: int, existing_headers: list):
     if hdr in existing_headers:
         return None
 
-    html = fetch_page(week, year)
+    html, url = fetch_page(week, year)
     if html:
-        return week, year, html, build_url(week, year)
+        return week, year, html, url
 
     pw, py = prev_week(week, year)
     phdr = col_header(pw, py)
     if phdr in existing_headers:
         return None
 
-    html = fetch_page(pw, py)
+    html, url = fetch_page(pw, py)
     if html:
         logger.warning(
             "W%d-%d not published yet — falling back to W%d-%d. "
             "Verify TaiyangNews published on schedule.",
             week, year, pw, py,
         )
-        return pw, py, html, build_url(pw, py)
+        return pw, py, html, url
 
     return None
 
