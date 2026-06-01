@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 SHEET_ID   = "1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw"
 SHEET_TAB  = "taiyangnews_scrapping"
-CLAUDE_MODEL = "claude-opus-4-7"
+CLAUDE_MODEL = "claude-opus-4-8"
 MIN_EXPECTED_PRODUCTS = 10
 
 # auth/drive removed — scraper only needs write access to one spreadsheet
