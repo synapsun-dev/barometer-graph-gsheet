@@ -92,7 +92,7 @@ def main():
             skipped += 1
             continue
 
-        html = fetch_page(w, y)
+        html, page_url = fetch_page(w, y)
         if not html:
             not_found += 1
             time.sleep(1)
@@ -112,7 +112,7 @@ def main():
 
         canonical = get_canonical_products(ws)
         prices = normalize_with_difflib(prices_raw, canonical)
-        upsert_week(ws, prices, hdr, build_url(w, y), force=args.force)
+        upsert_week(ws, prices, hdr, page_url, force=args.force)
 
         if already_present:
             updated += 1
