@@ -1696,6 +1696,27 @@ function scaleZohoIframes() {
 window.addEventListener('load', scaleZohoIframes);
 window.addEventListener('resize', scaleZohoIframes);
 scaleZohoIframes();
+
+// Écoute les postMessage de Zoho Analytics — si Zoho envoie la hauteur du chart,
+// on met à jour --scale-h automatiquement et on relance le scale.
+window.addEventListener('message', e => {
+  if (!e.origin.includes('zoho.com')) return;
+  console.log('[Zoho postMessage]', e.data);
+  const data = (typeof e.data === 'string') ? (() => { try { return JSON.parse(e.data); } catch(_) { return null; } })() : e.data;
+  if (!data) return;
+  // Cherche une hauteur dans les champs courants des SDK Zoho
+  const height = data.height || data.frameHeight || data.iframeHeight || data.h;
+  if (!height) return;
+  document.querySelectorAll('.ifr-wrap.zoho-responsive').forEach(wrap => {
+    const iframe = wrap.querySelector('iframe');
+    if (!iframe) return;
+    // Associe le message à l'iframe dont l'URL correspond à l'origine
+    if (!iframe.src.includes(e.origin.replace('https://', ''))) return;
+    wrap.style.setProperty('--scale-h', height);
+    console.log('[Zoho auto-resize] --scale-h mis à jour :', height);
+    scaleZohoIframes();
+  });
+});
 </script>
 </body>
 </html>
