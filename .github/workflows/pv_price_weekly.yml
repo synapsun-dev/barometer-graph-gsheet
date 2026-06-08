@@ -15,6 +15,14 @@ on:
           - weekly
           - backfill
           - force
+      week:
+        description: "Semaine ISO à forcer (ex: 22) — weekly mode uniquement"
+        required: false
+        type: string
+      year:
+        description: "Année à forcer (ex: 2026) — weekly mode uniquement"
+        required: false
+        type: string
 
 concurrency:
   group: pv-scraper
@@ -57,4 +65,8 @@ jobs:
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: cd pv-price-scraper && python taiyangnews_pv_scraper.py
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.week }}" ]; then ARGS="$ARGS --week ${{ github.event.inputs.week }}"; fi
+          if [ -n "${{ github.event.inputs.year }}" ]; then ARGS="$ARGS --year ${{ github.event.inputs.year }}"; fi
+          cd pv-price-scraper && python taiyangnews_pv_scraper.py $ARGS
