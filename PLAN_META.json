@@ -1,0 +1,21 @@
+{
+  "ad_hoc_tasks": [
+    {
+      "title": "Renommes ce Repo : Barometer",
+      "body": "Renomme Repo-Clone en Barometer qui est le vrai nom"
+    }
+  ],
+  "comments": {},
+  "completed": {
+    "0": "realized",
+    "1": "realized",
+    "2": "realized"
+  },
+  "deleted": [],
+  "order": [
+    0,
+    1,
+    2,
+    3
+  ]
+}
