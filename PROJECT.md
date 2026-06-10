@@ -3,11 +3,11 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "100%"
-prochaine_action: "Vérifier que les notifications email Actions sont activées sur le compte GitHub (Settings → Notifications → Actions → Email, 'failed workflows only'). Question ouverte : renommer le repo GitHub distant en 'barometer' via `gh repo rename` ?"
+prochaine_action: "Vérifier que les notifications email Actions sont activées sur le compte GitHub (Settings → Notifications → Actions → Email, 'failed workflows only')."
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
-derniere_session: 2026-06-10
+derniere_session: 2026-06-11
 ---
 
 ## Contexte
@@ -37,6 +37,7 @@ PROJECT.md renommé (frontmatter `projet: Barometer`), références internes net
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-11 : Renommage GitHub complet — compte it-dev-synapsun → synapsun-dev (manuel), repos → barometer-scrap-taiyang (scraper+cron) et barometer-graph-gsheet (dashboards+Pages). Nouvelle URL publique : https://synapsun-dev.github.io/barometer-graph-gsheet/ (ancienne URL 404, pas de redirection Pages — validé sans usage externe). Iframes barometre-synapsun.html passées en URLs relatives, DASHBOARD_URL health_check corrigée, remote local mis à jour (f8591ba). Cron scraper en doublon désactivé côté graph-gsheet (tournait 2×/lundi). Validé : run scraper OK, health check 7/7 OK, Pages 200, rendu UI OK.
 2026-06-10 : Alertes email en cas de panne (dd814cc) — nouveau workflow health_check.yml quotidien 07:00 UTC (7 checks : CSV Sheets + fraîcheur, dashboard GitHub Pages, 2 iframes Zoho, API BCE, API XAG primaire+fallback, index TaiyangNews) ; le check fraîcheur distingue "pipeline en panne" de "source en retard". Fix échec silencieux du scraper (exit 1 si aucune semaine récupérable et Sheet incomplet). Notification = email natif GitHub sur workflow failed. Validé en local et de bout en bout sur GitHub (run 27304592928, 7/7 OK).
 2026-06-10 : Fix base 635W du bar graph "Décomposition du coût" (f01b20f) — ancienne base issue des contributions CO2 PPE2 (expirée, non comparable PPE2_V2) alors que les intensités matière/Wc sont identiques au 470W à ~1% près. Aussi : fallback API XAG Cloudflare Pages, titre graphique évolution précisé "Module 470W (1762×1134)", tag source argent corrigé (8608651).
 2026-06-10 : Fix graphique "Évolution structure de coût" (barometre-synapsun.html) — incohérence avec KPI pâte d'argent corrigée (4 bugs : cellule RMB/W lue comme USD/W, prix argent figé 32.5$/oz par race condition, dénominateur ≠ coût module Certisolis, labels tronqués). Méthodologie alignée sur renderBreakdown + série XAG historique. Poussé et déployé (588eda8). Auth gh basculée sur it-dev-synapsun.
