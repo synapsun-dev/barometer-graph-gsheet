@@ -1,0 +1,37 @@
+name: Dashboard Health Check
+
+# Vérifie quotidiennement que toutes les sources du baromètre répondent
+# (CSV Google Sheets, dashboard GitHub Pages, iframes Zoho, APIs BCE/XAG,
+# site TaiyangNews). En cas d'échec, le job échoue → GitHub envoie une
+# notification email native (Settings → Notifications → Actions).
+
+on:
+  schedule:
+    # Tous les jours à 07:00 UTC (avant le scraper du lundi 08:00)
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: health-check
+  cancel-in-progress: false
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run health check
+        run: python pv-price-scraper/health_check.py

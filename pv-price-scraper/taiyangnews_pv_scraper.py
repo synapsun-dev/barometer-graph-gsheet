@@ -629,7 +629,14 @@ def resolve_week(week: int, year: int, existing_headers: list):
         )
         return pw, py, html, url
 
-    return None
+    # Ni la semaine courante ni la précédente ne sont récupérables alors que
+    # le Sheet ne contient aucune des deux : échec réel, pas un simple "rien à faire".
+    logger.error(
+        "Neither W%d-%d nor W%d-%d could be fetched and the sheet has neither — "
+        "TaiyangNews scrape failed (site down or URL scheme changed?).",
+        week, year, pw, py,
+    )
+    sys.exit(1)
 
 
 def process_week(ws, week, year, html, page_url):
