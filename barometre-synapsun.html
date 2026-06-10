@@ -462,7 +462,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <div class="chart-card">
           <div class="chart-title">
             <span data-i18n="silver_chart_title">XAG/USD — 12 derniers mois</span>
-            <span class="chart-tag" id="silver-source-tag">Stooq / COMEX</span>
+            <span class="chart-tag" id="silver-source-tag">currency-api (J-1)</span>
           </div>
           <div class="chart-wrap"><canvas id="chart-silver"></canvas></div>
           <p style="font-size:11px;color:var(--g400);margin-top:10px;font-style:italic" id="silver-src-note">Source : <a href="https://github.com/fawazahmed0/currency-api" target="_blank" style="color:var(--orange)">currency-api / COMEX</a> — cours XAG/USD hebdomadaire.</p>
@@ -528,7 +528,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       <div class="card" style="margin-top:20px">
         <div class="card-body">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-            <div style="font-size:13px;font-weight:600;color:var(--navy)" data-i18n="bd_evol_title">Évolution de la structure de coût — 12 derniers mois</div>
+            <div style="font-size:13px;font-weight:600;color:var(--navy)" data-i18n="bd_evol_title">Évolution de la structure de coût — 12 derniers mois · Module 470W (1762×1134)</div>
             <div style="display:flex;flex-wrap:wrap;gap:10px" id="cost-evol-legend"></div>
           </div>
           <div style="position:relative;height:320px"><canvas id="chart-cost-evolution"></canvas></div>
@@ -717,7 +717,7 @@ const STRINGS = {
     ph_zoho_ddp:'Graphique Zoho Analytics — Prix DDP Europe',
     ph_zoho_ddp_sub:'TOPCon + Back Contact · €/Wc · DDP',
     bd_note:'Répartition calculée depuis les consommations de matière indiquées sur des certificats Certisolis.',
-    bd_evol_title:'Évolution de la structure de coût — 12 derniers mois',
+    bd_evol_title:'Évolution de la structure de coût — 12 derniers mois · Module 470W (1762×1134)',
     
     bd_component_poly:'Polysilicium',
     bd_component_silver:'Pâte d\'argent', bd_component_wafer:'Wafer',
@@ -776,7 +776,7 @@ const STRINGS = {
     ph_zoho_ddp:'Zoho Analytics chart — DDP Europe',
     ph_zoho_ddp_sub:'TOPCon + Back Contact · €/Wp · DDP',
     bd_note:'Breakdown calculated from material consumption data from Certisolis certificates.',
-    bd_evol_title:'Cost structure evolution — last 12 months',
+    bd_evol_title:'Cost structure evolution — last 12 months · 470W module (1762×1134)',
     
     bd_component_poly:'Polysilicon',
     bd_component_silver:'Silver paste', bd_component_wafer:'Wafer',
@@ -1258,13 +1258,24 @@ let silverChart = null;
 
 async function fetchXagUsd(dateStr) {
   // dateStr = 'latest' ou 'YYYY-MM-DD'
-  const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/xag.json`;
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('XAG fetch failed ' + r.status);
-  const j = await r.json();
-  const price = j?.xag?.usd;
-  if (!price || price < 5) throw new Error('Invalid XAG price: ' + price);
-  return price;
+  // URL primaire jsDelivr + fallback Cloudflare Pages, comme recommandé par
+  // https://github.com/fawazahmed0/exchange-api (MIGRATION.md étape 3)
+  const urls = [
+    `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${dateStr}/v1/currencies/xag.json`,
+    `https://${dateStr}.currency-api.pages.dev/v1/currencies/xag.json`,
+  ];
+  let lastErr = null;
+  for (const url of urls) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('XAG fetch failed ' + r.status);
+      const j = await r.json();
+      const price = j?.xag?.usd;
+      if (!price || price < 5) throw new Error('Invalid XAG price: ' + price);
+      return price;
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr;
 }
 
 async function loadSilverPrice() {
@@ -1353,7 +1364,7 @@ function renderSilverChart(dates, prices) {
   dates = validPairs.map(p => p.d);
   prices = validPairs.map(p => p.v);
   // Mettre à jour la note source
-  const srcNote = document.getElementById('silver-source-note');
+  const srcNote = document.getElementById('silver-src-note');
   if (srcNote) srcNote.textContent = currentLang === 'fr'
     ? 'Source : COMEX XAG/USD via currency-api — données mensuelles interpolées 12 mois'
     : 'Source: COMEX XAG/USD via currency-api — monthly interpolated data 12 months';
