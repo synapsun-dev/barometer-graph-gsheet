@@ -815,6 +815,7 @@ function setLang(lang) {
   if (window._analysesData) renderAnalyses(window._analysesData);
   if (window._fxData) updateFxChart(window._fxData);
   if (window._silverPrices) renderSilverChart(window._silverPrices.dates, window._silverPrices.prices);
+  if (window._taiyangPrices) renderCostEvolutionChart(window._taiyangPrices);
   renderBreakdown();
   // Mettre à jour le lien contact footer selon la langue
   const fcLink = document.getElementById('footer-contact-link');
@@ -1308,6 +1309,8 @@ async function loadSilverPrice() {
     window._silverPrices = { dates, prices };
     renderSilverChart(dates, prices);
     renderBreakdown();
+    // Re-rendre le graphique d'évolution avec le vrai prix de l'argent
+    if (window._taiyangPrices) renderCostEvolutionChart(window._taiyangPrices);
 
   } catch(e) {
     console.warn('Silver price load failed:', e.message);
@@ -1315,6 +1318,7 @@ async function loadSilverPrice() {
     window._silverUsdOz = window._silverUsdOz || 78;
     buildSilverMock(window._silverUsdOz);
     renderBreakdown();
+    if (window._taiyangPrices) renderCostEvolutionChart(window._taiyangPrices);
   }
 }
 
@@ -1467,33 +1471,42 @@ function renderCostEvolutionChart(rows) {
   const canvas = document.getElementById('chart-cost-evolution');
   if (!canvas) return;
 
-  const labels   = rows.map(r => r.date.slice(0, 7));
-  const silverOz = window._silverUsdOz || 32.5;
-  const cnyUsd   = 7.2; // CNY/USD approximatif
+  const labels = rows.map(r => r.date);
 
-  // Quantités Certisolis JAM54D40 @470W (kg ou mg par Wc)
-  const polySiKgPerWc = 0.52 / 470;
-  const silverMgPerWc = SILVER_MG_PER_WC;
+  // Même méthodologie que renderBreakdown (module 470W, base Certisolis) :
+  // % argent = coût argent / coût module total (plafonné 2–25%), le reste
+  // (100 − argent) réparti sur la base Certisolis modulée par les indices de
+  // prix marché TaiyangNews (ratios sans unité ⇒ insensible RMB vs USD).
+  // Ainsi la dernière semaine du graphique = la barre statique ci-dessus.
+  const spotOz       = window._silverUsdOz || 78;
+  const silverSeries = (window._silverPrices && window._silverPrices.prices) || null;
+  const costUsdWc    = MODULE_COST_USD_WC.topcon;
+  const BASE = { poly:33, wafer:26, cell:22, glass:9, eva:2, other:8 }; // = BREAKDOWN.topcon
+  const last = rows[rows.length - 1];
   const series = { poly:[], wafer:[], cell:[], silver:[], glass:[], eva:[], other:[] };
 
-  rows.forEach(r => {
-    // Coût par Wc en USD pour chaque composant
-    const polyCost   = r.poly  > 0 ? (r.poly  / cnyUsd) * polySiKgPerWc : 0;
-    const waferCost  = r.wafer > 0 ? (r.wafer / cnyUsd) / 23 : 0;  // ~23W/wafer
-    const silverCost = silverMgPerWc * (silverOz / 31103);
-    // cellCost = valeur ajoutée nette de la cellule (prix cellule − poly − wafer − argent
-    // déjà comptés séparément), pour éviter le double-comptage.
-    const cellNetCost = r.cell > 0
-      ? Math.max(0.002, r.cell - polyCost - waferCost - silverCost)
-      : 0;
-    const glassCost  = 0.006;
-    const evaCost    = 0.002;
-    const modRef     = Math.max(0.08, polyCost + waferCost + cellNetCost + silverCost + 0.025);
-    const otherCost  = Math.max(0.003, modRef * 0.08);
+  rows.forEach((r, i) => {
+    // Prix de l'argent de la semaine : série hebdo XAG alignée sur la fin, sinon spot
+    let oz = spotOz;
+    if (silverSeries && silverSeries.length) {
+      const si = silverSeries.length - (rows.length - i);
+      oz = silverSeries[Math.max(0, Math.min(silverSeries.length - 1, si))] || spotOz;
+    }
+    const silverCostUsdWc = SILVER_MG_PER_WC * (oz / 31103);
+    const silverPct = Math.min(25, Math.max(2, Math.round(silverCostUsdWc / costUsdWc * 100)));
 
-    const raw   = { poly:polyCost, wafer:waferCost, cell:cellNetCost, silver:silverCost, glass:glassCost, eva:evaCost, other:otherCost };
-    const total = Object.values(raw).reduce((s,v) => s+v, 0) || 1;
-    Object.keys(raw).forEach(k => series[k].push(parseFloat((raw[k]/total*100).toFixed(1))));
+    // Indices de prix marché vs dernière semaine (sans unité)
+    const ratio = (v, ref) => (v > 0 && ref > 0) ? v / ref : 1;
+    const w = {
+      poly:  BASE.poly  * ratio(r.poly,  last.poly),
+      wafer: BASE.wafer * ratio(r.wafer, last.wafer),
+      cell:  BASE.cell  * ratio(r.cell,  last.cell),
+      glass: BASE.glass, eva: BASE.eva, other: BASE.other,
+    };
+    const wTotal = Object.values(w).reduce((s, v) => s + v, 0);
+    const remaining = 100 - silverPct;
+    series.silver.push(silverPct);
+    Object.keys(w).forEach(k => series[k].push(parseFloat((w[k] / wTotal * remaining).toFixed(1))));
   });
 
   buildCostEvolutionChart(labels, series, S);
@@ -1513,10 +1526,10 @@ function renderCostEvolutionMock() {
     labels.push(d.toISOString().slice(0, 7));
     const t = 1 - i / 51;
     // Simuler tendances : poly baisse, silver monte
-    const poly  = 32 - t * 4 + (Math.random() - 0.5) * 2;
-    const wafer = 23 - t * 3 + (Math.random() - 0.5) * 1.5;
-    const cell  = 21 + (Math.random() - 0.5) * 1.5;
-    const silver= 8  + t * 6 + (Math.random() - 0.5) * 1;  // silver monte
+    const poly  = 30 - t * 4 + (Math.random() - 0.5) * 2;
+    const wafer = 22 - t * 3 + (Math.random() - 0.5) * 1.5;
+    const cell  = 19 + (Math.random() - 0.5) * 1.5;
+    const silver= 13 + t * 8 + (Math.random() - 0.5) * 1;  // silver monte
     const glass = 7  + (Math.random() - 0.5) * 0.5;
     const eva   = 2;
     const other = 5;
