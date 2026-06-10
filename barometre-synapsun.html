@@ -1172,13 +1172,18 @@ const BREAKDOWN = {
     { key: 'other', pct:  8, kg: null, label_kg: 'Assemblage' },
   ],
   topcon_large: [
-    // JAM66D45 @635W — Source : ECS PPE2 N°022-2025_006_rev1
+    // JAM66D45 @635W — Quantités : ECS PPE2 N°022-2025_006_rev1
+    // Base % alignée sur le 470W : les intensités matière par Wc des deux
+    // modules sont identiques à ~1% près (poly 1,11 g/Wc, wafer 39,5 cm²/Wc,
+    // verre 42 g/Wc). L'ancienne base (33/14/24/13/3/13) venait des
+    // contributions CO2 du certificat PPE2 (méthodologie ≠ PPE2_V2, expiré),
+    // non transposables en structure de coût.
     { key: 'poly',  pct: 33, kg: 0.71, label_kg: '0,71 kg/module' },
-    { key: 'wafer', pct: 14, kg: 0.71, label_kg: '0,71 kg lingots' },
-    { key: 'cell',  pct: 24, kg: null, label_kg: '2,52 m²/module' },
-    { key: 'glass', pct: 13, kg:26.82, label_kg: '26,82 kg/module' },
-    { key: 'eva',   pct:  3, kg: 2.20, label_kg: '2,20 kg/module' },
-    { key: 'other', pct: 13, kg: null, label_kg: 'Assemblage' },
+    { key: 'wafer', pct: 26, kg: 0.71, label_kg: '0,71 kg lingots' },
+    { key: 'cell',  pct: 22, kg: null, label_kg: '2,52 m²/module' },
+    { key: 'glass', pct:  9, kg:26.82, label_kg: '26,82 kg/module' },
+    { key: 'eva',   pct:  2, kg: 2.20, label_kg: '2,20 kg/module' },
+    { key: 'other', pct:  8, kg: null, label_kg: 'Assemblage' },
   ]
 };
 
