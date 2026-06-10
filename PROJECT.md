@@ -11,7 +11,8 @@ derniere_session: 2026-06-10
 ---
 
 ## Contexte
-Clone local du repo GitHub `it-dev-synapsun/graph-gsheet-tayang`.
+Clone local du repo GitHub `synapsun-dev/barometer-graph-gsheet` (ex `it-dev-synapsun/graph-gsheet-tayang`).
+Repo frère : `synapsun-dev/barometer-scrap-taiyang` (ex `it-dev-synapsun/it-dev-synapsun`) — exécute le cron hebdo du scraper.
 Ce repo contient le scraper Python (TaiyangNews → Google Sheets) ET les dashboards HTML.
 GitHub Actions lance le scraper chaque lundi 8h UTC.
 

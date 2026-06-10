@@ -3,7 +3,7 @@ Health check quotidien — Baromètre Synapsun
 --------------------------------------------
 Vérifie que toutes les sources de données et iframes du dashboard répondent :
   1. CSV Google Sheets (disponibilité + fraîcheur des données — dernière semaine)
-  2. Dashboard GitHub Pages (it-dev-synapsun.github.io/graph-gsheet-tayang)
+  2. Dashboard GitHub Pages (synapsun-dev.github.io/barometer-graph-gsheet)
   3. Iframes Zoho Analytics (sea freight, etc.)
   4. API BCE (taux de change EUR/USD, EUR/CNY)
   5. API argent XAG (jsDelivr + fallback Cloudflare Pages)
@@ -40,7 +40,7 @@ CSV_URL   = (
     f"?tqx=out:csv&sheet={SHEET_TAB}"
 )
 
-DASHBOARD_URL = "https://it-dev-synapsun.github.io/graph-gsheet-tayang/"
+DASHBOARD_URL = "https://synapsun-dev.github.io/barometer-graph-gsheet/"
 
 ZOHO_IFRAMES = {
     "Zoho Analytics — Sea freight": (

@@ -1,4 +1,4 @@
-# graph-gsheet-tayang — Barometer Synapsun PV Price Index
+# barometer-graph-gsheet — Barometer Synapsun PV Price Index
 
 Graphic Automatic BOM modules from Tayang data
 
@@ -6,7 +6,7 @@ Graphic Automatic BOM modules from Tayang data
 
 ## Rôle de ce dossier
 
-**Clone officiel** du repo GitHub [`it-dev-synapsun/graph-gsheet-tayang`](https://github.com/it-dev-synapsun/graph-gsheet-tayang).
+**Clone officiel** du repo GitHub [`synapsun-dev/barometer-graph-gsheet`](https://github.com/synapsun-dev/barometer-graph-gsheet) (anciennement `it-dev-synapsun/graph-gsheet-tayang`, renommé le 2026-06-10).
 
 C'est la **source de vérité** du projet Barometer Synapsun. Toutes les modifications
 doivent être faites ici et poussées sur GitHub pour que le GitHub Actions CI/CD les prenne en compte.
@@ -18,7 +18,7 @@ doivent être faites ici et poussées sur GitHub pour que le GitHub Actions CI/C
 | Critère | `repo-clone` (ce dossier) | `Barometer/` |
 |---|---|---|
 | Type | Clone GitHub officiel ✅ | Copie de travail locale |
-| Remote GitHub | `it-dev-synapsun/graph-gsheet-tayang` | Aucun remote configuré |
+| Remote GitHub | `synapsun-dev/barometer-graph-gsheet` | Aucun remote configuré |
 | Scraper | `pv-price-scraper/taiyangnews_pv_scraper.py` | `taiyangnews_pv_scraper.py` (racine) |
 | Scraper (taille) | 23 944 bytes ✅ | 21 808 bytes |
 | Scraper (modifié) | 2026-06-01 ✅ | 2026-05-25 |
