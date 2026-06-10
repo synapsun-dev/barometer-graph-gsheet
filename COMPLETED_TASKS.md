@@ -170,3 +170,30 @@ Surveiller la prochaine exécution GitHub Actions (lundi 08h UTC) et inspecter l
 
 ### Code retour
 exit 0
+
+---
+## 2026-06-09 17:38 — Tache manuelle (dashboard)
+
+### Tache
+Renommes ce Repo : Barometer
+
+### SYNTHESE
+Le fichier PROJECT.md du projet Barometer a été renommé de "repo-clone" à "Barometer" dans toutes ses métadonnées et références internes.
+
+### VALEUR APPORTEE
+Le projet est désormais correctement identifié sous son vrai nom dans le dashboard de pilotage et les métadonnées YAML, ce qui supprime toute confusion entre "repo-clone" et "Barometer".
+
+### PROBLEMES ET ITERATIONS
+Obstacle : la commande `python aggregate.py` et `git remote -v` ont nécessité des approbations sandbox non accordées → Solution : modification directe du PROJECT.md sans passer par les scripts dépendants ; l'agrégation du dashboard est à lancer manuellement.
+
+### FICHIERS
+- `C:\Claude\Synapsun\Barometer\PROJECT.md` — frontmatter `projet:` renommé en `Barometer`, contexte nettoyé, plan d'action mis à jour (Tâche 4 ajoutée), historique complété
+
+### NEXT STEPS
+Lancer `python C:/Claude/Dashboard_Pilotage/scripts/aggregate.py` pour régénérer le dashboard et propager le nouveau nom "Barometer" dans la vue pilotage.
+
+## QUESTIONS BLOQUANTES
+Q: Souhaitez-vous également renommer le repo GitHub distant (`it-dev-synapsun/graph-gsheet-tayang`) en "barometer" ou "Barometer" via `gh repo rename` ? (Cela impacte les URLs GitHub Actions et les remotes git locaux.)
+
+### Code retour
+exit 0

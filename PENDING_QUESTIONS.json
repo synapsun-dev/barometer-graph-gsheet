@@ -1,0 +1,13 @@
+{
+  "task_id": "TASK-20260609-173634",
+  "task_title": "Renommes ce Repo : Barometer",
+  "created_at": "2026-06-09T17:38:43",
+  "questions": [
+    {
+      "id": "q0",
+      "text": "Souhaitez-vous également renommer le repo GitHub distant (`it-dev-synapsun/graph-gsheet-tayang`) en \"barometer\" ou \"Barometer\" via `gh repo rename` ? (Cela impacte les URLs GitHub Actions et les remotes git locaux.)",
+      "answer": null
+    }
+  ],
+  "status": "pending"
+}
