@@ -49,6 +49,7 @@ SHEET_ID   = "1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw"
 SHEET_TAB  = "taiyangnews_scrapping"
 CLAUDE_MODEL = "claude-opus-4-8"
 MIN_EXPECTED_PRODUCTS = 10
+MAX_WEEK_LAG = 2  # semaines de retard tolérées avant alerte
 
 # auth/drive removed — scraper only needs write access to one spreadsheet
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -618,6 +619,12 @@ def resolve_week(week: int, year: int, existing_headers: list):
     pw, py = prev_week(week, year)
     phdr = col_header(pw, py)
     if phdr in existing_headers:
+        # Fallback déjà présent — semaine cible pas encore publiée sur TaiyangNews.
+        logger.info(
+            "W%d-%d pas encore disponible sur TaiyangNews ; "
+            "W%d-%d déjà dans le sheet — sera récupérée au prochain run.",
+            week, year, pw, py,
+        )
         return None
 
     html, url = fetch_page(pw, py)
@@ -655,6 +662,42 @@ def process_week(ws, week, year, html, page_url):
     upsert_week(ws, prices, col_header(week, year), page_url)
 
 
+# ── ALERTES ───────────────────────────────────────────────────────────────────
+
+def _check_lag_alert(target_week: int, target_year: int, existing_headers: list) -> None:
+    """
+    Exit(1) si la semaine cible n'est pas dans le sheet et que le lag dépasse
+    MAX_WEEK_LAG. Permet au workflow GitHub Actions d'échouer et d'envoyer un
+    email d'alerte même quand TaiyangNews tarde à publier.
+    """
+    if col_header(target_week, target_year) in existing_headers:
+        return  # Semaine déjà présente — rien d'anormal
+
+    week_cols = []
+    for h in existing_headers:
+        m = re.match(r"W(\d+)-(\d{4})$", h)
+        if m:
+            week_cols.append((int(m.group(1)), int(m.group(2))))
+
+    if not week_cols:
+        return  # Sheet vide, pas d'alerte
+
+    last_w, last_y = max(week_cols, key=lambda x: (x[1], x[0]))
+    lag = (
+        date.fromisocalendar(target_year, target_week, 1)
+        - date.fromisocalendar(last_y, last_w, 1)
+    ).days // 7
+
+    if lag > MAX_WEEK_LAG:
+        logger.error(
+            "ALERTE LAG : W%d-%d absent du sheet — dernier update W%d-%d "
+            "(%d sem. de retard, max toléré %d) — "
+            "TaiyangNews en retard de publication ou pipeline en panne.",
+            target_week, target_year, last_w, last_y, lag, MAX_WEEK_LAG,
+        )
+        sys.exit(1)
+
+
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -671,6 +714,7 @@ def main():
 
     result = resolve_week(week, year, existing_headers)
     if not result:
+        _check_lag_alert(week, year, existing_headers)
         logger.info("Nothing to update.")
         return
 
