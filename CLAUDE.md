@@ -121,6 +121,43 @@ https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHE
 
 The dashboards parse this CSV client-side (no server required) and render Chart.js line charts with per-category filtering, KPI cards showing latest prices and week-over-week % change, and date range controls.
 
+## Nightly Runner — Traitement automatique
+
+Ce projet est traité chaque nuit par `nightly_runner.py`. Modèle et timeout sont sélectionnés automatiquement selon la complexité estimée par le pré-vol (haiku) :
+
+| Tâche | Modèle | Timeout |
+|---|---|---|
+| Simple (1 fichier, 1 bug, 1 feature) | `claude-sonnet-4-6` | 600–900s |
+| Complexe (multi-fichiers, exploration) | `claude-opus-4-8` | 1800s |
+| I/O lourd (rotation, migration, ≥50 Mo) | adaptatif | 2700s |
+| Sous-tâche atomique | `claude-sonnet-4-6` | ≤900s |
+
+## Rendu documentaire — règle universelle
+
+Quand l'utilisateur demande d'**étudier, analyser ou produire un document** (rapport, analyse, étude, synthèse, plan, fiche, comparatif…) :
+
+1. **Fichier `.md`** — toujours généré (usage interne / Obsidian).
+2. **Fichier Word `.docx` ET/OU HTML** — généré systématiquement en plus du `.md`.
+   - `.docx` : utiliser `pandoc input.md -o output.docx` ou `python-docx`.
+   - `.html` : fichier HTML autonome avec styles inline.
+3. **Lien direct** — communiquer le chemin absolu `file:///C:/...` vers chaque fichier produit.
+
+## Pièges opérationnels connus
+
+### Renommage de repo GitHub → workflows désactivés
+**Comportement GitHub :** quand un repo est renommé, GitHub désactive automatiquement les workflows `schedule`. Les crons ne tournent plus silencieusement et aucune alerte n'est émise.
+
+**Symptôme :** le sheet cesse de se mettre à jour sans erreur visible ; le health_check est aussi désactivé donc aucun email.
+
+**Procédure de récupération obligatoire après tout renommage :**
+1. `gh workflow enable pv_price_weekly.yml`
+2. `gh workflow enable health_check.yml`
+3. Déclencher manuellement le scraper pour la semaine manquante : `gh workflow run pv_price_weekly.yml --field week=N --field year=YYYY`
+
+**Correctif en place (juin 2026) :** le scraper exit(1) si "Nothing to update" mais lag > 2 semaines → l'email GitHub part même si le health_check est muet. Ce correctif ne couvre que les runs qui tournent ; si les workflows sont désactivés, il faut la procédure manuelle ci-dessus.
+
+---
+
 ## No Test Suite
 
 There are no automated tests. Validation is done through:
