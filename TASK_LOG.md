@@ -284,14 +284,29 @@ Test plan
 **Résultat :** You've hit your session limit · resets 4:10am (Europe/Paris)
 
 ---
-## TASK-20260618-014027 — 🔄 in progress
+## TASK-20260618-014027 — 🔍 done — to review
 **Ajoutée :** 2026-06-18 01:40  
 **Source :** Pré-vol de 'Test plan'  
 **Type :** review  
 **Démarré :** 2026-06-18 01:40  
+**Terminé :** 2026-06-18 01:43  
+**Durée :** 3 min  
 **Prochaine action :** Analyser l'architecture complète Barometer (scraper → Google Sheets → dashboards)  
 
 **Instructions :**
 [Sous-tâche 1/8] Analyser l'architecture complète Barometer (scraper → Google Sheets → dashboards)
+
+**Résultat :** - `PROJECT.md` — Mise à jour historique avec ligne 2026-06-18 | ## NEXT STEPS | Prochaine action recommandée : Valider l'analyse avec l'équipe Synapsun, puis lancer Lot 1 (v2) en commençant par P1 — email subscription (lead gen). | ## QUESTIONS BLOQUANTES | [AUCUNE] — Analyse autonome, documentée sans dépendances externes. | ---RAPPORT-FIN---
+
+---
+## TASK-20260618-014354 — 🔄 in progress
+**Ajoutée :** 2026-06-18 01:43  
+**Source :** Pré-vol de 'Test plan'  
+**Type :** bug  
+**Démarré :** 2026-06-18 01:43  
+**Prochaine action :** Écrire TEST_PLAN.md avec cas nominaux, limites et erreurs pour chaque composant  
+
+**Instructions :**
+[Sous-tâche 2/8] Écrire TEST_PLAN.md avec cas nominaux, limites et erreurs pour chaque composant
 
 **Résultat :** —

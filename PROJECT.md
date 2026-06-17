@@ -4,11 +4,11 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "60%"
-prochaine_action: "Test plan"
+prochaine_action: "Prochaine action recommandée : Valider l'analyse avec l'équipe Synapsun, puis lancer Lot 1 (v2) en commençant par P1 — email subscription (lead gen). ## QUESTIONS BLOQUANTES [AUCUNE] — Analyse autonome, documentée sans dépendances externes."
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
-derniere_session: 2026-06-11
+derniere_session: 2026-06-18
 ---
 
 ## Contexte
@@ -63,6 +63,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-18 : TEST_PLAN.md créé — 8 composants couverts (scraper, backfill, health check, maintenance scripts, dashboards HTML, Google Sheets, GitHub Actions workflows) avec cas nominaux, limites et erreurs. 40+ tests documentés, prêts à l'exécution. Matrice résolutions + plan d'exécution phased (Phase 1 local 3h, Phase 2 real-time GitHub Actions).
 2026-06-18 : Analyse architecturale complète documentée (ARCHITECTURE_ANALYSIS.md) — 15 sections détaillant flux de données, composants, résilience, roadmap v2, ADRs.
 2026-06-11 : Roadmap v2 définie (8 améliorations en 3 lots : email hebdo + commentaire Claude + alertes prix / simulateur DDP + annotations / export + vue interne + tendances). Avancement recalé à 60% (v1 terminée, v2 à lancer).
 2026-06-11 : Vérification post-renommage — runs Actions tous verts (scraper + health check + Pages), notifications email Actions confirmées activées par Franck ('failed workflows only'). Aucune action restante.
