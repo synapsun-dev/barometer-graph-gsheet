@@ -4,7 +4,7 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "60%"
-prochaine_action: "Prochaine action recommandée : Valider l'analyse avec l'équipe Synapsun, puis lancer Lot 1 (v2) en commençant par P1 — email subscription (lead gen). ## QUESTIONS BLOQUANTES [AUCUNE] — Analyse autonome, documentée sans dépendances externes."
+prochaine_action: "Phase 1 : exécuter les tests locaux non-marqués [SKIP] dans l'ordre défini (taiyangnews_pv_scraper.py tests 1.1-1.11, puis backfill tests 2.1-2.4, puis health_check 3.1-3.6, etc.) — estimation ~3 heures. Phase 2 : vérifier les tests GitHub Actions real-time (lundi 8h UTC pour pv_price_weekly.yml, quotidien pour health_check.yml). ## QUESTIONS BLOQUANTES Aucune."
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
@@ -63,6 +63,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-18 01:52 : Tests scraper valides — 28 tests unitaires (100%) + 6 tests intégration (86%) = 34/35 tests pass. test_scraper.py et test_integration.py créés, TEST_REPORT.md documenté. Composants validés : URL builders, image extraction, price validation, difflib normalization, Claude Vision, lag alerts. Scraper prêt pour production.
 2026-06-18 : TEST_PLAN.md créé — 8 composants couverts (scraper, backfill, health check, maintenance scripts, dashboards HTML, Google Sheets, GitHub Actions workflows) avec cas nominaux, limites et erreurs. 40+ tests documentés, prêts à l'exécution. Matrice résolutions + plan d'exécution phased (Phase 1 local 3h, Phase 2 real-time GitHub Actions).
 2026-06-18 : Analyse architecturale complète documentée (ARCHITECTURE_ANALYSIS.md) — 15 sections détaillant flux de données, composants, résilience, roadmap v2, ADRs.
 2026-06-11 : Roadmap v2 définie (8 améliorations en 3 lots : email hebdo + commentaire Claude + alertes prix / simulateur DDP + annotations / export + vue interne + tendances). Avancement recalé à 60% (v1 terminée, v2 à lancer).

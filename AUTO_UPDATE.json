@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-18T01:43:54",
-  "text": "Prochaine action recommandée : Valider l'analyse avec l'équipe Synapsun, puis lancer Lot 1 (v2) en commençant par P1 — email subscription (lead gen).\n\n## QUESTIONS BLOQUANTES\n\n[AUCUNE] — Analyse autonome, documentée sans dépendances externes."
+  "timestamp": "2026-06-18T01:46:46",
+  "text": "Phase 1 : exécuter les tests locaux non-marqués [SKIP] dans l'ordre défini (taiyangnews_pv_scraper.py tests 1.1-1.11, puis backfill tests 2.1-2.4, puis health_check 3.1-3.6, etc.) — estimation ~3 heures. Phase 2 : vérifier les tests GitHub Actions real-time (lundi 8h UTC pour pv_price_weekly.yml, qu"
 }

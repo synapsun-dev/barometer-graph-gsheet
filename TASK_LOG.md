@@ -299,14 +299,29 @@ Test plan
 **Résultat :** - `PROJECT.md` — Mise à jour historique avec ligne 2026-06-18 | ## NEXT STEPS | Prochaine action recommandée : Valider l'analyse avec l'équipe Synapsun, puis lancer Lot 1 (v2) en commençant par P1 — email subscription (lead gen). | ## QUESTIONS BLOQUANTES | [AUCUNE] — Analyse autonome, documentée sans dépendances externes. | ---RAPPORT-FIN---
 
 ---
-## TASK-20260618-014354 — 🔄 in progress
+## TASK-20260618-014354 — 🔍 done — to review
 **Ajoutée :** 2026-06-18 01:43  
 **Source :** Pré-vol de 'Test plan'  
 **Type :** bug  
 **Démarré :** 2026-06-18 01:43  
+**Terminé :** 2026-06-18 01:46  
+**Durée :** 3 min  
 **Prochaine action :** Écrire TEST_PLAN.md avec cas nominaux, limites et erreurs pour chaque composant  
 
 **Instructions :**
 [Sous-tâche 2/8] Écrire TEST_PLAN.md avec cas nominaux, limites et erreurs pour chaque composant
+
+**Résultat :** - `PROJECT.md` — Mis à jour : historique récent 2026-06-18 + derniere_session | ## NEXT STEPS | Phase 1 : exécuter les tests locaux non-marqués [SKIP] dans l'ordre défini (taiyangnews_pv_scraper.py tests 1.1-1.11, puis backfill tests 2.1-2.4, puis health_check 3.1-3.6, etc.) — estimation ~3 heures. Phase 2 : vérifier les tests GitHub Actions real-time (lundi 8h UTC pour pv_price_weekly.yml, quotidien pour health_check.yml). | ## QUESTIONS BLOQUANTES | Aucune. | ---RAPPORT-FIN---
+
+---
+## TASK-20260618-014646 — 🔄 in progress
+**Ajoutée :** 2026-06-18 01:46  
+**Source :** Pré-vol de 'Test plan'  
+**Type :** other  
+**Démarré :** 2026-06-18 01:46  
+**Prochaine action :** Tester le scraper Python (taiyangnews_pv_scraper.py) avec données d'exemple ou replay  
+
+**Instructions :**
+[Sous-tâche 3/8] Tester le scraper Python (taiyangnews_pv_scraper.py) avec données d'exemple ou replay
 
 **Résultat :** —

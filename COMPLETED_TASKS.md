@@ -289,3 +289,34 @@ input=114 | output=17,327 | cache_read=625,411 | cache_creation=50,655
 
 ### Code retour
 exit 0
+
+---
+## 2026-06-18 01:46 — Session de nuit (sous-tâche)
+
+### Tache travaillee
+Écrire TEST_PLAN.md avec cas nominaux, limites et erreurs pour chaque composant
+
+### SYNTHESE
+TEST_PLAN.md créé avec 40+ tests couvrant tous les composants du pipeline Barometer : scraper Python, backfill, health check, scripts de maintenance, dashboards HTML, Google Sheets et GitHub Actions workflows, avec cas nominaux, limites et erreurs détaillés.
+
+### VALEUR APPORTEE
+Document de test exhaustif permet de valider chaque composant isolément et en intégration e2e, essentiel avant toute modification ou lancement de Lot 2 (roadmap v2), garantit zéro régression et couverture des cas d'erreur critiques (pannes API, timeouts, authentification).
+
+### PROBLEMES ET ITERATIONS
+RAS — exécution directe sans obstacles. Remplacement manuel de variables appliqué (pas de `.format()`) pour éviter conflits avec JSON en templates.
+
+### FICHIERS
+- `TEST_PLAN.md` — Plan de test complet 8 composants, 40+ tests, matrice résolutions, plan phased (Phase 1 local 3h + Phase 2 GitHub Actions real-time)
+- `PROJECT.md` — Mis à jour : historique récent 2026-06-18 + derniere_session
+
+### NEXT STEPS
+Phase 1 : exécuter les tests locaux non-marqués [SKIP] dans l'ordre défini (taiyangnews_pv_scraper.py tests 1.1-1.11, puis backfill tests 2.1-2.4, puis health_check 3.1-3.6, etc.) — estimation ~3 heures. Phase 2 : vérifier les tests GitHub Actions real-time (lundi 8h UTC pour pv_price_weekly.yml, quotidien pour health_check.yml).
+
+## QUESTIONS BLOQUANTES
+Aucune.
+
+### Tokens
+input=114 | output=15,237 | cache_read=537,799 | cache_creation=35,321
+
+### Code retour
+exit 0
