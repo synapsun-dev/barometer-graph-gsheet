@@ -216,3 +216,82 @@ Obstacle : la commande `python aggregate.py` et `git remote -v` ont nécessité 
 
 ## FICHIERS
 - `C:\Claude\Synapsun\Barometer\PROJECT.md` — frontmatter `projet:` renommé en `Barometer`, contexte nettoyé, plan d'action mis à jour (Tâ…
+
+---
+## TASK-20260611-015129 — ⏸ token limit
+**Ajoutée :** 2026-06-11 01:51  
+**Source :** prochaine_action automatique  
+**Type :** doc  
+**Prochaine action :** Lot 1 roadmap v2 : abonnement email hebdo + commentaire de marché auto-généré (Claude) + alertes de prix internes  
+
+**Instructions :**
+Lot 1 roadmap v2 : abonnement email hebdo + commentaire de marché auto-généré (Claude) + alertes de prix internes
+
+**Résultat :** You've hit your session limit · resets 2:20am (Europe/Paris)
+
+---
+## TASK-20260612-094025 — ⏸ token limit
+**Ajoutée :** 2026-06-12 09:40  
+**Source :** prochaine_action automatique  
+**Type :** doc  
+**Prochaine action :** Lot 1 roadmap v2 : abonnement email hebdo + commentaire de marché auto-généré (Claude) + alertes de prix internes  
+
+**Instructions :**
+Lot 1 roadmap v2 : abonnement email hebdo + commentaire de marché auto-généré (Claude) + alertes de prix internes
+
+**Résultat :** You've hit your session limit · resets 1:10pm (Europe/Paris)
+
+---
+## TASK-20260613-014852 — ⏸ token limit
+**Ajoutée :** 2026-06-13 01:48  
+**Source :** prochaine_action automatique  
+**Type :** doc  
+**Prochaine action :** Lot 1 roadmap v2 : abonnement email hebdo + commentaire de marché auto-généré (Claude) + alertes de prix internes  
+
+**Instructions :**
+Lot 1 roadmap v2 : abonnement email hebdo + commentaire de marché auto-généré (Claude) + alertes de prix internes
+
+**Résultat :** You've hit your session limit · resets 4:50am (Europe/Paris)
+
+---
+## TASK-20260616-012659 — ⏸ token limit
+**Ajoutée :** 2026-06-16 01:26  
+**Source :** prochaine_action automatique  
+**Type :** other  
+**Démarré :** 2026-06-16 01:26  
+**Terminé :** 2026-06-16 01:27  
+**Durée :** 1 min  
+**Prochaine action :** Test plan  
+
+**Instructions :**
+Test plan
+
+**Résultat :** You've hit your session limit · resets 4:40am (Europe/Paris)
+
+---
+## TASK-20260617-021553 — ⏸ token limit
+**Ajoutée :** 2026-06-17 02:15  
+**Source :** prochaine_action automatique  
+**Type :** other  
+**Démarré :** 2026-06-17 02:15  
+**Terminé :** 2026-06-17 02:16  
+**Durée :** 1 min  
+**Prochaine action :** Test plan  
+
+**Instructions :**
+Test plan
+
+**Résultat :** You've hit your session limit · resets 4:10am (Europe/Paris)
+
+---
+## TASK-20260618-014027 — 🔄 in progress
+**Ajoutée :** 2026-06-18 01:40  
+**Source :** Pré-vol de 'Test plan'  
+**Type :** review  
+**Démarré :** 2026-06-18 01:40  
+**Prochaine action :** Analyser l'architecture complète Barometer (scraper → Google Sheets → dashboards)  
+
+**Instructions :**
+[Sous-tâche 1/8] Analyser l'architecture complète Barometer (scraper → Google Sheets → dashboards)
+
+**Résultat :** —

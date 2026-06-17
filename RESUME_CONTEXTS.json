@@ -1,0 +1,57 @@
+{
+  "TASK-20260611-015129": {
+    "attempts": [
+      {
+        "date": "2026-06-11 01:51",
+        "tool_calls_summary": "",
+        "files_modified": [],
+        "partial_output_tail": "You've hit your session limit · resets 2:20am (Europe/Paris)",
+        "error": ""
+      }
+    ]
+  },
+  "TASK-20260612-094025": {
+    "attempts": [
+      {
+        "date": "2026-06-12 09:40",
+        "tool_calls_summary": "",
+        "files_modified": [],
+        "partial_output_tail": "You've hit your session limit · resets 1:10pm (Europe/Paris)",
+        "error": ""
+      }
+    ]
+  },
+  "TASK-20260613-014852": {
+    "attempts": [
+      {
+        "date": "2026-06-13 01:49",
+        "tool_calls_summary": "",
+        "files_modified": [],
+        "partial_output_tail": "You've hit your session limit · resets 4:50am (Europe/Paris)",
+        "error": ""
+      }
+    ]
+  },
+  "TASK-20260616-012659": {
+    "attempts": [
+      {
+        "date": "2026-06-16 01:27",
+        "tool_calls_summary": "",
+        "files_modified": [],
+        "partial_output_tail": "You've hit your session limit · resets 4:40am (Europe/Paris)",
+        "error": ""
+      }
+    ]
+  },
+  "TASK-20260617-021553": {
+    "attempts": [
+      {
+        "date": "2026-06-17 02:16",
+        "tool_calls_summary": "",
+        "files_modified": [],
+        "partial_output_tail": "You've hit your session limit · resets 4:10am (Europe/Paris)",
+        "error": ""
+      }
+    ]
+  }
+}

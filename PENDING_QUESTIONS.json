@@ -9,5 +9,6 @@
       "answer": null
     }
   ],
-  "status": "pending"
+  "status": "obsolete",
+  "obsolete_reason": "Renommage GitHub effectué manuellement le 2026-06-11 (synapsun-dev/barometer-graph-gsheet) — question caduque, marquée obsolète le 2026-06-11."
 }

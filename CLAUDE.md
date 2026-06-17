@@ -164,3 +164,9 @@ There are no automated tests. Validation is done through:
 1. Google Sheets data inspection after each run
 2. Manual execution of diagnostic scripts
 3. GitHub Actions run logs
+
+## Livrable Feedback — Zone interactive dans les livrables HTML
+
+À partir du 2026-06-17, les livrables HTML majeurs intègrent une **zone de feedback utilisateur**.
+
+Voir `C:\Claude\Dashboard_Pilotage\FEEDBACK_PROTOCOL.md` pour la spécification technique et l'intégration.
