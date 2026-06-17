@@ -314,14 +314,29 @@ Test plan
 **Résultat :** - `PROJECT.md` — Mis à jour : historique récent 2026-06-18 + derniere_session | ## NEXT STEPS | Phase 1 : exécuter les tests locaux non-marqués [SKIP] dans l'ordre défini (taiyangnews_pv_scraper.py tests 1.1-1.11, puis backfill tests 2.1-2.4, puis health_check 3.1-3.6, etc.) — estimation ~3 heures. Phase 2 : vérifier les tests GitHub Actions real-time (lundi 8h UTC pour pv_price_weekly.yml, quotidien pour health_check.yml). | ## QUESTIONS BLOQUANTES | Aucune. | ---RAPPORT-FIN---
 
 ---
-## TASK-20260618-014646 — 🔄 in progress
+## TASK-20260618-014646 — 🔍 done — to review
 **Ajoutée :** 2026-06-18 01:46  
 **Source :** Pré-vol de 'Test plan'  
 **Type :** other  
 **Démarré :** 2026-06-18 01:46  
+**Terminé :** 2026-06-18 01:50  
+**Durée :** 4 min  
 **Prochaine action :** Tester le scraper Python (taiyangnews_pv_scraper.py) avec données d'exemple ou replay  
 
 **Instructions :**
 [Sous-tâche 3/8] Tester le scraper Python (taiyangnews_pv_scraper.py) avec données d'exemple ou replay
+
+**Résultat :** - `PROJECT.md` — Historique récent mis à jour (ligne 2026-06-18 01:52) | ## NEXT STEPS | Exécuter les tests e2e réels du TEST_PLAN.md (tests 1.1-1.11 du scraper nominal, fallback, format URL 2026+) sur une machine avec credentials Google/Anthropic, ou intégrer test_scraper.py dans le CI/CD GitHub Actions pour validation continue avant chaque run lundi 8h UTC. | ## QUESTIONS BLOQUANTES | *Aucune.* | ---RAPPORT-FIN---
+
+---
+## TASK-20260618-015029 — 🔄 in progress
+**Ajoutée :** 2026-06-18 01:50  
+**Source :** Pré-vol de 'Test plan'  
+**Type :** other  
+**Démarré :** 2026-06-18 01:50  
+**Prochaine action :** Tester le health check (health_check.py) sur tous les 7 checks  
+
+**Instructions :**
+[Sous-tâche 4/8] Tester le health check (health_check.py) sur tous les 7 checks
 
 **Résultat :** —

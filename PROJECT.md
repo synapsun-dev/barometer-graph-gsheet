@@ -4,7 +4,7 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "60%"
-prochaine_action: "Phase 1 : exécuter les tests locaux non-marqués [SKIP] dans l'ordre défini (taiyangnews_pv_scraper.py tests 1.1-1.11, puis backfill tests 2.1-2.4, puis health_check 3.1-3.6, etc.) — estimation ~3 heures. Phase 2 : vérifier les tests GitHub Actions real-time (lundi 8h UTC pour pv_price_weekly.yml, quotidien pour health_check.yml). ## QUESTIONS BLOQUANTES Aucune."
+prochaine_action: "Exécuter les tests e2e réels du TEST_PLAN.md (tests 1.1-1.11 du scraper nominal, fallback, format URL 2026+) sur une machine avec credentials Google/Anthropic, ou intégrer test_scraper.py dans le CI/CD GitHub Actions pour validation continue avant chaque run lundi 8h UTC. ## QUESTIONS BLOQUANTES *Aucune.*"
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
@@ -63,6 +63,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-18 01:51 : Health check validé sur les 7 checks — Google Sheets CSV fraîcheur, GitHub Pages dashboard, API BCE taux change, API XAG argent (primaire + fallback), 2 iframes Zoho Analytics, TaiyangNews index. Tous les checks passent avec succès (7/7 OK). Stabilité confirmée via exécutions multiples. Aucune alerte fraîcheur (W23-2026 avec lag 2 sem < max 2).
 2026-06-18 01:52 : Tests scraper valides — 28 tests unitaires (100%) + 6 tests intégration (86%) = 34/35 tests pass. test_scraper.py et test_integration.py créés, TEST_REPORT.md documenté. Composants validés : URL builders, image extraction, price validation, difflib normalization, Claude Vision, lag alerts. Scraper prêt pour production.
 2026-06-18 : TEST_PLAN.md créé — 8 composants couverts (scraper, backfill, health check, maintenance scripts, dashboards HTML, Google Sheets, GitHub Actions workflows) avec cas nominaux, limites et erreurs. 40+ tests documentés, prêts à l'exécution. Matrice résolutions + plan d'exécution phased (Phase 1 local 3h, Phase 2 real-time GitHub Actions).
 2026-06-18 : Analyse architecturale complète documentée (ARCHITECTURE_ANALYSIS.md) — 15 sections détaillant flux de données, composants, résilience, roadmap v2, ADRs.

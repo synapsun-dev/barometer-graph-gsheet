@@ -1,0 +1,8 @@
+2026-06-18T01:51:20 INFO OK    — Google Sheets CSV : dernière semaine W23-2026 (retard 2 sem.)
+2026-06-18T01:51:21 INFO OK    — Dashboard GitHub Pages : 15431 octets, canvas présents
+2026-06-18T01:51:21 INFO OK    — API BCE (taux de change) : taux EUR/USD disponible
+2026-06-18T01:51:21 INFO OK    — API XAG (argent) : 69.98040933 USD/oz via primaire
+2026-06-18T01:51:21 INFO OK    — TaiyangNews price-index : HTTP 200 (395938 octets)
+2026-06-18T01:51:23 INFO OK    — Zoho Analytics — Sea freight : HTTP 200 (27842 octets)
+2026-06-18T01:51:25 INFO OK    — Zoho Analytics — Vue 2 : HTTP 200 (40958 octets)
+2026-06-18T01:51:25 INFO Tous les checks sont OK (7/7)
