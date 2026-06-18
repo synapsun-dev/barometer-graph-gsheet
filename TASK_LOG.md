@@ -329,14 +329,31 @@ Test plan
 **Résultat :** - `PROJECT.md` — Historique récent mis à jour (ligne 2026-06-18 01:52) | ## NEXT STEPS | Exécuter les tests e2e réels du TEST_PLAN.md (tests 1.1-1.11 du scraper nominal, fallback, format URL 2026+) sur une machine avec credentials Google/Anthropic, ou intégrer test_scraper.py dans le CI/CD GitHub Actions pour validation continue avant chaque run lundi 8h UTC. | ## QUESTIONS BLOQUANTES | *Aucune.* | ---RAPPORT-FIN---
 
 ---
-## TASK-20260618-015029 — 🔄 in progress
+## TASK-20260618-015029 — 🔍 done — to review
 **Ajoutée :** 2026-06-18 01:50  
 **Source :** Pré-vol de 'Test plan'  
 **Type :** other  
 **Démarré :** 2026-06-18 01:50  
+**Terminé :** 2026-06-18 01:52  
+**Durée :** 2 min  
 **Prochaine action :** Tester le health check (health_check.py) sur tous les 7 checks  
 
 **Instructions :**
 [Sous-tâche 4/8] Tester le health check (health_check.py) sur tous les 7 checks
 
-**Résultat :** —
+**Résultat :** - `C:\claude\Synapsun\Barometer\HEALTH_CHECK_TEST_REPORT.md` — Rapport de test détaillé (7 checks, résultats par check, détails métier, stabilité) | - `C:\claude\Synapsun\Barometer\PROJECT.md` — Mis à jour : ajout ligne historique 2026-06-18 01:51 pour health check validé | ## NEXT STEPS | Exécuter les tests des autres composants du TEST_PLAN.md : tâche 5/8 = tester les dashboards HTML (Test 5.1–5.7 : charge CSV, KPI cards, filtres catégorie, date range picker, responsivité). | ## QUESTIONS BLOQ
+
+---
+## TASK-20260618-015213 — 🔄 in progress
+**Ajoutée :** 2026-06-18 01:52  
+**Source :** Pré-vol de 'Test plan'  
+**Type :** infra  
+**Démarré :** 2026-06-18 01:52  
+**Terminé :** 2026-06-18 03:21  
+**Durée :** 90 min  
+**Prochaine action :** Valider le workflow pv_price_weekly.yml (simulation + logs GitHub Actions)  
+
+**Instructions :**
+[Sous-tâche 5/8] Valider le workflow pv_price_weekly.yml (simulation + logs GitHub Actions)
+
+**Résultat :** Retry 1/2 — relance automatique après rc=1

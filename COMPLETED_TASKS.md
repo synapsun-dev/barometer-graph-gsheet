@@ -354,3 +354,108 @@ input=202 | output=19,392 | cache_read=1,268,697 | cache_creation=55,407
 
 ### Code retour
 exit 0
+
+---
+## 2026-06-18 01:52 — Session de nuit (sous-tâche)
+
+### Tache travaillee
+Tester le health check (health_check.py) sur tous les 7 checks
+
+### SYNTHESE
+Tous les 7 checks du health_check.py ont été testés avec succès : Google Sheets CSV (fraîcheur W23-2026), Dashboard GitHub Pages (canvas présents), API BCE (EUR/USD disponible), API XAG (69.98 USD/oz via primaire), TaiyangNews index, et 2 iframes Zoho Analytics (Sea Freight + Vue 2). Exécution stable sur 2 tentatives successives, code de sortie 0.
+
+### VALEUR APPORTEE
+Le health check validé garantit que le pipeline Barometer détectera immédiatement toute panne critique (indisponibilité Google Sheets, dashboard GitHub, APIs de taux/prix, source TaiyangNews) et alertera l'équipe via email GitHub Actions. C'est essentiel pour maintenir la confiance des utilisateurs du baromètre et éviter les données obsolètes non détectées.
+
+### PROBLEMES ET ITERATIONS
+RAS — exécution directe sans obstacle.
+
+### FICHIERS
+- `C:\claude\Synapsun\Barometer\HEALTH_CHECK_TEST_REPORT.md` — Rapport de test détaillé (7 checks, résultats par check, détails métier, stabilité)
+- `C:\claude\Synapsun\Barometer\PROJECT.md` — Mis à jour : ajout ligne historique 2026-06-18 01:51 pour health check validé
+
+### NEXT STEPS
+Exécuter les tests des autres composants du TEST_PLAN.md : tâche 5/8 = tester les dashboards HTML (Test 5.1–5.7 : charge CSV, KPI cards, filtres catégorie, date range picker, responsivité).
+
+## QUESTIONS BLOQUANTES
+
+### Tokens
+input=114 | output=6,636 | cache_read=551,635 | cache_creation=34,475
+
+### Code retour
+exit 0
+
+---
+## 2026-06-18 03:21 — Session de nuit (sous-tâche)
+
+### Tache travaillee
+Valider le workflow pv_price_weekly.yml (simulation + logs GitHub Actions)
+
+### Outils utilises
+- Read(C:\claude\Synapsun\Barometer)
+- Bash(ls -la "C:\claude\Synapsun\Barometer\" | head -30)
+- PowerShell(Get-ChildItem -Path "C:\claude\Synapsun\Barometer" -Force | Select-Object Name, …)
+- Read(C:\claude\Synapsun\Barometer\TEST_PLAN.md)
+- Read(C:\claude\Synapsun\Barometer\.github\workflows\pv_price_weekly.yml)
+- PowerShell(cd "C:\claude\Synapsun\Barometer" && Get-ChildItem -Path ".github/workflows" -Na…)
+- PowerShell(cd "C:\claude\Synapsun\Barometer" && Get-ChildItem -Path "pv-price-scraper" -Nam…)
+- Read(C:\claude\Synapsun\Barometer\pv-price-scraper\requirements.txt)
+- Write(C:\claude\Synapsun\Barometer\WORKFLOW_VALIDATION_TEST.md)
+- PowerShell(
+# Test W.1-W.7: Validation YAML et structure
+$workflowPath = "C:\claude\Synapsu…)
+- PowerShell(
+# Test W.8-W.10: Validation des conditions logiques (if statements)
+$content = …)
+- PowerShell(
+# Test W.11: Valider que les secrets sont configurés
+Write-Output "=== VALIDATI…)
+- Read(C:\claude\Synapsun\Barometer\.github\workflows\pv_price_weekly.yml)
+- PowerShell(
+# Test W.12: Simulation locale — vérifier que les dependencies peuvent être ins…)
+- PowerShell(
+# Test W.14-W.15: GitHub Actions historique et logs
+Write-Output "=== TEST W.14…)
+- PowerShell(
+# Test W.14-W.15: GitHub Actions historique et logs (syntaxe corrigée)
+Write-Ou…)
+- PowerShell(
+# Test W.14-W.15: GitHub Actions historique et logs (avec champs corrects)
+Writ…)
+- PowerShell(
+# Test W.15: Valider les logs du dernier run réussi
+Write-Output "=== TEST W.15…)
+- Write(C:\claude\Synapsun\Barometer\WORKFLOW_VALIDATION_RESULTS.md)
+- Read(C:\claude\Synapsun\Barometer\PROJECT.md)
+- Edit(C:\claude\Synapsun\Barometer\PROJECT.md)
+
+### Resultat
+Je vais valider le workflow `pv_price_weekly.yml` en exécutant la simulation et en vérifiant les logs GitHub Actions. Commençons par explorer la structure du projet.
+
+Maintenant, je vais consulter le workflow `pv_price_weekly.yml` pour comprendre ce qu'il faut tester :
+
+Excellent ! Maintenant, je vais valider le workflow `pv_price_weekly.yml` en créant et exécutant un plan de test complet. Commençons par vérifier la structure locale et tester le workflow.
+
+Créons maintenant un plan de test complet et systématique pour valider le workflow `pv_price_weekly.yml` :
+
+Maintenant, exécutons les tests systématiquement. Commençons par valider la syntaxe YAML et les configurations :
+
+Excellent ! Le workflow est bien configuré. Maintenant, testons la simulation locale et vérifions les logs GitHub Actions historiques :
+
+Maintenant, vérifions les logs GitHub Actions historiques du workflow :
+
+Excellent ! Maintenant, vérifions les logs détaillés du dernier run réussi :
+
+Créons maintenant le rapport de test final complet :
+
+Parfait ! Maintenant, mettons à jour le `PROJECT.md` avec l'historique :
+
+Créons maintenant le rapport final selon le gabarit fixe :
+
+API Error: Stream idle timeout - partial response received
+
+### Tokens
+input=170 | output=17,828 | cache_read=1,034,271 | cache_creation=50,497
+
+### Code retour
+exit 1

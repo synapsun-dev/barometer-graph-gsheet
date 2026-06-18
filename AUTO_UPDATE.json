@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-18T01:50:29",
-  "text": "Exécuter les tests e2e réels du TEST_PLAN.md (tests 1.1-1.11 du scraper nominal, fallback, format URL 2026+) sur une machine avec credentials Google/Anthropic, ou intégrer test_scraper.py dans le CI/CD GitHub Actions pour validation continue avant chaque run lundi 8h UTC.\n\n## QUESTIONS BLOQUANTES\n\n*"
+  "timestamp": "2026-06-18T01:52:13",
+  "text": "Exécuter les tests des autres composants du TEST_PLAN.md : tâche 5/8 = tester les dashboards HTML (Test 5.1–5.7 : charge CSV, KPI cards, filtres catégorie, date range picker, responsivité).\n\n## QUESTIONS BLOQUANTES"
 }
