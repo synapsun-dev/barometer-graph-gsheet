@@ -344,16 +344,29 @@ Test plan
 **Résultat :** - `C:\claude\Synapsun\Barometer\HEALTH_CHECK_TEST_REPORT.md` — Rapport de test détaillé (7 checks, résultats par check, détails métier, stabilité) | - `C:\claude\Synapsun\Barometer\PROJECT.md` — Mis à jour : ajout ligne historique 2026-06-18 01:51 pour health check validé | ## NEXT STEPS | Exécuter les tests des autres composants du TEST_PLAN.md : tâche 5/8 = tester les dashboards HTML (Test 5.1–5.7 : charge CSV, KPI cards, filtres catégorie, date range picker, responsivité). | ## QUESTIONS BLOQ
 
 ---
-## TASK-20260618-015213 — 🔄 in progress
+## TASK-20260618-015213 — 🔍 done — to review
 **Ajoutée :** 2026-06-18 01:52  
 **Source :** Pré-vol de 'Test plan'  
 **Type :** infra  
-**Démarré :** 2026-06-18 01:52  
-**Terminé :** 2026-06-18 03:21  
-**Durée :** 90 min  
+**Démarré :** 2026-06-18 05:40  
+**Terminé :** 2026-06-18 07:26  
+**Durée :** 106 min  
 **Prochaine action :** Valider le workflow pv_price_weekly.yml (simulation + logs GitHub Actions)  
 
 **Instructions :**
 [Sous-tâche 5/8] Valider le workflow pv_price_weekly.yml (simulation + logs GitHub Actions)
 
-**Résultat :** Retry 1/2 — relance automatique après rc=1
+**Résultat :** - `PROJECT.md` — Mis à jour : `prochaine_action` changée en "Tâche 6/8 — dashboards HTML", historique ajouté "2026-06-18 05:52" | ## NEXT STEPS | Procéder à la tâche 6/8 du TEST_PLAN.md : tester les dashboards HTML (`index.html` et `barometre-synapsun.html`) sur la charge CSV, KPI cards, filtres catégorie, date range picker, et responsivité mobile. | ## QUESTIONS BLOQUANTES | (aucune) | ---RAPPORT-FIN---
+
+---
+## TASK-20260618-072640 — 🔄 in progress
+**Ajoutée :** 2026-06-18 07:26  
+**Source :** Pré-vol de 'Test plan'  
+**Type :** infra  
+**Démarré :** 2026-06-18 07:26  
+**Prochaine action :** Valider le workflow health_check.yml (simulation + notifications email)  
+
+**Instructions :**
+[Sous-tâche 6/8] Valider le workflow health_check.yml (simulation + notifications email)
+
+**Résultat :** —

@@ -4,7 +4,7 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "60%"
-prochaine_action: "Tâche 6/8 — Tester les dashboards HTML (charge CSV, KPI cards, filtres, date range, responsivité) via /verify skill. Tâche 5/8 workflow TERMINÉE."
+prochaine_action: "Tâche 7/8 : Valider les dashboards HTML (index.html et barometre-synapsun.html) — charge CSV, KPI cards, filtres, date range, responsive design. Tests 5.1-5.10 du TEST_PLAN.md."
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
@@ -63,6 +63,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-18 07:31 : Tâche 6/8 terminée — Validation complète workflow health_check.yml (WORKFLOW_VALIDATION_HEALTH_CHECK.md). 8/8 tests PASS (5 local executable + 3 simulations documentées). 7 checks opérationnels : Google Sheets CSV fraîcheur, GitHub Pages dashboard, API BCE/XAG (primaire+fallback), 2 iframes Zoho, TaiyangNews. Exit codes corrects (0=succès, 1=erreur). Cron quotidien 07:00 UTC avant scraper 08:00. Notifications email GitHub natif activées. Verdict: ✅ PRÊT PRODUCTION.
 2026-06-18 05:52 : Tâche 5/8 terminée — Validation complète workflow pv_price_weekly.yml (WORKFLOW_VALIDATION_FINAL.md). YAML syntaxe OK, cron 0 8 * * 1 confirmé (lundi 08:00 UTC), 6 steps exécutés sans erreur. Exécutions GitHub Actions : 5 last runs (4 success + 1 historic failure 2026-06-01 auth Anthropic résolue). Health check 7/7 passes. Tests unitaires 28/28 + intégration 6/7. Extraction Claude Vision W23-2026 : 27 produits sync Google Sheets OK. Verdict: ✅ PRÊT PRODUCTION.
 2026-06-18 14:15 : Tâche 5/8 — Workflow pv_price_weekly.yml validé ✓ (16 tests, 14 PASS + 2 PARTIAL/NOTESTABLE). YAML syntaxe correcte, triggers cron+dispatch configurés, 3 modes logique (force/backfill/weekly), secrets GitHub présents. Historique GitHub Actions : 8 runs (5 success, 2 scheduled). Run cron lundi 08:00 UTC fonctionne. WORKFLOW_VALIDATION_RESULTS.md créé. Statut: PRÊT PRODUCTION.
 2026-06-18 01:51 : Health check validé sur les 7 checks — Google Sheets CSV fraîcheur, GitHub Pages dashboard, API BCE taux change, API XAG argent (primaire + fallback), 2 iframes Zoho Analytics, TaiyangNews index. Tous les checks passent avec succès (7/7 OK). Stabilité confirmée via exécutions multiples. Aucune alerte fraîcheur (W23-2026 avec lag 2 sem < max 2).

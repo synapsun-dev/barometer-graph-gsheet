@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-18T01:52:13",
-  "text": "Exécuter les tests des autres composants du TEST_PLAN.md : tâche 5/8 = tester les dashboards HTML (Test 5.1–5.7 : charge CSV, KPI cards, filtres catégorie, date range picker, responsivité).\n\n## QUESTIONS BLOQUANTES"
+  "timestamp": "2026-06-18T07:26:40",
+  "text": "Procéder à la tâche 6/8 du TEST_PLAN.md : tester les dashboards HTML (`index.html` et `barometre-synapsun.html`) sur la charge CSV, KPI cards, filtres catégorie, date range picker, et responsivité mobile.\n\n## QUESTIONS BLOQUANTES\n(aucune)"
 }
