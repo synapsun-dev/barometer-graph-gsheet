@@ -8,7 +8,7 @@ from datetime import date
 
 from taiyangnews_pv_scraper import (
     col_header, fetch_page, extract_image_urls,
-    extract_prices_free, normalize_with_difflib,
+    extract_prices, normalize_with_difflib,
     get_sheet, get_existing_headers, get_canonical_products,
     upsert_week, col_index_to_letter
 )
@@ -78,7 +78,7 @@ def main():
             existing_headers = get_existing_headers(ws)
             time.sleep(1)
 
-        html = fetch_page(w, y)
+        html, page_url = fetch_page(w, y)
         if not html:
             not_found += 1
             time.sleep(1)
@@ -90,7 +90,7 @@ def main():
             time.sleep(1)
             continue
 
-        prices_raw = extract_prices_free(image_urls)
+        prices_raw = extract_prices(image_urls)
         if not prices_raw:
             not_found += 1
             time.sleep(1)

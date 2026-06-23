@@ -163,6 +163,8 @@ def current_week_year() -> tuple:
 
 def col_index_to_letter(index: int) -> str:
     """Convert 1-based column index to A1-notation letter (e.g. 27 → AA)."""
+    if index < 1:
+        raise ValueError(f"Column index must be >= 1, got {index}")
     result = ""
     while index > 0:
         index, remainder = divmod(index - 1, 26)
@@ -397,7 +399,7 @@ def extract_prices(image_urls: list) -> dict:
         if raw_val is None or str(raw_val).strip() in ("null", "-", ""):
             clean_val = None
         else:
-            m = re.search(r'[0-9]+(?:[.,][0-9]+)?', str(raw_val))
+            m = re.search(r'(?:[0-9]+[.,]?[0-9]*|[.,][0-9]+)', str(raw_val))
             clean_val = m.group(0).replace(",", ".") if m else None
 
         validate_price(k, cat, clean_val)
@@ -459,7 +461,7 @@ def get_existing_headers(ws) -> list:
 
 def get_canonical_products(ws) -> list:
     col_b = ws.col_values(2)
-    return [p for p in col_b[2:] if p]
+    return [p for p in col_b[2:] if p and p.strip()]
 
 
 def clean_units(ws) -> None:
@@ -481,7 +483,7 @@ def clean_units(ws) -> None:
                 continue
             except ValueError:
                 pass
-            m = re.search(r'[0-9]+(?:[.,][0-9]+)?', cell)
+            m = re.search(r'(?:[0-9]+[.,]?[0-9]*|[.,][0-9]+)', cell)
             if m:
                 cleaned = m.group(0).replace(",", ".")
                 col_letter = col_index_to_letter(col_idx + 1)
