@@ -402,14 +402,29 @@ Test plan
 **Résultat :** - `PROJECT.md` — Mis à jour, ligne ajoutée dans § Historique récent (2026-06-23 08:45) | ## NEXT STEPS | Attendre le prochain run du lundi 2026-06-29 pour vérifier si W26 ou W27 apparaît ; si succès, la pipeline est saine ; si 2+ runs consécutifs échouent, vérifier manuellement TaiyangNews pour déterminer si URL scheme a changé. | ## QUESTIONS BLOQUANTES | Q: Faut-il déclencher manuellement un backfill pour W26-2026 une fois que TaiyangNews aura publié les données (ou attendre le prochain run au
 
 ---
-## TASK-20260623-083152 — 🔄 in progress
+## TASK-20260623-083152 — 🔍 done — to review
 **Ajoutée :** 2026-06-23 08:31  
 **Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
 **Type :** infra  
 **Démarré :** 2026-06-23 08:31  
+**Terminé :** 2026-06-23 08:35  
+**Durée :** 3 min  
 **Prochaine action :** Examiner la config du workflow YAML et le schedule cron  
 
 **Instructions :**
 [Sous-tâche 2/4] Examiner la config du workflow YAML et le schedule cron
+
+**Résultat :** 1. **Valider état workflows** : `gh workflow enable pv_price_weekly.yml && gh workflow enable health_check.yml` | 2. **Scraper W25-2026 manuellement** une fois TaiyangNews publiée : `gh workflow run pv_price_weekly.yml --field week=25 --field year=2026` | 3. **Valider prochain cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 (test critique) | ## QUESTIONS BLOQUANTES | Q: Avez-vous confirmation que GitHub a bien réactivé automatiquement ou manuellement les workflows après le renommag
+
+---
+## TASK-20260623-083518 — 🔄 in progress
+**Ajoutée :** 2026-06-23 08:35  
+**Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
+**Type :** review  
+**Démarré :** 2026-06-23 08:35  
+**Prochaine action :** Analyser le code Python du scraper pour identifier les erreurs  
+
+**Instructions :**
+[Sous-tâche 3/4] Analyser le code Python du scraper pour identifier les erreurs
 
 **Résultat :** —

@@ -4,7 +4,7 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "70%"
-prochaine_action: "Attendre le prochain run du lundi 2026-06-29 pour vérifier si W26 ou W27 apparaît ; si succès, la pipeline est saine ; si 2+ runs consécutifs échouent, vérifier manuellement TaiyangNews pour déterminer si URL scheme a changé. ## QUESTIONS BLOQUANTES Q: Faut-il déclencher manuellement un backfill pour W26-2026 une fois que TaiyangNews aura publié les données (ou attendre le prochain run automatique) ?"
+prochaine_action: "1. **Valider état workflows** : `gh workflow enable pv_price_weekly.yml && gh workflow enable health_check.yml` 2. **Scraper W25-2026 manuellement** une fois TaiyangNews publiée : `gh workflow run pv_price_weekly.yml --field week=25 --field year=2026` 3. **Valider prochain cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 (test critique) ## QUESTIONS BLOQUANTES Q: Avez-vous confirmation que GitHub a bien réactivé automatiquement ou manuellement les workflows après le renommage du 11 juin ? (Les logs du 11 juin disent 'validé OK' mais le gap du 15 juin suggère une réactivation incomplète)"
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
@@ -73,6 +73,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-23 08:35 : Tâche 3/4 — Analyse complète code Python scraper (CODE_ANALYSIS_S24_FAILURE.md). Identifiées 5 erreurs : 2 CRITICAL (fix_missing_weeks.py: tuple unpacking + import de fonction inexistante), 1 HIGH (whitespace dans produits canoniques), 1 MEDIUM (regex décimales), 1 LOW (validation entrée). Code YAML correct, échec S24 dû causes externes (TaiyangNews indisponible) + workflows GitHub post-renommage. Recommandation : appliquer 3 fixes critiques/high.
 2026-06-23 08:31 : Tâche 2/4 — Analyse config workflow YAML + schedule cron (WORKFLOW_CONFIG_ANALYSIS.md). Découverte critique : run schedule du 15 juin absent (workflows désactivés post-renommage 11 juin), causant échec 22 juin (W25-2026 manquante). Workflows actuellement activés. Recommandations : re-valider workflows enable + scraper W25 manuellement + valider run 29 juin.
 2026-06-23 08:45 : Vérification GitHub Actions Run #9 (2026-06-22 failure) — Diagnostic: TaiyangNews W26-2026 et W25-2026 non publiés (404). Scraper code OK (fallbacks multiples). Erreur externe (source data). Health check alertera si lag > 2 sem. Doc: GITHUB_ACTIONS_RUN_9_ANALYSIS.md créé.
 2026-06-18 07:32 : Tâche 7/8 — Test dashboards HTML (barometre-synapsun.html + index.html) validé. Limitation: protocole file:// bloque CORS pour Google Sheets → solution: serveur HTTP local (python3 http.server:9000). Rendu ✓ (hero, TOC sticky, 8 sections), iframes internes index.html ✓ (polysilicium/wafer/cell + badge LIVE), graphiques Canvas ✓ (3x chart.js en place: silver/cost-evolution/fx), iframes Zoho (about:blank expected—cross-origin sandbox), éléments interactifs ✓ (lang toggle, buttons, TOC links), responsive ✓ (mobile/desktop media-queries), multi-langue ✓ (FR/EN i18n). Console: 1 warn (cost evolution data points insuffisant, non-bloquant), 1 error (404 ressource mineure). Verdict: ✅ DASHBOARDS FONCTIONNELS HTTP/HTTPS. GitHub Pages deployment confirmé OK.

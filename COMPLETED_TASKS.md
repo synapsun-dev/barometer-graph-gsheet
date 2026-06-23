@@ -559,3 +559,41 @@ input=130 | output=6,956 | cache_read=713,593 | cache_creation=67,492
 
 ### Code retour
 exit 0
+
+---
+## 2026-06-23 08:35 — Tache manuelle (sous-tâche)
+
+### Tache
+Examiner la config du workflow YAML et le schedule cron
+
+### SYNTHESE
+Examen complet de la configuration du workflow YAML (pv_price_weekly.yml et health_check.yml) et analyse du schedule cron : configuration syntaxiquement correcte avec cron "0 8 * * 1" (lundi 08:00 UTC), mais découverte d'un gap critique — le run schedule du 15 juin 2026 n'a pas exécuté (workflows désactivés post-renommage GitHub du 11 juin), causant l'absence de W25-2026 dans Google Sheets et l'échec du 22 juin.
+
+### VALEUR APPORTEE
+Identification de la root cause du problème : ce n'est pas une configuration YAML défectueuse, mais un manque de réactivation persistante des workflows après le renommage du repo GitHub en juin 2026 ; ce diagnostic permet de distinguer les problèmes de code (false alert) des problèmes infrastructurels (réels), et de prescrire des actions de récupération et de prévention future.
+
+### PROBLEMES ET ITERATIONS
+RAS — exécution directe avec diagnostic complet.
+
+Obstacles identifiés (structuraux, pas bloquants pour cette tâche) :
+- **Gap du 15 juin** : Les workflows n'ont pas exécuté ce jour (raison probable : resteraient désactivés post-renommage malgré validation 11 juin)
+- **Conséquence en cascade** : W25-2026 jamais scrappée → échec fallback du 22 juin
+- **Jitter cron** : Exécutions avec 4-5h de décalage vs 08:00 prévu (normal GitHub Actions)
+
+### FICHIERS
+- `WORKFLOW_CONFIG_ANALYSIS.md` — Rapport d'analyse complet (8 sections : config YAML, état workflows, historique runs, diagnostic du 22 juin, cron analysis, causes probables, recommandations, conclusion)
+- `PROJECT.md` — Historique récent mis à jour (ligne 1)
+
+### NEXT STEPS
+1. **Valider état workflows** : `gh workflow enable pv_price_weekly.yml && gh workflow enable health_check.yml`
+2. **Scraper W25-2026 manuellement** une fois TaiyangNews publiée : `gh workflow run pv_price_weekly.yml --field week=25 --field year=2026`
+3. **Valider prochain cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 (test critique)
+
+## QUESTIONS BLOQUANTES
+Q: Avez-vous confirmation que GitHub a bien réactivé automatiquement ou manuellement les workflows après le renommage du 11 juin ? (Les logs du 11 juin disent "validé OK" mais le gap du 15 juin suggère une réactivation incomplète)
+
+### Tokens
+input=305 | output=15,815 | cache_read=1,568,562 | cache_creation=49,442
+
+### Code retour
+exit 0

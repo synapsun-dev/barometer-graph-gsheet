@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-23T08:31:52",
-  "text": "Attendre le prochain run du lundi 2026-06-29 pour vérifier si W26 ou W27 apparaît ; si succès, la pipeline est saine ; si 2+ runs consécutifs échouent, vérifier manuellement TaiyangNews pour déterminer si URL scheme a changé.\n\n## QUESTIONS BLOQUANTES\nQ: Faut-il déclencher manuellement un backfill po"
+  "timestamp": "2026-06-23T08:35:18",
+  "text": "1. **Valider état workflows** : `gh workflow enable pv_price_weekly.yml && gh workflow enable health_check.yml`\n2. **Scraper W25-2026 manuellement** une fois TaiyangNews publiée : `gh workflow run pv_price_weekly.yml --field week=25 --field year=2026`\n3. **Valider prochain cron** : lundi 29 juin 202"
 }
