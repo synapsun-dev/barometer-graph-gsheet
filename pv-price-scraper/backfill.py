@@ -104,7 +104,14 @@ def main():
             time.sleep(1)
             continue
 
-        prices_raw = extract_prices(image_urls)
+        try:
+            prices_raw = extract_prices(image_urls)
+        except Exception as e:
+            logger.error("  [Week %d-%d] Extract failed: %s", w, y, e)
+            not_found += 1
+            time.sleep(1)
+            continue
+
         if not prices_raw:
             not_found += 1
             time.sleep(1)

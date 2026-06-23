@@ -417,14 +417,29 @@ Test plan
 **Résultat :** 1. **Valider état workflows** : `gh workflow enable pv_price_weekly.yml && gh workflow enable health_check.yml` | 2. **Scraper W25-2026 manuellement** une fois TaiyangNews publiée : `gh workflow run pv_price_weekly.yml --field week=25 --field year=2026` | 3. **Valider prochain cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 (test critique) | ## QUESTIONS BLOQUANTES | Q: Avez-vous confirmation que GitHub a bien réactivé automatiquement ou manuellement les workflows après le renommag
 
 ---
-## TASK-20260623-083518 — 🔄 in progress
+## TASK-20260623-083518 — 🔍 done — to review
 **Ajoutée :** 2026-06-23 08:35  
 **Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
 **Type :** review  
 **Démarré :** 2026-06-23 08:35  
+**Terminé :** 2026-06-23 08:40  
+**Durée :** 5 min  
 **Prochaine action :** Analyser le code Python du scraper pour identifier les erreurs  
 
 **Instructions :**
 [Sous-tâche 3/4] Analyser le code Python du scraper pour identifier les erreurs
+
+**Résultat :** - Fix Bug #2 (line 11 fix_missing_weeks.py) : renommer `extract_prices_free` → `extract_prices` |    - Fix Bug #3 (line 462 taiyangnews_pv_scraper.py) : ajouter `.strip()` dans le filtre canonical | 2. **Valider la prochaine exécution du cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès (test critique post-renommage GitHub) | ## QUESTIONS BLOQUANTES | Q: Voulez-vous que j'applique les 3 fixes identifiés (CRITICAL/HIGH) ou les garder documentés pour votre décision ? | -
+
+---
+## TASK-20260623-084026 — 🔄 in progress
+**Ajoutée :** 2026-06-23 08:40  
+**Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
+**Type :** bug  
+**Démarré :** 2026-06-23 08:40  
+**Prochaine action :** Corriger les bugs identifiés et valider le fix  
+
+**Instructions :**
+[Sous-tâche 4/4] Corriger les bugs identifiés et valider le fix
 
 **Résultat :** —

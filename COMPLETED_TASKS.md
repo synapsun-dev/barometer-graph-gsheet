@@ -597,3 +597,40 @@ input=305 | output=15,815 | cache_read=1,568,562 | cache_creation=49,442
 
 ### Code retour
 exit 0
+
+---
+## 2026-06-23 08:40 — Tache manuelle (sous-tâche)
+
+### Tache
+Analyser le code Python du scraper pour identifier les erreurs
+
+### SYNTHESE
+Analyse approfondie du code Python du scraper TaiyangNews (taiyangnews_pv_scraper.py et scripts de maintenance) a identifié **5 erreurs de code**, dont **2 CRITICAL** dans le script de réparation fix_missing_weeks.py qui empêchent son exécution (tuple unpacking incorrect + import de fonction inexistante).
+
+### VALEUR APPORTEE
+La découverte de ces bugs est critique pour la **résilience opérationnelle du projet** : les deux erreurs critiques bloquent complètement le processus de récupération après perte de données (fix_missing_weeks.py), rendant impossible la réparation manuelle de semaines manquantes comme S24 (W25-2026). Les autres bugs crées des risques de corruption silencieuse de données ou d'échecs en cas d'OCR dégradée. Documenter ces erreurs permet de prioriser les correctifs et éviter les pannes futures.
+
+### PROBLEMES ET ITERATIONS
+**RAS** — exécution directe sans obstacles. Tous les fichiers source accessibles, analyse complète produite, 5 bugs identifiés et confirmés par inspection de code.
+
+### FICHIERS
+- `CODE_ANALYSIS_S24_FAILURE.md` — Rapport d'analyse complet, 5 bugs documentés avec exemples de code, impact, et fixes recommandées
+- `PROJECT.md` — Mis à jour avec ligne historique "Tâche 3/4 — Analyse code Python"
+
+### NEXT STEPS
+1. **Appliquer les 3 fixes CRITICAL/HIGH** :
+   - Fix Bug #1 (line 81 fix_missing_weeks.py) : ajouter tuple unpacking `html, page_url = fetch_page(w, y)`
+   - Fix Bug #2 (line 11 fix_missing_weeks.py) : renommer `extract_prices_free` → `extract_prices`
+   - Fix Bug #3 (line 462 taiyangnews_pv_scraper.py) : ajouter `.strip()` dans le filtre canonical
+
+2. **Valider la prochaine exécution du cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès (test critique post-renommage GitHub)
+
+## QUESTIONS BLOQUANTES
+
+Q: Voulez-vous que j'applique les 3 fixes identifiés (CRITICAL/HIGH) ou les garder documentés pour votre décision ?
+
+### Tokens
+input=161 | output=8,681 | cache_read=664,236 | cache_creation=52,411
+
+### Code retour
+exit 0

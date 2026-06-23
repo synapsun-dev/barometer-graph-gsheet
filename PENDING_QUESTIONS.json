@@ -1,14 +1,13 @@
 {
-  "task_id": "TASK-20260623-083152",
-  "task_title": "Examiner la config du workflow YAML et le schedule cron",
-  "created_at": "2026-06-23T08:35:18",
+  "task_id": "TASK-20260623-083518",
+  "task_title": "Analyser le code Python du scraper pour identifier les erreurs",
+  "created_at": "2026-06-23T08:40:26",
   "questions": [
     {
       "id": "q0",
-      "text": "Avez-vous confirmation que GitHub a bien réactivé automatiquement ou manuellement les workflows après le renommage du 11 juin ? (Les logs du 11 juin disent \"validé OK\" mais le gap du 15 juin suggère une réactivation incomplète)",
-      "answer": "la W26 n'est pas encore disponible mais la S24 est disponible, Ajoutes la"
+      "text": "Voulez-vous que j'applique les 3 fixes identifiés (CRITICAL/HIGH) ou les garder documentés pour votre décision ?",
+      "answer": null
     }
   ],
-  "status": "answered",
-  "answered_at": "2026-06-23T08:36:17"
+  "status": "pending"
 }

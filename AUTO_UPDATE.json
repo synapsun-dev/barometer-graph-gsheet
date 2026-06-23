@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-23T08:35:18",
-  "text": "1. **Valider état workflows** : `gh workflow enable pv_price_weekly.yml && gh workflow enable health_check.yml`\n2. **Scraper W25-2026 manuellement** une fois TaiyangNews publiée : `gh workflow run pv_price_weekly.yml --field week=25 --field year=2026`\n3. **Valider prochain cron** : lundi 29 juin 202"
+  "timestamp": "2026-06-23T08:40:26",
+  "text": "1. **Appliquer les 3 fixes CRITICAL/HIGH** :\n   - Fix Bug #1 (line 81 fix_missing_weeks.py) : ajouter tuple unpacking `html, page_url = fetch_page(w, y)`\n   - Fix Bug #2 (line 11 fix_missing_weeks.py) : renommer `extract_prices_free` → `extract_prices`\n   - Fix Bug #3 (line 462 taiyangnews_pv_scrape"
 }
