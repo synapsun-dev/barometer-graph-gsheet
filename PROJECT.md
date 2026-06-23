@@ -4,7 +4,7 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "70%"
-prochaine_action: "Tâche 8/8 : **Valider dashboards en production** (GitHub Pages) — Vérifier déploiement live, CNAME DNS, SSL cert, performance CDN. Puis clôturer TEST_PLAN.md avec verdict final. ~10 min."
+prochaine_action: "Attendre le prochain run du lundi 2026-06-29 pour vérifier si W26 ou W27 apparaît ; si succès, la pipeline est saine ; si 2+ runs consécutifs échouent, vérifier manuellement TaiyangNews pour déterminer si URL scheme a changé. ## QUESTIONS BLOQUANTES Q: Faut-il déclencher manuellement un backfill pour W26-2026 une fois que TaiyangNews aura publié les données (ou attendre le prochain run automatique) ?"
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
@@ -73,6 +73,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-23 08:31 : Tâche 2/4 — Analyse config workflow YAML + schedule cron (WORKFLOW_CONFIG_ANALYSIS.md). Découverte critique : run schedule du 15 juin absent (workflows désactivés post-renommage 11 juin), causant échec 22 juin (W25-2026 manquante). Workflows actuellement activés. Recommandations : re-valider workflows enable + scraper W25 manuellement + valider run 29 juin.
 2026-06-23 08:45 : Vérification GitHub Actions Run #9 (2026-06-22 failure) — Diagnostic: TaiyangNews W26-2026 et W25-2026 non publiés (404). Scraper code OK (fallbacks multiples). Erreur externe (source data). Health check alertera si lag > 2 sem. Doc: GITHUB_ACTIONS_RUN_9_ANALYSIS.md créé.
 2026-06-18 07:32 : Tâche 7/8 — Test dashboards HTML (barometre-synapsun.html + index.html) validé. Limitation: protocole file:// bloque CORS pour Google Sheets → solution: serveur HTTP local (python3 http.server:9000). Rendu ✓ (hero, TOC sticky, 8 sections), iframes internes index.html ✓ (polysilicium/wafer/cell + badge LIVE), graphiques Canvas ✓ (3x chart.js en place: silver/cost-evolution/fx), iframes Zoho (about:blank expected—cross-origin sandbox), éléments interactifs ✓ (lang toggle, buttons, TOC links), responsive ✓ (mobile/desktop media-queries), multi-langue ✓ (FR/EN i18n). Console: 1 warn (cost evolution data points insuffisant, non-bloquant), 1 error (404 ressource mineure). Verdict: ✅ DASHBOARDS FONCTIONNELS HTTP/HTTPS. GitHub Pages deployment confirmé OK.
 2026-06-18 07:31 : Tâche 6/8 terminée — Validation complète workflow health_check.yml (WORKFLOW_VALIDATION_HEALTH_CHECK.md). 8/8 tests PASS (5 local executable + 3 simulations documentées). 7 checks opérationnels : Google Sheets CSV fraîcheur, GitHub Pages dashboard, API BCE/XAG (primaire+fallback), 2 iframes Zoho, TaiyangNews. Exit codes corrects (0=succès, 1=erreur). Cron quotidien 07:00 UTC avant scraper 08:00. Notifications email GitHub natif activées. Verdict: ✅ PRÊT PRODUCTION.

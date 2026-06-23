@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-18T07:32:27",
-  "text": "Tâche 7/8 : **Valider les dashboards HTML** (`index.html` et `barometre-synapsun.html`) — Tests 5.1 à 5.10 du TEST_PLAN.md (charge CSV, KPI cards, filtres catégorie, date range picker, responsive design, iframes Zoho). ~20 min de tests interactifs avec browser.\n\n## QUESTIONS BLOQUANTES\n\n*Aucune.*"
+  "timestamp": "2026-06-23T08:31:52",
+  "text": "Attendre le prochain run du lundi 2026-06-29 pour vérifier si W26 ou W27 apparaît ; si succès, la pipeline est saine ; si 2+ runs consécutifs échouent, vérifier manuellement TaiyangNews pour déterminer si URL scheme a changé.\n\n## QUESTIONS BLOQUANTES\nQ: Faut-il déclencher manuellement un backfill po"
 }

@@ -1,14 +1,13 @@
 {
-  "task_id": "TASK-20260609-173634",
-  "task_title": "Renommes ce Repo : Barometer",
-  "created_at": "2026-06-09T17:38:43",
+  "task_id": "TASK-20260623-083003",
+  "task_title": "Vérifier les logs GitHub Actions du dernier run du scraper TaiyangNews",
+  "created_at": "2026-06-23T08:31:52",
   "questions": [
     {
       "id": "q0",
-      "text": "Souhaitez-vous également renommer le repo GitHub distant (`it-dev-synapsun/graph-gsheet-tayang`) en \"barometer\" ou \"Barometer\" via `gh repo rename` ? (Cela impacte les URLs GitHub Actions et les remotes git locaux.)",
+      "text": "Faut-il déclencher manuellement un backfill pour W26-2026 une fois que TaiyangNews aura publié les données (ou attendre le prochain run automatique) ?",
       "answer": null
     }
   ],
-  "status": "obsolete",
-  "obsolete_reason": "Renommage GitHub effectué manuellement le 2026-06-11 (synapsun-dev/barometer-graph-gsheet) — question caduque, marquée obsolète le 2026-06-11."
+  "status": "pending"
 }

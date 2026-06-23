@@ -387,14 +387,29 @@ Test plan
 **Résultat :** —
 
 ---
-## TASK-20260623-083003 — 🔄 in progress
+## TASK-20260623-083003 — 🔍 done — to review
 **Ajoutée :** 2026-06-23 08:30  
 **Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
 **Type :** review  
 **Démarré :** 2026-06-23 08:30  
+**Terminé :** 2026-06-23 08:31  
+**Durée :** 2 min  
 **Prochaine action :** Vérifier les logs GitHub Actions du dernier run du scraper TaiyangNews  
 
 **Instructions :**
 [Sous-tâche 1/4] Vérifier les logs GitHub Actions du dernier run du scraper TaiyangNews
+
+**Résultat :** - `PROJECT.md` — Mis à jour, ligne ajoutée dans § Historique récent (2026-06-23 08:45) | ## NEXT STEPS | Attendre le prochain run du lundi 2026-06-29 pour vérifier si W26 ou W27 apparaît ; si succès, la pipeline est saine ; si 2+ runs consécutifs échouent, vérifier manuellement TaiyangNews pour déterminer si URL scheme a changé. | ## QUESTIONS BLOQUANTES | Q: Faut-il déclencher manuellement un backfill pour W26-2026 une fois que TaiyangNews aura publié les données (ou attendre le prochain run au
+
+---
+## TASK-20260623-083152 — 🔄 in progress
+**Ajoutée :** 2026-06-23 08:31  
+**Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
+**Type :** infra  
+**Démarré :** 2026-06-23 08:31  
+**Prochaine action :** Examiner la config du workflow YAML et le schedule cron  
+
+**Instructions :**
+[Sous-tâche 2/4] Examiner la config du workflow YAML et le schedule cron
 
 **Résultat :** —

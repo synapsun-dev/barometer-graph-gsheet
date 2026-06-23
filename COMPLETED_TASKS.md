@@ -528,3 +528,34 @@ input=298 | output=20,312 | cache_read=2,192,342 | cache_creation=63,157
 
 ### Code retour
 exit 0
+
+---
+## 2026-06-23 08:31 — Tache manuelle (sous-tâche)
+
+### Tache
+Vérifier les logs GitHub Actions du dernier run du scraper TaiyangNews
+
+### SYNTHESE
+Vérification complète des logs du dernier run échoué (#9, 2026-06-22) du scraper TaiyangNews → Diagnostic : les données W26-2026 et W25-2026 ne sont pas encore publiées sur le site TaiyangNews (404), pas une erreur de code.
+
+### VALEUR APPORTEE
+Élimine l'incertitude sur la cause de l'échec (code vs données externes) ; confirme que le scraper et ses fallbacks fonctionnent correctement ; valide que le health check en place alertera automatiquement l'équipe si le problème persiste au-delà du seuil de 2 semaines.
+
+### PROBLEMES ET ITERATIONS
+RAS — exécution directe sans obstacles. Analyse technique complète effectuée à partir des logs GitHub Actions (37 KB), racine identifiée (absence de données TaiyangNews W25 et W26), code validé OK (fallbacks URL multiples présents), stratégie d'alerte existante confirmée adéquate.
+
+### FICHIERS
+- `GITHUB_ACTIONS_RUN_9_ANALYSIS.md` — Rapport d'analyse complet du run #9 (diagnostic, chronologie, recommandations, actions suivi)
+- `PROJECT.md` — Mis à jour, ligne ajoutée dans § Historique récent (2026-06-23 08:45)
+
+### NEXT STEPS
+Attendre le prochain run du lundi 2026-06-29 pour vérifier si W26 ou W27 apparaît ; si succès, la pipeline est saine ; si 2+ runs consécutifs échouent, vérifier manuellement TaiyangNews pour déterminer si URL scheme a changé.
+
+## QUESTIONS BLOQUANTES
+Q: Faut-il déclencher manuellement un backfill pour W26-2026 une fois que TaiyangNews aura publié les données (ou attendre le prochain run automatique) ?
+
+### Tokens
+input=130 | output=6,956 | cache_read=713,593 | cache_creation=67,492
+
+### Code retour
+exit 0
