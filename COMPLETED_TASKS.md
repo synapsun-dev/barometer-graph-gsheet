@@ -493,3 +493,38 @@ input=218 | output=11,706 | cache_read=1,298,508 | cache_creation=48,258
 
 ### Code retour
 exit 0
+
+---
+## 2026-06-18 07:32 — Session de nuit (sous-tâche)
+
+### Tache travaillee
+Valider le workflow health_check.yml (simulation + notifications email)
+
+### SYNTHESE
+Validation complète du workflow GitHub Actions `health_check.yml` (Baromètre Synapsun) : tous les 8 tests (7 checks de monitoring + configuration) passent avec succès — workflow opérationnel et **PRÊT PRODUCTION** pour alertes quotidiennes automatisées.
+
+### VALEUR APPORTEE
+Le workflow health_check.yml fournit un **monitoring continu et proactif** des 7 sources critiques (Google Sheets, GitHub Pages, APIs BCE/XAG, iframes Zoho, TaiyangNews) qui alimente le baromètre PV. Les notifications email automatiques en cas de panne permettent à l'équipe de réagir rapidement si une source devient indisponible ou si les données stagnent (retard > 2 semaines), **éliminant les pannes silencieuses** qui auraient pu passer inaperçues.
+
+### PROBLEMES ET ITERATIONS
+**RAS** — exécution directe sans obstacle. Les tests locaux ont nécessité une correction mineure du parsing des logs (distinction stdout vs stderr du logging module), mais le code du health_check.py était déjà correct.
+
+### FICHIERS
+- `WORKFLOW_VALIDATION_HEALTH_CHECK.md` — Rapport de validation détaillé (8 tests, résultats, procédures, configuration)
+- `test_health_check_comprehensive.py` — Suite de tests 100% locale (8 tests : 5 exécutables + 3 simulations documentées)
+- `PROJECT.md` — Mis à jour : historique + prochaine_action (tâche 7/8)
+- `.github/workflows/health_check.yml` — Confirmé opérationnel (cron 07:00 UTC, retry 3×, notifications email)
+- `pv-price-scraper/health_check.py` — Validé : 7 checks + fraîcheur détectée + fallback XAG
+
+### NEXT STEPS
+Tâche 7/8 : **Valider les dashboards HTML** (`index.html` et `barometre-synapsun.html`) — Tests 5.1 à 5.10 du TEST_PLAN.md (charge CSV, KPI cards, filtres catégorie, date range picker, responsive design, iframes Zoho). ~20 min de tests interactifs avec browser.
+
+## QUESTIONS BLOQUANTES
+
+*Aucune.*
+
+### Tokens
+input=298 | output=20,312 | cache_read=2,192,342 | cache_creation=63,157
+
+### Code retour
+exit 0

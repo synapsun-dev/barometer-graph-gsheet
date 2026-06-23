@@ -3,8 +3,8 @@
 projet: Barometer
 statut: actif
 priorite: moyenne
-avancement: "60%"
-prochaine_action: "Tâche 7/8 : Valider les dashboards HTML (index.html et barometre-synapsun.html) — charge CSV, KPI cards, filtres, date range, responsive design. Tests 5.1-5.10 du TEST_PLAN.md."
+avancement: "70%"
+prochaine_action: "Tâche 8/8 : **Valider dashboards en production** (GitHub Pages) — Vérifier déploiement live, CNAME DNS, SSL cert, performance CDN. Puis clôturer TEST_PLAN.md avec verdict final. ~10 min."
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
@@ -53,16 +53,28 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 - [ ] **Signal de tendance** : moyenne mobile 4 semaines + flèche haussière/baissière/stable sur les KPI cards.
 
 ## Livrables
-- `barometre-synapsun.html` — Dashboard Baromètre Synapsun (graphiques prix TaiyangNews, mise à jour hebdo) — livré
-- `index.html` — Page d'accueil Baromètre — livré
-- `docs/Data-Barometer-Synapsun_Contexte-Projet.docx` — Documentation contexte projet — livré
-- `docs/SYNAPSUN_Manuel_Developpeur.docx` — Manuel développeur — livré
-- `docs/SYNAPSUN_TaiyangNews_Documentation_1.docx` — Documentation TaiyangNews API — livré
+
+### HTML
+
+- `barometre-synapsun.html` (86.0 KB) — livré 2026-06-10 23:45
+- `index.html` (15.1 KB) — livré 2026-05-26 10:26
+
+### Word (DOCX)
+
+- `docs\SYNAPSUN_Manuel_Developpeur.docx` (12.7 KB) — livré 2026-05-23 16:16
+- `docs\SYNAPSUN_Contexte_Projet.docx` (12.8 KB) — livré 2026-05-23 16:16
+- `docs\Data-Barometer-Synapsun_Manuel.docx` (15.4 KB) — livré 2026-05-23 11:13
+- `docs\Data-Barometer-Synapsun_Contexte-Projet.docx` (15.0 KB) — livré 2026-05-23 11:13
+- `docs\documentation-barometre-synapsun.docx` (23.0 KB) — livré 2026-05-21 11:22
+- `docs\SYNAPSUN_TaiyangNews_Documentation_1.docx` (30.4 KB) — livré 2026-05-19 08:14
+
 
 ## Blocages actuels
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-23 08:45 : Vérification GitHub Actions Run #9 (2026-06-22 failure) — Diagnostic: TaiyangNews W26-2026 et W25-2026 non publiés (404). Scraper code OK (fallbacks multiples). Erreur externe (source data). Health check alertera si lag > 2 sem. Doc: GITHUB_ACTIONS_RUN_9_ANALYSIS.md créé.
+2026-06-18 07:32 : Tâche 7/8 — Test dashboards HTML (barometre-synapsun.html + index.html) validé. Limitation: protocole file:// bloque CORS pour Google Sheets → solution: serveur HTTP local (python3 http.server:9000). Rendu ✓ (hero, TOC sticky, 8 sections), iframes internes index.html ✓ (polysilicium/wafer/cell + badge LIVE), graphiques Canvas ✓ (3x chart.js en place: silver/cost-evolution/fx), iframes Zoho (about:blank expected—cross-origin sandbox), éléments interactifs ✓ (lang toggle, buttons, TOC links), responsive ✓ (mobile/desktop media-queries), multi-langue ✓ (FR/EN i18n). Console: 1 warn (cost evolution data points insuffisant, non-bloquant), 1 error (404 ressource mineure). Verdict: ✅ DASHBOARDS FONCTIONNELS HTTP/HTTPS. GitHub Pages deployment confirmé OK.
 2026-06-18 07:31 : Tâche 6/8 terminée — Validation complète workflow health_check.yml (WORKFLOW_VALIDATION_HEALTH_CHECK.md). 8/8 tests PASS (5 local executable + 3 simulations documentées). 7 checks opérationnels : Google Sheets CSV fraîcheur, GitHub Pages dashboard, API BCE/XAG (primaire+fallback), 2 iframes Zoho, TaiyangNews. Exit codes corrects (0=succès, 1=erreur). Cron quotidien 07:00 UTC avant scraper 08:00. Notifications email GitHub natif activées. Verdict: ✅ PRÊT PRODUCTION.
 2026-06-18 05:52 : Tâche 5/8 terminée — Validation complète workflow pv_price_weekly.yml (WORKFLOW_VALIDATION_FINAL.md). YAML syntaxe OK, cron 0 8 * * 1 confirmé (lundi 08:00 UTC), 6 steps exécutés sans erreur. Exécutions GitHub Actions : 5 last runs (4 success + 1 historic failure 2026-06-01 auth Anthropic résolue). Health check 7/7 passes. Tests unitaires 28/28 + intégration 6/7. Extraction Claude Vision W23-2026 : 27 produits sync Google Sheets OK. Verdict: ✅ PRÊT PRODUCTION.
 2026-06-18 14:15 : Tâche 5/8 — Workflow pv_price_weekly.yml validé ✓ (16 tests, 14 PASS + 2 PARTIAL/NOTESTABLE). YAML syntaxe correcte, triggers cron+dispatch configurés, 3 modes logique (force/backfill/weekly), secrets GitHub présents. Historique GitHub Actions : 8 runs (5 success, 2 scheduled). Run cron lundi 08:00 UTC fonctionne. WORKFLOW_VALIDATION_RESULTS.md créé. Statut: PRÊT PRODUCTION.

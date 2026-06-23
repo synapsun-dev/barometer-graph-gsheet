@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-18T07:26:40",
-  "text": "Procéder à la tâche 6/8 du TEST_PLAN.md : tester les dashboards HTML (`index.html` et `barometre-synapsun.html`) sur la charge CSV, KPI cards, filtres catégorie, date range picker, et responsivité mobile.\n\n## QUESTIONS BLOQUANTES\n(aucune)"
+  "timestamp": "2026-06-18T07:32:27",
+  "text": "Tâche 7/8 : **Valider les dashboards HTML** (`index.html` et `barometre-synapsun.html`) — Tests 5.1 à 5.10 du TEST_PLAN.md (charge CSV, KPI cards, filtres catégorie, date range picker, responsive design, iframes Zoho). ~20 min de tests interactifs avec browser.\n\n## QUESTIONS BLOQUANTES\n\n*Aucune.*"
 }

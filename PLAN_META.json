@@ -3,6 +3,10 @@
     {
       "body": "Renomme Repo-Clone en Barometer qui est le vrai nom",
       "title": "Renommes ce Repo : Barometer"
+    },
+    {
+      "title": "Le scrapping de data de taiyang news S24 ne s'est pas lancé",
+      "body": "Analyse et corrige durablement"
     }
   ],
   "comments": {},
@@ -16,6 +20,7 @@
     7
   ],
   "order": [
+    8,
     0,
     1,
     2,
@@ -24,5 +29,6 @@
     5,
     6,
     7
-  ]
+  ],
+  "steps_completed": {}
 }

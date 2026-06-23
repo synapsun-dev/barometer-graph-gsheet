@@ -359,14 +359,42 @@ Test plan
 **Résultat :** - `PROJECT.md` — Mis à jour : `prochaine_action` changée en "Tâche 6/8 — dashboards HTML", historique ajouté "2026-06-18 05:52" | ## NEXT STEPS | Procéder à la tâche 6/8 du TEST_PLAN.md : tester les dashboards HTML (`index.html` et `barometre-synapsun.html`) sur la charge CSV, KPI cards, filtres catégorie, date range picker, et responsivité mobile. | ## QUESTIONS BLOQUANTES | (aucune) | ---RAPPORT-FIN---
 
 ---
-## TASK-20260618-072640 — 🔄 in progress
+## TASK-20260618-072640 — 🔍 done — to review
 **Ajoutée :** 2026-06-18 07:26  
 **Source :** Pré-vol de 'Test plan'  
 **Type :** infra  
 **Démarré :** 2026-06-18 07:26  
+**Terminé :** 2026-06-18 07:32  
+**Durée :** 6 min  
 **Prochaine action :** Valider le workflow health_check.yml (simulation + notifications email)  
 
 **Instructions :**
 [Sous-tâche 6/8] Valider le workflow health_check.yml (simulation + notifications email)
+
+**Résultat :** - `pv-price-scraper/health_check.py` — Validé : 7 checks + fraîcheur détectée + fallback XAG | ## NEXT STEPS | Tâche 7/8 : **Valider les dashboards HTML** (`index.html` et `barometre-synapsun.html`) — Tests 5.1 à 5.10 du TEST_PLAN.md (charge CSV, KPI cards, filtres catégorie, date range picker, responsive design, iframes Zoho). ~20 min de tests interactifs avec browser. | ## QUESTIONS BLOQUANTES | *Aucune.* | ---RAPPORT-FIN---
+
+---
+## TASK-20260618-073227 — 🔄 in progress
+**Ajoutée :** 2026-06-18 07:32  
+**Source :** Pré-vol de 'Test plan'  
+**Type :** other  
+**Démarré :** 2026-06-18 07:32  
+**Prochaine action :** Tester les dashboards HTML (barometre-synapsun.html + index.html) — rendu, iframes, graphiques  
+
+**Instructions :**
+[Sous-tâche 7/8] Tester les dashboards HTML (barometre-synapsun.html + index.html) — rendu, iframes, graphiques
+
+**Résultat :** —
+
+---
+## TASK-20260623-083003 — 🔄 in progress
+**Ajoutée :** 2026-06-23 08:30  
+**Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
+**Type :** review  
+**Démarré :** 2026-06-23 08:30  
+**Prochaine action :** Vérifier les logs GitHub Actions du dernier run du scraper TaiyangNews  
+
+**Instructions :**
+[Sous-tâche 1/4] Vérifier les logs GitHub Actions du dernier run du scraper TaiyangNews
 
 **Résultat :** —
