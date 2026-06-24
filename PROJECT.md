@@ -3,12 +3,12 @@
 projet: Barometer
 statut: actif
 priorite: moyenne
-avancement: "75%"
-prochaine_action: "1. **Déployer les fixes** sur le remote GitHub 2. **Monitorer le prochain run cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès 3. **Backfiller W25-2026** une fois TaiyangNews publie les données : `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026`"
+avancement: "80%"
+prochaine_action: "Monitorer le run scraper du 29 juin 2026 (W26-2026) et backfiller W25-2026 une fois TaiyangNews publie ; tous les fixes sont déployés en production"
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
-derniere_session: 2026-06-18
+derniere_session: 2026-06-24
 ---
 
 ## Contexte
@@ -73,6 +73,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-24 20:04 : Déploiement et monitoring finalisés — Tous les fixes ont été déployés à la production (commit d501774 live sur main). Workflows GitHub Actions confirmés actifs et configurés. Document DEPLOYMENT_AND_MONITORING_2026_Q2.md créé avec stratégie de monitoring pour le 29 juin 2026 et plan de backfill pour W25-2026. Prochaine action critique : vérifier le scraper W26-2026 le lundi 29 juin 08:00 UTC.
 2026-06-23 08:40 : Tâche 4/4 — Corriger les bugs identifiés et valider le fix (BUG_FIXES_VALIDATION_REPORT.md). ✅ **5 bugs fixes + 1 vulnerability patched**. Bugs #1-2 (CRITICAL): tuple unpacking + import fix_missing_weeks.py. Bug #3 (HIGH): whitespace filtering canonical products. Bug #4 (MEDIUM): regex amélioration edge decimals (6/6 test cases pass). Bug #5 (LOW): input validation col_index_to_letter(). Vulnerability: exception handling backfill.py. Validation: 100% static analysis + 40+ test cases + Python compile OK. Status: ✅ READY FOR PRODUCTION.
 2026-06-23 08:35 : Tâche 3/4 — Analyse complète code Python scraper (CODE_ANALYSIS_S24_FAILURE.md). Identifiées 5 erreurs : 2 CRITICAL (fix_missing_weeks.py: tuple unpacking + import de fonction inexistante), 1 HIGH (whitespace dans produits canoniques), 1 MEDIUM (regex décimales), 1 LOW (validation entrée). Code YAML correct, échec S24 dû causes externes (TaiyangNews indisponible) + workflows GitHub post-renommage. Recommandation : appliquer 3 fixes critiques/high.
 2026-06-23 08:31 : Tâche 2/4 — Analyse config workflow YAML + schedule cron (WORKFLOW_CONFIG_ANALYSIS.md). Découverte critique : run schedule du 15 juin absent (workflows désactivés post-renommage 11 juin), causant échec 22 juin (W25-2026 manquante). Workflows actuellement activés. Recommandations : re-valider workflows enable + scraper W25 manuellement + valider run 29 juin.
