@@ -374,7 +374,7 @@ Test plan
 **Résultat :** - `pv-price-scraper/health_check.py` — Validé : 7 checks + fraîcheur détectée + fallback XAG | ## NEXT STEPS | Tâche 7/8 : **Valider les dashboards HTML** (`index.html` et `barometre-synapsun.html`) — Tests 5.1 à 5.10 du TEST_PLAN.md (charge CSV, KPI cards, filtres catégorie, date range picker, responsive design, iframes Zoho). ~20 min de tests interactifs avec browser. | ## QUESTIONS BLOQUANTES | *Aucune.* | ---RAPPORT-FIN---
 
 ---
-## TASK-20260618-073227 — 🔄 in progress
+## TASK-20260618-073227 — 🔍 done — to review
 **Ajoutée :** 2026-06-18 07:32  
 **Source :** Pré-vol de 'Test plan'  
 **Type :** other  
@@ -384,7 +384,7 @@ Test plan
 **Instructions :**
 [Sous-tâche 7/8] Tester les dashboards HTML (barometre-synapsun.html + index.html) — rendu, iframes, graphiques
 
-**Résultat :** —
+**Résultat :** Statut restauré auto (resté en IN_PROGRESS 9388min — processus interrompu)
 
 ---
 ## TASK-20260623-083003 — 🔍 done — to review
@@ -432,14 +432,29 @@ Test plan
 **Résultat :** - Fix Bug #2 (line 11 fix_missing_weeks.py) : renommer `extract_prices_free` → `extract_prices` |    - Fix Bug #3 (line 462 taiyangnews_pv_scraper.py) : ajouter `.strip()` dans le filtre canonical | 2. **Valider la prochaine exécution du cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès (test critique post-renommage GitHub) | ## QUESTIONS BLOQUANTES | Q: Voulez-vous que j'applique les 3 fixes identifiés (CRITICAL/HIGH) ou les garder documentés pour votre décision ? | -
 
 ---
-## TASK-20260623-084026 — 🔄 in progress
+## TASK-20260623-084026 — 🔍 done — to review
 **Ajoutée :** 2026-06-23 08:40  
 **Source :** Plan — sous-tâche de 'Le scrapping de data de taiyang news S24'  
 **Type :** bug  
 **Démarré :** 2026-06-23 08:40  
+**Terminé :** 2026-06-23 08:45  
+**Durée :** 5 min  
 **Prochaine action :** Corriger les bugs identifiés et valider le fix  
 
 **Instructions :**
 [Sous-tâche 4/4] Corriger les bugs identifiés et valider le fix
+
+**Résultat :** ## NEXT STEPS | 1. Déployer les fixes sur le remote GitHub (pousser les commits) | 2. Monitorer le prochain cron run lundi 29 juin 2026 pour W26-2026 ou W27-2026 | 3. Une fois TaiyangNews publie W25-2026, exécuter : `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026` pour backfiller la semaine manquante | ## QUESTIONS BLOQUANTES | (Aucune — tous les bugs ont été corrigés et validés complètement)
+
+---
+## TASK-20260624-200428 — 🔄 in progress
+**Ajoutée :** 2026-06-24 20:04  
+**Source :** prochaine_action automatique  
+**Type :** bug  
+**Démarré :** 2026-06-24 20:04  
+**Prochaine action :** 1. **Déployer les fixes** sur le remote GitHub 2. **Monitorer le prochain run cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès 3. **Backfiller W25-2026** une fois TaiyangNews publie les données : `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026`  
+
+**Instructions :**
+1. **Déployer les fixes** sur le remote GitHub 2. **Monitorer le prochain run cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès 3. **Backfiller W25-2026** une fois TaiyangNews publie les données : `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026`
 
 **Résultat :** —
