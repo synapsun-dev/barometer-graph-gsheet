@@ -4,7 +4,7 @@ projet: Barometer
 statut: actif
 priorite: moyenne
 avancement: "80%"
-prochaine_action: "Monitorer le run scraper du 29 juin 2026 (W26-2026) et backfiller W25-2026 une fois TaiyangNews publie ; tous les fixes sont déployés en production"
+prochaine_action: "**Lundi 29 juin 2026 08:00 UTC** : vérifier le scraper cron pour W26-2026. SSH configuré localement — migration optionnelle (HTTPS + Credential Manager actuellement stable)."
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
@@ -73,6 +73,7 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 
 ## Historique récent
+2026-06-27 11:38 : SSH & Credentials configurés — RSA 4096 key généré, SSH config prêt, HTTPS + Credential Manager testé ✅ et fonctionnel. Guide de migration SSH documenté (SSH_CREDENTIALS_SETUP.md). Script PowerShell (switch-to-ssh.ps1) prêt pour migration. Question bloquante credential manager résolue.
 2026-06-24 20:04 : Déploiement et monitoring finalisés — Tous les fixes ont été déployés à la production (commit d501774 live sur main). Workflows GitHub Actions confirmés actifs et configurés. Document DEPLOYMENT_AND_MONITORING_2026_Q2.md créé avec stratégie de monitoring pour le 29 juin 2026 et plan de backfill pour W25-2026. Prochaine action critique : vérifier le scraper W26-2026 le lundi 29 juin 08:00 UTC.
 2026-06-23 08:40 : Tâche 4/4 — Corriger les bugs identifiés et valider le fix (BUG_FIXES_VALIDATION_REPORT.md). ✅ **5 bugs fixes + 1 vulnerability patched**. Bugs #1-2 (CRITICAL): tuple unpacking + import fix_missing_weeks.py. Bug #3 (HIGH): whitespace filtering canonical products. Bug #4 (MEDIUM): regex amélioration edge decimals (6/6 test cases pass). Bug #5 (LOW): input validation col_index_to_letter(). Vulnerability: exception handling backfill.py. Validation: 100% static analysis + 40+ test cases + Python compile OK. Status: ✅ READY FOR PRODUCTION.
 2026-06-23 08:35 : Tâche 3/4 — Analyse complète code Python scraper (CODE_ANALYSIS_S24_FAILURE.md). Identifiées 5 erreurs : 2 CRITICAL (fix_missing_weeks.py: tuple unpacking + import de fonction inexistante), 1 HIGH (whitespace dans produits canoniques), 1 MEDIUM (regex décimales), 1 LOW (validation entrée). Code YAML correct, échec S24 dû causes externes (TaiyangNews indisponible) + workflows GitHub post-renommage. Recommandation : appliquer 3 fixes critiques/high.
