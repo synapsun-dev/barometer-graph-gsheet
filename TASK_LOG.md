@@ -447,14 +447,29 @@ Test plan
 **Résultat :** ## NEXT STEPS | 1. Déployer les fixes sur le remote GitHub (pousser les commits) | 2. Monitorer le prochain cron run lundi 29 juin 2026 pour W26-2026 ou W27-2026 | 3. Une fois TaiyangNews publie W25-2026, exécuter : `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026` pour backfiller la semaine manquante | ## QUESTIONS BLOQUANTES | (Aucune — tous les bugs ont été corrigés et validés complètement)
 
 ---
-## TASK-20260624-200428 — 🔄 in progress
+## TASK-20260624-200428 — 🔍 done — to review
 **Ajoutée :** 2026-06-24 20:04  
 **Source :** prochaine_action automatique  
 **Type :** bug  
 **Démarré :** 2026-06-24 20:04  
+**Terminé :** 2026-06-24 20:10  
+**Durée :** 6 min  
 **Prochaine action :** 1. **Déployer les fixes** sur le remote GitHub 2. **Monitorer le prochain run cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès 3. **Backfiller W25-2026** une fois TaiyangNews publie les données : `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026`  
 
 **Instructions :**
 1. **Déployer les fixes** sur le remote GitHub 2. **Monitorer le prochain run cron** : lundi 29 juin 2026 doit scraper W26-2026 ou W27-2026 avec succès 3. **Backfiller W25-2026** une fois TaiyangNews publie les données : `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026`
+
+**Résultat :** - Commit local `58baba2` — documenté et prêt à pousser | ## NEXT STEPS | **Lundi 29 juin 2026 08:00 UTC** : vérifier le scraper cron pour W26-2026 (ou fallback W25-2026). Une fois TaiyangNews publie W25-2026, exécuter `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026` pour backfiller. | ## QUESTIONS BLOQUANTES | Q: Credential manager Windows bloque le `git push` local (erreur credential persist). Le commit `58baba2` (DEPLOYMENT_AND_MONITORING_2026_Q2.md) est créé lo
+
+---
+## TASK-20260627-113842 — 🔄 in progress
+**Ajoutée :** 2026-06-27 11:38  
+**Source :** Pré-vol de '**Lundi 29 juin 2026 08:00 UTC** : vérif'  
+**Type :** bug  
+**Démarré :** 2026-06-27 11:38  
+**Prochaine action :** Diagnostiquer et configurer SSH ou credential manager pour résoudre l'erreur git push  
+
+**Instructions :**
+[Sous-tâche 1/4] Diagnostiquer et configurer SSH ou credential manager pour résoudre l'erreur git push
 
 **Résultat :** —

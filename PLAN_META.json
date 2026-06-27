@@ -5,8 +5,12 @@
       "title": "Renommes ce Repo : Barometer"
     },
     {
-      "title": "Le scrapping de data de taiyang news S24 ne s'est pas lancé",
-      "body": "Analyse et corrige durablement"
+      "body": "Analyse et corrige durablement",
+      "title": "Le scrapping de data de taiyang news S24 ne s'est pas lancé"
+    },
+    {
+      "title": "Ajouter un bouton avec une cloche comme sur Youtube pour être notifié des mises à jour",
+      "body": ""
     }
   ],
   "comments": {},
@@ -18,9 +22,11 @@
     "8": "realized"
   },
   "deleted": [
-    7
+    7,
+    9
   ],
   "order": [
+    9,
     8,
     0,
     1,

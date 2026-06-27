@@ -1,4 +1,4 @@
 {
-  "timestamp": "2026-06-23T08:40:26",
-  "text": "1. **Appliquer les 3 fixes CRITICAL/HIGH** :\n   - Fix Bug #1 (line 81 fix_missing_weeks.py) : ajouter tuple unpacking `html, page_url = fetch_page(w, y)`\n   - Fix Bug #2 (line 11 fix_missing_weeks.py) : renommer `extract_prices_free` → `extract_prices`\n   - Fix Bug #3 (line 462 taiyangnews_pv_scrape"
+  "timestamp": "2026-06-24T20:10:21",
+  "text": "**Lundi 29 juin 2026 08:00 UTC** : vérifier le scraper cron pour W26-2026 (ou fallback W25-2026). Une fois TaiyangNews publie W25-2026, exécuter `python pv-price-scraper/fix_missing_weeks.py --start-week 25 --start-year 2026` pour backfiller.\n\n## QUESTIONS BLOQUANTES\n\nQ: Credential manager Windows b"
 }
