@@ -3,17 +3,19 @@
 projet: Barometer
 statut: actif
 priorite: moyenne
-avancement: "80%"
-prochaine_action: "**Lundi 29 juin 2026 08:00 UTC** : vérifier le scraper cron pour W26-2026. SSH configuré localement — migration optionnelle (HTTPS + Credential Manager actuellement stable)."
+avancement: "95%"
+prochaine_action: "Vendredi 08:00 UTC (schedule auto). Vérifier la colonne W25-2026 dans le Google Sheet après le prochain run."
 type: outil-analyse
 stack: Python + HTML statique + GitHub Actions
 obsidian: "[[Synapsun]]"
-derniere_session: 2026-06-24
+derniere_session: 2026-07-01
 ---
 
 ## Contexte
-Clone local du repo GitHub `synapsun-dev/barometer-graph-gsheet` (ex `it-dev-synapsun/graph-gsheet-tayang`).
-Repo frère : `synapsun-dev/barometer-scrap-taiyang` (ex `it-dev-synapsun/it-dev-synapsun`) — exécute le cron hebdo du scraper.
+
+**Compteurs:** 1 html, 4 docx
+Clone local du repo GitHub `livrables/barometer-graph-gsheet` (ex `livrables/graph-gsheet-tayang`).
+Repo frère : `livrables/barometer-scrap-taiyang` (ex `livrables/it-dev-synapsun`) — exécute le cron hebdo du scraper.
 Ce repo contient le scraper Python (TaiyangNews → Google Sheets) ET les dashboards HTML.
 GitHub Actions lance le scraper chaque lundi 8h UTC.
 
@@ -61,12 +63,12 @@ Pipeline v1 terminé (100% autonome). Nouvelle phase : transformer le baromètre
 
 ### Word (DOCX)
 
-- `docs\SYNAPSUN_Manuel_Developpeur.docx` (12.7 KB) — livré 2026-05-23 16:16
-- `docs\SYNAPSUN_Contexte_Projet.docx` (12.8 KB) — livré 2026-05-23 16:16
-- `docs\Data-Barometer-Synapsun_Manuel.docx` (15.4 KB) — livré 2026-05-23 11:13
-- `docs\Data-Barometer-Synapsun_Contexte-Projet.docx` (15.0 KB) — livré 2026-05-23 11:13
-- `docs\documentation-barometre-synapsun.docx` (23.0 KB) — livré 2026-05-21 11:22
-- `docs\SYNAPSUN_TaiyangNews_Documentation_1.docx` (30.4 KB) — livré 2026-05-19 08:14
+- `livrables/SYNAPSUN_Manuel_Developpeur.docx` (12.7 KB) — livré 2026-05-23 16:16
+- `livrables/SYNAPSUN_Contexte_Projet.docx` (12.8 KB) — livré 2026-05-23 16:16
+- `livrables/Data-Barometer-Synapsun_Manuel.docx` (15.4 KB) — livré 2026-05-23 11:13
+- `livrables/Data-Barometer-Synapsun_Contexte-Projet.docx` (15.0 KB) — livré 2026-05-23 11:13
+- `livrables/documentation-barometre-synapsun.docx` (23.0 KB) — livré 2026-05-21 11:22
+- `livrables/SYNAPSUN_TaiyangNews_Documentation_1.docx` (30.4 KB) — livré 2026-05-19 08:14
 
 
 ## Blocages actuels
@@ -75,6 +77,8 @@ Aucun bloquant. Ce dossier est fonctionnel (GitHub Actions CI/CD en place).
 ## Historique récent
 2026-06-27 11:38 : SSH & Credentials configurés — RSA 4096 key généré, SSH config prêt, HTTPS + Credential Manager testé ✅ et fonctionnel. Guide de migration SSH documenté (SSH_CREDENTIALS_SETUP.md). Script PowerShell (switch-to-ssh.ps1) prêt pour migration. Question bloquante credential manager résolue.
 2026-06-24 20:04 : Déploiement et monitoring finalisés — Tous les fixes ont été déployés à la production (commit d501774 live sur main). Workflows GitHub Actions confirmés actifs et configurés. Document DEPLOYMENT_AND_MONITORING_2026_Q2.md créé avec stratégie de monitoring pour le 29 juin 2026 et plan de backfill pour W25-2026. Prochaine action critique : vérifier le scraper W26-2026 le lundi 29 juin 08:00 UTC.
+2026-07-01 11:22 : Fix gsheet non mise à jour depuis 2 semaines — TaiyangNews publie W25-2026 mais scraper cherchait W27-2026. Solution : (1) discover_all_publications() scrape dynamiquement l'index pour extraire les publications disponibles. (2) find_latest_publication() fallback intelligent si semaine demandée manque. (3) Schedule décalée lundi 08:00 UTC → vendredi 08:00 UTC. Run manuel réussi : W27 → W26 → W25-2026 trouvée sur index → 27 produits extraits → Google Sheets à jour. Status: ✅ RÉSOLU.
+
 2026-06-23 08:40 : Tâche 4/4 — Corriger les bugs identifiés et valider le fix (BUG_FIXES_VALIDATION_REPORT.md). ✅ **5 bugs fixes + 1 vulnerability patched**. Bugs #1-2 (CRITICAL): tuple unpacking + import fix_missing_weeks.py. Bug #3 (HIGH): whitespace filtering canonical products. Bug #4 (MEDIUM): regex amélioration edge decimals (6/6 test cases pass). Bug #5 (LOW): input validation col_index_to_letter(). Vulnerability: exception handling backfill.py. Validation: 100% static analysis + 40+ test cases + Python compile OK. Status: ✅ READY FOR PRODUCTION.
 2026-06-23 08:35 : Tâche 3/4 — Analyse complète code Python scraper (CODE_ANALYSIS_S24_FAILURE.md). Identifiées 5 erreurs : 2 CRITICAL (fix_missing_weeks.py: tuple unpacking + import de fonction inexistante), 1 HIGH (whitespace dans produits canoniques), 1 MEDIUM (regex décimales), 1 LOW (validation entrée). Code YAML correct, échec S24 dû causes externes (TaiyangNews indisponible) + workflows GitHub post-renommage. Recommandation : appliquer 3 fixes critiques/high.
 2026-06-23 08:31 : Tâche 2/4 — Analyse config workflow YAML + schedule cron (WORKFLOW_CONFIG_ANALYSIS.md). Découverte critique : run schedule du 15 juin absent (workflows désactivés post-renommage 11 juin), causant échec 22 juin (W25-2026 manquante). Workflows actuellement activés. Recommandations : re-valider workflows enable + scraper W25 manuellement + valider run 29 juin.
