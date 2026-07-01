@@ -202,38 +202,82 @@ def _get(url: str):
     return None, None
 
 
+def discover_all_publications():
+    """
+    Scrape la page index TaiyangNews et extrait TOUTES les publications.
+    Retourne [(week, year, url), ...] triées par (year DESC, week DESC).
+    """
+    index_url = "https://taiyangnews.info/price-index"
+    logger.info("Scanning TaiyangNews index for all available publications...")
+    resp, _ = _get(index_url)
+    if not resp:
+        logger.warning("Could not fetch TaiyangNews index")
+        return []
+
+    publications = []
+    soup = BeautifulSoup(resp.text, "html.parser")
+
+    # Cherche tous les liens contenant "pv-price-index"
+    for link in soup.find_all("a", href=re.compile(r"pv-price-index", re.IGNORECASE)):
+        href = link.get("href", "")
+
+        # Extrait le slug de la dernière partie de l'URL
+        slug_match = re.search(r'pv-price-index[^/]*$', href, re.IGNORECASE)
+        if not slug_match:
+            continue
+        slug = slug_match.group(0)
+
+        # Format 2026+ : cw-20-2026 ou cw20-2026
+        m = re.search(r'cw-?(\d+)-(\d{4})$', slug, re.IGNORECASE)
+        if m:
+            week, year = int(m.group(1)), int(m.group(2))
+            publications.append((week, year, href if href.startswith("http") else f"https://taiyangnews.info{href}"))
+            logger.info("Found W%d-%d: %s", week, year, href)
+            continue
+
+        # Format 2024/2025 : 2025-cw22
+        m = re.search(r'(\d{4})-cw(\d+)$', slug, re.IGNORECASE)
+        if m:
+            year, week = int(m.group(1)), int(m.group(2))
+            publications.append((week, year, href if href.startswith("http") else f"https://taiyangnews.info{href}"))
+            logger.info("Found W%d-%d: %s", week, year, href)
+
+    # Trie par (année DESC, semaine DESC) = plus récent en premier
+    publications.sort(key=lambda x: (x[1], x[0]), reverse=True)
+    logger.info("Found %d publication(s) total", len(publications))
+    return publications
+
+
 def discover_url_from_index(week: int, year: int):
     """
     Scrape la page index TaiyangNews pour trouver l'URL exacte d'une semaine.
-    Utilisé comme fallback si les formats connus échouent.
     Retourne l'URL ou None.
     """
-    index_url = "https://taiyangnews.info/price-index"
-    logger.info("Discovering URL from index page for W%d-%d...", week, year)
-    resp, _ = _get(index_url)
-    if not resp:
-        return None
+    publications = discover_all_publications()
 
-    # Extrait tous les slugs pv-price-index du HTML
-    slugs = re.findall(r'pv-price-index[^"\'> &]+', resp.text, re.IGNORECASE)
-
-    for slug in slugs:
-        slug = slug.rstrip("/.,;)")
-        # Format 2026+ : cw-20-2026 ou cw20-2026
-        m = re.search(r'cw-?(\d+)-(\d{4})$', slug, re.IGNORECASE)
-        if m and int(m.group(1)) == week and int(m.group(2)) == year:
-            url = f"https://taiyangnews.info/price-index/taiyangnews-{slug}"
-            logger.info("Found URL via index: %s", url)
-            return url
-        # Format 2024/2025 : 2025-cw22
-        m = re.search(r'(\d{4})-cw(\d+)$', slug, re.IGNORECASE)
-        if m and int(m.group(2)) == week and int(m.group(1)) == year:
-            url = f"https://taiyangnews.info/price-index/taiyangnews-{slug}"
-            logger.info("Found URL via index: %s", url)
+    # Cherche la semaine spécifiée
+    for w, y, url in publications:
+        if w == week and y == year:
+            logger.info("Found exact match W%d-%d: %s", week, year, url)
             return url
 
     logger.info("W%d-%d not found in index page", week, year)
     return None
+
+
+def find_latest_publication():
+    """
+    Retourne la publication la plus récente de l'index.
+    Utilisée comme dernier fallback quand aucune semaine cherchée n'existe.
+    Retourne (week, year, url) ou (None, None, None).
+    """
+    publications = discover_all_publications()
+    if publications:
+        week, year, url = publications[0]  # Déjà triée, plus récente en premier
+        logger.info("Using latest available publication: W%d-%d", week, year)
+        return week, year, url
+    logger.warning("No publications found on TaiyangNews index")
+    return None, None, None
 
 
 def fetch_page(week: int, year: int):
@@ -638,10 +682,26 @@ def resolve_week(week: int, year: int, existing_headers: list):
         )
         return pw, py, html, url
 
-    # Ni la semaine courante ni la précédente ne sont récupérables alors que
-    # le Sheet ne contient aucune des deux : échec réel, pas un simple "rien à faire".
+    # Dernière chance : chercher la publication la plus récente sur l'index
+    logger.warning(
+        "W%d-%d and W%d-%d not found — scanning index for latest available publication...",
+        week, year, pw, py,
+    )
+    latest_week, latest_year, latest_url = find_latest_publication()
+    if latest_url:
+        html, url = _get(latest_url)
+        if html:
+            logger.warning(
+                "Using latest available: W%d-%d (requested W%d-%d)",
+                latest_week, latest_year, week, year,
+            )
+            return latest_week, latest_year, html.text, url
+        else:
+            logger.error("Could not fetch latest publication URL: %s", latest_url)
+
+    # Ni la semaine courante ni la précédente ne sont récupérables
     logger.error(
-        "Neither W%d-%d nor W%d-%d could be fetched and the sheet has neither — "
+        "Neither W%d-%d, W%d-%d, nor any recent publication could be fetched — "
         "TaiyangNews scrape failed (site down or URL scheme changed?).",
         week, year, pw, py,
     )

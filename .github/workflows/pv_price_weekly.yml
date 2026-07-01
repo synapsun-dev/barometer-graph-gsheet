@@ -2,8 +2,8 @@ name: TaiyangNews PV Price Index
 
 on:
   schedule:
-    # Chaque lundi à 08:00 UTC
-    - cron: "0 8 * * 1"
+    # Chaque vendredi à 08:00 UTC (TaiyangNews publie mercredi/jeudi)
+    - cron: "0 8 * * 5"
   workflow_dispatch:
     inputs:
       mode:
