@@ -170,3 +170,24 @@ There are no automated tests. Validation is done through:
 À partir du 2026-06-17, les livrables HTML majeurs intègrent une **zone de feedback utilisateur**.
 
 Voir `C:\Claude\Dashboard_Pilotage\FEEDBACK_PROTOCOL.md` pour la spécification technique et l'intégration.
+
+---
+
+## Consignation des tâches futures — règle Dashboard de pilotage
+
+Toute chose « à faire plus tard », « à ne pas oublier », ou décision en attente
+DOIT être consignée dans un format exploitable par le Dashboard de pilotage —
+JAMAIS uniquement dans un fichier de documentation ou de notes (docs/*.md,
+README, rapport…) qui sortira des radars.
+
+1. **Tâche future / chantier différé** → entrée `### Tâche N — <titre>` dans la
+   section `## Plan d'action détaillé` du `PROJECT.md` (préfixer « EN ATTENTE
+   de … » si elle dépend d'une décision ou d'un événement).
+2. **Prochaine action immédiate** → frontmatter `prochaine_action` (1 ligne,
+   ≤ 300 caractères, sans markdown).
+3. **Question à trancher par Franck** → section `## QUESTIONS BLOQUANTES` du
+   corps du PROJECT.md.
+4. Le détail technique peut rester dans `docs/`, mais le **pointeur** (la tâche)
+   doit exister dans le PROJECT.md — c'est lui que le dashboard parse.
+
+Après mise à jour : `python C:/Claude/Dashboard_Pilotage/scripts/aggregate.py`.
