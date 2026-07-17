@@ -54,6 +54,8 @@ jobs:
             echo "Aucun changement — rien à committer"
           else
             git commit -m "auto: snapshot mensuel baromètre ($(date -u +%Y-%m))"
+            # Rebase avant push : un autre workflow peut avoir poussé entre-temps
+            git pull --rebase origin main
             git push
           fi
 
