@@ -1,10 +1,15 @@
 <!DOCTYPE html>
+<!-- feedback-exempt: page publique de production (GitHub Pages) destinée aux visiteurs externes — le widget feedback interne (localhost:8765) n'a pas de sens ici -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaiyangNews PV Price Index - SynapSun</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="canonical" href="https://synapsun.com/barometre">
+<link rel="alternate" hreflang="fr" href="https://synapsun.com/barometre">
+<link rel="alternate" hreflang="en" href="https://synapsun.com/barometer">
+<link rel="alternate" hreflang="x-default" href="https://synapsun.com/barometre">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
@@ -343,17 +348,50 @@ function toggleLang(){
 }
 
 function updateTimestamp(){
-  const now=new Date();
+  // Si les données viennent du contrat JSON, afficher sa date de génération
+  const d=window._generatedAt?new Date(window._generatedAt):new Date();
   const loc=lang==='fr'?'fr-FR':'en-GB';
-  document.getElementById('main-upd').textContent=t('updated')+': '+now.toLocaleDateString(loc)+' '+now.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('main-upd').textContent=t('updated')+': '+d.toLocaleDateString(loc)+' '+d.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'});
 }
 
-/* ── Load data ── */
-fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid=0')
-  .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
-  .then(csv=>{
+/* ── Load data ──
+   Source primaire : data/barometer.json (contrat versionné, généré chaque
+   vendredi par export_json.py). Fallback : CSV gviz Google Sheets. */
+function fromJson(j){
+  const weeks=j.weeks;
+  const dates=weeks.map(weekToDate);
+  const prods=[];
+  let lastDataIdx=0;
+  j.products.forEach(p=>{
+    if(!p.show_in_barometer||!p.category||!p.name)return;
+    if(HIDDEN_PRODUCTS.some(h=>p.name.toLowerCase().includes(h.toLowerCase())))return;
+    p.values.forEach((v,idx)=>{if(v!==null)lastDataIdx=Math.max(lastDataIdx,idx);});
+    prods.push({cat:p.category,n:p.name,v:p.values});
+  });
+  if(!prods.length)throw new Error('empty JSON');
+  return{weeks,dates,prods,lastDataIdx};
+}
+
+function loadFromCsv(){
+  return fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid=0')
+    .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
+    .then(csv=>{window._generatedAt=null;return parseCSV(csv);});
+}
+
+fetch('data/barometer.json',{cache:'no-cache'})
+  .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+  .then(j=>{
+    if(!j||j.schema_version!==1||!Array.isArray(j.products))throw new Error('bad schema');
+    window._generatedAt=j.generated_at||null;
+    return fromJson(j);
+  })
+  .catch(e=>{
+    console.warn('barometer.json indisponible, fallback CSV :',e.message);
+    return loadFromCsv();
+  })
+  .then(data=>{
     document.getElementById('load').style.display='none';
-    allData=parseCSV(csv);
+    allData=data;
     initAll();
   })
   .catch(e=>{

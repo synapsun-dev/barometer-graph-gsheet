@@ -42,6 +42,12 @@ CSV_URL   = (
 
 DASHBOARD_URL = "https://synapsun-dev.github.io/barometer-graph-gsheet/"
 
+# Contrat de données JSON généré chaque vendredi 09:00 UTC par export_json.yml.
+# Au-delà de MAX_JSON_AGE_DAYS sans régénération, l'export est considéré en panne
+# (7 jours de cycle + 2 jours de marge).
+BAROMETER_JSON_URL = DASHBOARD_URL + "data/barometer.json"
+MAX_JSON_AGE_DAYS = 9
+
 ZOHO_IFRAMES = {
     "Zoho Analytics — Sea freight": (
         "https://analytics.zoho.com/open-view/1373627000027120086/"
@@ -193,9 +199,47 @@ def check_taiyangnews() -> str:
     return f"HTTP 200 ({len(resp.text)} octets)"
 
 
+def check_barometer_json() -> str:
+    """Contrat de données JSON : accessible, schéma valide, régénéré récemment.
+
+    La fraîcheur des DONNÉES (lag TaiyangNews) est déjà couverte par
+    check_sheets_csv ; ici on vérifie que l'EXPORT hebdomadaire tourne.
+    """
+    from datetime import datetime, timezone
+
+    resp = http_get(BAROMETER_JSON_URL)
+    try:
+        data = resp.json()
+    except ValueError as exc:
+        raise RuntimeError(f"JSON invalide : {exc}")
+    if data.get("schema_version") != 1:
+        raise RuntimeError(f"schema_version inattendu : {data.get('schema_version')!r}")
+    products = data.get("products") or []
+    if not products:
+        raise RuntimeError("Aucun produit dans le JSON")
+    generated_at = data.get("generated_at", "")
+    try:
+        generated = datetime.strptime(generated_at, "%Y-%m-%dT%H:%M:%SZ").replace(
+            tzinfo=timezone.utc
+        )
+    except ValueError:
+        raise RuntimeError(f"generated_at illisible : {generated_at!r}")
+    age_days = (datetime.now(timezone.utc) - generated).days
+    if age_days > MAX_JSON_AGE_DAYS:
+        raise RuntimeError(
+            f"EXPORT EN PANNE : barometer.json généré il y a {age_days} jours "
+            f"(max {MAX_JSON_AGE_DAYS}) — vérifier le workflow export_json.yml"
+        )
+    return (
+        f"last_week={data.get('last_week')}, {len(products)} produits, "
+        f"généré il y a {age_days} j"
+    )
+
+
 CHECKS = [
     ("Google Sheets CSV",        check_sheets_csv),
     ("Dashboard GitHub Pages",   check_dashboard),
+    ("Contrat JSON barometer",   check_barometer_json),
     ("API BCE (taux de change)", check_ecb),
     ("API XAG (argent)",         check_xag),
     ("TaiyangNews price-index",  check_taiyangnews),

@@ -1,0 +1,78 @@
+# Snapshot mensuel du baromètre : image (≤2 Mo) + PDF (≤4 Mo) au format attendu
+# par l'admin EasyAdmin du portail synapsun.com (entité Barometer, ROLE_BAROMETER).
+# Cron les 28-31 de chaque mois à 10:00 UTC ; le job ne s'exécute réellement que
+# le DERNIER jour du mois (ou en déclenchement manuel).
+name: Monthly Barometer Snapshot
+
+on:
+  schedule:
+    - cron: '0 10 28-31 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ne tourner que le dernier jour du mois (sauf déclenchement manuel)
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date -u -d tomorrow +%d)" = "01" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Pas le dernier jour du mois — rien à faire."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          python-version: '3.11'
+
+      - name: Installer Playwright + Chromium
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Générer le snapshot du mois
+        if: steps.gate.outputs.run == 'true'
+        run: python pv-price-scraper/render_snapshot.py
+
+      - name: Committer le snapshot
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add snapshots/
+          if git diff --cached --quiet; then
+            echo "Aucun changement — rien à committer"
+          else
+            git commit -m "auto: snapshot mensuel baromètre ($(date -u +%Y-%m))"
+            git push
+          fi
+
+      - name: Publier en artifact + résumé
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: barometre-snapshot-${{ github.run_id }}
+          path: snapshots/
+
+      - name: Résumé
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          {
+            echo "## Snapshot mensuel baromètre"
+            echo ""
+            echo "Fichiers prêts pour l'upload EasyAdmin (\`/admin\` → Barometer, rôle ROLE_BAROMETER) :"
+            echo '```'
+            ls -lh snapshots/$(date -u +%Y-%m)/ || true
+            echo '```'
+            echo "Meta proposées : voir \`snapshots/$(date -u +%Y-%m)/meta.txt\`"
+          } >> "$GITHUB_STEP_SUMMARY"

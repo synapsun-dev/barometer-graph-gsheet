@@ -1,0 +1,53 @@
+# Export du contrat de données data/barometer.json (servi par GitHub Pages).
+# Tourne chaque vendredi à 09:00 UTC, 1 h après le scraper hebdomadaire
+# (pv_price_weekly.yml, 08:00 UTC sur le repo barometer-scrap-taiyang).
+name: Export Barometer JSON
+
+on:
+  schedule:
+    - cron: '0 9 * * 5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer les dépendances
+        run: pip install requests
+
+      - name: Générer data/barometer.json
+        run: python pv-price-scraper/export_json.py
+
+      - name: Committer si changement
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/barometer.json
+          if git diff --cached --quiet; then
+            echo "Aucun changement — rien à committer"
+          else
+            git commit -m "auto: export barometer.json ($(date -u +%F))"
+            git push
+          fi
+
+      - name: Résumé
+        run: |
+          echo "## Export barometer.json" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          d = json.load(open('data/barometer.json', encoding='utf-8'))
+          vis = sum(1 for p in d['products'] if p['show_in_barometer'])
+          print(f"- Dernière semaine : **{d['last_week']}**")
+          print(f"- Produits : {len(d['products'])} ({vis} visibles)")
+          print(f"- FX figés : EUR/USD={d['fx']['eur_usd']} EUR/CNY={d['fx']['eur_cny']} XAG={d['fx']['xag_usd_oz']} USD/oz")
+          print(f"- Généré : {d['generated_at']}")
+          EOF
