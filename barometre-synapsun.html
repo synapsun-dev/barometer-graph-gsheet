@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<!-- v2026-06-01c -->
+<!-- v2026-07-17a -->
+<!-- feedback-exempt: page publique de production (GitHub Pages) destinée aux visiteurs externes — le widget feedback interne (localhost:8765) n'a pas de sens ici -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<link rel="alternate" hreflang="fr" href="https://synapsun.com/fr/barometre-prix-modules-photovoltaiques">
-<link rel="alternate" hreflang="en" href="https://synapsun.com/en/pv-module-price-barometer">
-<link rel="alternate" hreflang="x-default" href="https://synapsun.com/fr/barometre-prix-modules-photovoltaiques">
+<link rel="alternate" hreflang="fr" href="https://synapsun.com/barometre">
+<link rel="alternate" hreflang="en" href="https://synapsun.com/barometer">
+<link rel="alternate" hreflang="x-default" href="https://synapsun.com/barometre">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Baromètre des prix modules photovoltaïques 2025 | Synapsun</title>
 <meta name="description" content="Suivi hebdomadaire des prix des modules photovoltaïques : polysilicium, wafers, cellules TOPCon & Back Contact, prix FOB Chine, fret maritime, taux de change et prix DDP Europe. Par Synapsun, expert modules PV.">
 <meta name="keywords" content="prix modules photovoltaïques, baromètre PV, prix polysilicium, prix wafer solaire, modules TOPCon prix, modules back contact prix, prix panneau solaire 2025, FOB Chine modules PV, fret maritime solaire, EUR USD CNY taux de change, Synapsun">
 <meta name="robots" content="index, follow">
 <meta name="author" content="Synapsun">
-<link rel="canonical" href="https://synapsun.com/fr/barometre-prix-modules-photovoltaiques">
+<link rel="canonical" href="https://synapsun.com/barometre">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://synapsun.com/fr/barometre-prix-modules-photovoltaiques">
+<meta property="og:url" content="https://synapsun.com/barometre">
 <meta property="og:title" content="Baromètre des prix modules photovoltaïques | Synapsun">
 <meta property="og:description" content="Suivi hebdomadaire des prix des modules PV de la matière première au module livré en Europe. TOPCon, Back Contact, FOB Chine, fret, taux de change.">
 <meta property="og:image" content="https://synapsun.com/build/img/og-barometre-pv.jpg">
@@ -38,8 +39,8 @@
   "@graph": [
     {
       "@type": "WebPage",
-      "@id": "https://synapsun.com/fr/barometre-prix-modules-photovoltaiques",
-      "url": "https://synapsun.com/fr/barometre-prix-modules-photovoltaiques",
+      "@id": "https://synapsun.com/barometre",
+      "url": "https://synapsun.com/barometre",
       "name": "Baromètre des prix modules photovoltaïques",
       "description": "Suivi hebdomadaire des prix des modules PV : polysilicium, wafers, cellules, modules FOB/FCA/DDP, fret maritime et taux de change.",
       "inLanguage": ["fr-FR", "en-GB"],
@@ -58,7 +59,7 @@
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://synapsun.com" },
           { "@type": "ListItem", "position": 2, "name": "Modules PV", "item": "https://synapsun.com/fr/modules-pv" },
-          { "@type": "ListItem", "position": 3, "name": "Baromètre des prix", "item": "https://synapsun.com/fr/barometre-prix-modules-photovoltaiques" }
+          { "@type": "ListItem", "position": 3, "name": "Baromètre des prix", "item": "https://synapsun.com/barometre" }
         ]
       }
     },
@@ -66,7 +67,7 @@
       "@type": "Dataset",
       "name": "Baromètre Synapsun — Prix modules photovoltaïques",
       "description": "Séries temporelles hebdomadaires des prix des composants de la filière photovoltaïque : polysilicium, wafers, cellules, modules, fret maritime et taux de change EUR/USD/CNY.",
-      "url": "https://synapsun.com/fr/barometre-prix-modules-photovoltaiques",
+      "url": "https://synapsun.com/barometre",
       "creator": {
         "@type": "Organization",
         "name": "Synapsun",
@@ -669,6 +670,30 @@ const TAIYANG_PRICES_TAB = 'taiyangnews_scrapping';
 const SILVER_MG_PER_WC  = 9.03;
 const MODULE_COST_USD_WC = { topcon: 0.095, topcon_large: 0.085 };
 
+// ═══════════════════════════════════════════════════════════════
+// CONTRAT DE DONNÉES JSON (data/barometer.json, généré chaque
+// vendredi par export_json.py) — source primaire ; le CSV gviz
+// Google Sheets reste le fallback si le JSON est absent/invalide.
+// ═══════════════════════════════════════════════════════════════
+const BAROMETER_JSON_URL = 'data/barometer.json';
+let _barometerJsonPromise = null;
+
+function loadBarometerJson() {
+  if (!_barometerJsonPromise) {
+    _barometerJsonPromise = fetch(BAROMETER_JSON_URL, { cache: 'no-cache' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(j => {
+        if (!j || j.schema_version !== 1 || !Array.isArray(j.products) || !Array.isArray(j.weeks)) {
+          throw new Error('Schéma inattendu');
+        }
+        window._barometerJson = j;
+        return j;
+      })
+      .catch(e => { console.warn('barometer.json indisponible (fallback CSV/API) :', e.message); return null; });
+  }
+  return _barometerJsonPromise;
+}
+
 
 // ═══════════════════════════════════════════════════════════════
 // i18n
@@ -1006,6 +1031,19 @@ async function loadFX() {
     console.warn('Live FX failed:', e);
   }
 
+  // ── 1bis. Fallback : taux figés du contrat JSON hebdo si l'API live est KO ──
+  if (liveUsd === null) {
+    const bj = await loadBarometerJson();
+    if (bj && bj.fx && bj.fx.eur_usd && bj.fx.eur_cny) {
+      liveUsd = bj.fx.eur_usd;
+      liveCny = bj.fx.eur_cny;
+      document.getElementById('kpi-eurusd').innerHTML = liveUsd.toFixed(4) + '<sup> USD</sup>';
+      document.getElementById('kpi-eurcny').innerHTML = liveCny.toFixed(4) + '<sup> CNY</sup>';
+      document.getElementById('kpi-usdcny').innerHTML = (liveCny / liveUsd).toFixed(4) + '<sup> CNY</sup>';
+      console.info('FX : taux figés du ' + bj.fx.fixed_at + ' (barometer.json)');
+    }
+  }
+
   // ── 2. Historique via API BCE (gratuit, sans clé) ──
   // Renvoie les taux journaliers EUR/USD et EUR/CNY
   try {
@@ -1330,8 +1368,9 @@ async function loadSilverPrice() {
 
   } catch(e) {
     console.warn('Silver price load failed:', e.message);
-    // Fallback mock avec prix connu (ne jamais afficher un prix figé bas)
-    window._silverUsdOz = window._silverUsdOz || 78;
+    // Fallback 1 : prix figé du contrat JSON hebdo ; fallback 2 : constante
+    const bj = await loadBarometerJson();
+    window._silverUsdOz = window._silverUsdOz || (bj && bj.fx && bj.fx.xag_usd_oz) || 78;
     buildSilverMock(window._silverUsdOz);
     renderBreakdown();
     if (window._taiyangPrices) renderCostEvolutionChart(window._taiyangPrices);
@@ -1423,6 +1462,38 @@ function renderSilverChart(dates, prices) {
 // Lit le tab taiyangnews_scrapping (format : produits en lignes, semaines en colonnes)
 // et reconstruit une série temporelle poly/wafer/cell sur 52 semaines.
 async function loadCostEvolution() {
+  // ── Source primaire : contrat JSON hebdo ──
+  const bj = await loadBarometerJson();
+  if (bj) {
+    try {
+      const findProd = (catKeyword, nameKeywords = []) => bj.products.find(p =>
+        p.show_in_barometer &&
+        (p.category || '').toLowerCase().includes(catKeyword.toLowerCase()) &&
+        (!nameKeywords.length || nameKeywords.some(k => (p.name || '').toLowerCase().includes(k))));
+
+      const poly  = findProd('polysilicon');
+      const wafer = findProd('wafer');
+      const cell  = findProd('cell', ['topcon','perc','cell']);
+      if (!poly && !wafer && !cell) throw new Error('No product in JSON');
+
+      const n = bj.weeks.length;
+      const start = Math.max(0, n - 52);
+      const dataRows = [];
+      for (let wi = start; wi < n; wi++) {
+        const val = p => p ? (p.values[wi] || 0) : 0;
+        const row = { date: bj.weeks[wi], poly: val(poly), wafer: val(wafer), cell: val(cell), module: 0 };
+        if (row.poly > 0 || row.wafer > 0 || row.cell > 0) dataRows.push(row);
+      }
+      if (dataRows.length < 4) throw new Error('Not enough data points in JSON');
+      window._taiyangPrices = dataRows;
+      renderCostEvolutionChart(dataRows);
+      return;
+    } catch (e) {
+      console.warn('JSON cost evolution failed, falling back to CSV:', e.message);
+    }
+  }
+
+  // ── Fallback : CSV gviz Google Sheets ──
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(TAIYANG_PRICES_TAB)}`;
   try {
     const resp = await fetch(csvUrl);
