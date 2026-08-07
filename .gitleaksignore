@@ -1,0 +1,6 @@
+# Clé API Google (navigateur) du dashboard baromètre — publique PAR CONCEPTION :
+# servie à chaque visiteur via GitHub Pages pour l'appel client sheets.googleapis.com v4
+# (lecture seule du Sheet public). Déjà présente à HEAD dans barometre-synapsun.html.
+# Hygiène : restrictions referrer + API à vérifier — Tâche 8 du PROJECT.md (2026-08-07).
+barometre-synapsun.html:gcp-api-key:870
+livrables/barometre-synapsun.html:gcp-api-key:870
