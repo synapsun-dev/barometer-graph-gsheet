@@ -54,8 +54,7 @@ ZOHO_IFRAMES = {
         "d6435972ee5651e23d81649703e4b2320b5f037c5a75c8bb38c908c5e858f431"
     ),
     "Zoho Analytics — Vue 2": (
-        "https://analytics.zoho.com/open-view/1373627000026674231/"
-        "85b92126b565480a6ccb0c28c0eb82a29c5bc7bb3263cdbf8b70430334460571"
+        "https://analytics.zoho.com/open-view/1373627000030138796"
     ),
 }
 
