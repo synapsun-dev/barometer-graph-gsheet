@@ -1,0 +1,4 @@
+metaTitle: Baromètre des prix modules photovoltaïques — août 2026 | Synapsun
+metaDescription: Baromètre Synapsun août 2026 : suivi hebdomadaire des prix de la filière photovoltaïque — polysilicium, wafers, cellules TOPCon, modules FOB Chine, verre solaire, fret maritime et taux de change EUR/USD/CNY.
+metaKeywords: prix modules photovoltaïques, baromètre PV, prix polysilicium, prix wafer, modules TOPCon, FOB Chine, août 2026, Synapsun
+date (période): 2026-08-01
