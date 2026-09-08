@@ -1,12 +1,3 @@
-# Clé API Google (navigateur) du dashboard baromètre — publique PAR CONCEPTION :
-# servie à chaque visiteur via GitHub Pages pour l'appel client sheets.googleapis.com v4
-# (lecture seule du Sheet public). Déjà présente à HEAD dans barometre-synapsun.html.
-# Hygiène : restrictions referrer + API à vérifier — Tâche 8 du PROJECT.md (2026-08-07).
-barometre-synapsun.html:gcp-api-key:870
-livrables/barometre-synapsun.html:gcp-api-key:870
-# Même clé, dupliquée dans les 4 variantes linguistiques générées par
-# generate_lang_variants.py (corps JS identique au maître) — Tâche 9 (2026-09-08).
-barometre-synapsun-en.html:gcp-api-key:1029
-barometre-synapsun-de.html:gcp-api-key:1029
-barometre-synapsun-it.html:gcp-api-key:1029
-barometre-synapsun-es.html:gcp-api-key:1029
+# Clé API Google morte (code jamais appelé, confirmée invalide) supprimée
+# le 2026-09-08 des 6 fichiers HTML (audit sécurité pré-déploiement
+# synapsun.com, Tâche 8/10 du PROJECT.md). Plus aucune entrée nécessaire ici.

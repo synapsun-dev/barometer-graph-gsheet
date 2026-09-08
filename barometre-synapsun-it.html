@@ -643,6 +643,10 @@ const TAIYANG_PRICES_TAB = 'taiyangnews_scrapping';
 const SILVER_MG_PER_WC  = 9.03;
 const MODULE_COST_USD_WC = { topcon: 0.095, topcon_large: 0.085 };
 
+function escHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 // ═══════════════════════════════════════════════════════════════
 // CONTRAT DE DONNÉES JSON (data/barometer.json, généré chaque
 // vendredi par export_json.py) — source primaire ; le CSV gviz
@@ -1026,9 +1030,6 @@ function applyI18n() {
 // ou qui sont vides sur une ligne donnée, retombent sur EN puis FR — cf. renderAnalyses)
 
 async function loadAnalyses() {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_TAB)}?key=AIzaSyD-9tSrke72PtkAppXquL24sb2vHR1bCrI`;
-  // Note: remplacer la clé API ci-dessus par une clé Google Sheets API publique (lecture seule, restricted to spreadsheet)
-  // Alternative sans clé API : utiliser le CSV export public (ci-dessous)
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`;
 
   try {
@@ -1132,7 +1133,7 @@ function renderAnalyses(data) {
     // Analysis text
     const bodyEl = document.getElementById(`text-${key}`);
     if (bodyEl) {
-      bodyEl.innerHTML = analysis.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('');
+      bodyEl.innerHTML = analysis.split('\n').filter(l => l.trim()).map(l => `<p>${escHtml(l)}</p>`).join('');
     }
 
     // Date
@@ -1146,11 +1147,13 @@ function renderAnalyses(data) {
     if (srcEl) {
       const srcs = (item.sources || '').split(';').map(s => s.trim()).filter(Boolean);
       if (srcs.length) {
-        srcEl.innerHTML = `${S.sources_label} ${srcs.map(s => {
+        srcEl.innerHTML = `${escHtml(S.sources_label)} ${srcs.map(s => {
           const parts = s.split('|');
-          return parts[1]
-            ? `<a href="${parts[1].trim()}" target="_blank" rel="noopener">${parts[0].trim()}</a>`
-            : parts[0].trim();
+          const label = escHtml(parts[0].trim());
+          const href = (parts[1] || '').trim();
+          return href && /^https?:\/\//i.test(href)
+            ? `<a href="${escHtml(href)}" target="_blank" rel="noopener">${label}</a>`
+            : label;
         }).join(' · ')}`;
       } else {
         srcEl.style.display = 'none';
