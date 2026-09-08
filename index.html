@@ -94,15 +94,27 @@ if(EMBED_CAT){document.body.style.padding='12px';}
 
 const KPI_RENAME={'Granular Silicon (RMB/kg)':'FBR Granular Silicon (RMB/kg)'};
 
-let lang='fr';
 const I18N={
   fr:{Polysilicon:'Polysilicium',Wafer:'Wafers',Cell:'Cellules',Module:'Modules',Glass:'Verre solaire',
       from:'Du',to:'Au',week:'sem.',total:'periode',loading:'Chargement des donnees...',
       updated:'Derniere mise a jour',error:'Erreur de chargement',errorSub:'Verifiez que le Google Sheet est partage en lecture publique.'},
   en:{Polysilicon:'Polysilicon',Wafer:'Wafers',Cell:'Cells',Module:'Modules',Glass:'Solar glass',
       from:'From',to:'To',week:'week',total:'period',loading:'Loading data...',
-      updated:'Last update',error:'Loading error',errorSub:'Check that the Google Sheet is shared for public reading.'}
+      updated:'Last update',error:'Loading error',errorSub:'Check that the Google Sheet is shared for public reading.'},
+  de:{Polysilicon:'Polysilizium',Wafer:'Wafer',Cell:'Zellen',Module:'Module',Glass:'Solarglas',
+      from:'Von',to:'Bis',week:'Woche',total:'Zeitraum',loading:'Daten werden geladen...',
+      updated:'Letzte Aktualisierung',error:'Ladefehler',errorSub:'Bitte prüfen, ob das Google Sheet öffentlich freigegeben ist.'},
+  it:{Polysilicon:'Polisilicio',Wafer:'Wafer',Cell:'Celle',Module:'Moduli',Glass:'Vetro solare',
+      from:'Dal',to:'Al',week:'sett.',total:'periodo',loading:'Caricamento dati...',
+      updated:'Ultimo aggiornamento',error:'Errore di caricamento',errorSub:'Verificare che il Google Sheet sia condiviso in lettura pubblica.'},
+  es:{Polysilicon:'Polisilicio',Wafer:'Obleas',Cell:'Células',Module:'Módulos',Glass:'Vidrio solar',
+      from:'Desde',to:'Hasta',week:'sem.',total:'período',loading:'Cargando datos...',
+      updated:'Última actualización',error:'Error de carga',errorSub:'Compruebe que el Google Sheet esté compartido en lectura pública.'}
 };
+// Langue fixée par le paramètre ?lang=xx de l'URL (passé par barometre-synapsun[-xx].html
+// pour les iframes embarquées) ; repli sur 'fr' pour une visite directe de index.html.
+const URL_LANG=new URLSearchParams(window.location.search).get('lang');
+let lang=(URL_LANG&&I18N[URL_LANG])?URL_LANG:'fr';
 function t(k){return I18N[lang][k]||k;}
 
 let allData=null;
@@ -170,10 +182,10 @@ function displayName(n){
   return s;
 }
 
+const DATE_LOCALE={fr:'fr-FR',en:'en-GB',de:'de-DE',it:'it-IT',es:'es-ES'};
 function weekLabel(w,d){
   if(!d)return w;
-  const loc=lang==='fr'?'fr-FR':'en-GB';
-  return w+' ('+d.toLocaleDateString(loc,{day:'2-digit',month:'short',year:'numeric'})+')';
+  return w+' ('+d.toLocaleDateString(DATE_LOCALE[lang]||'fr-FR',{day:'2-digit',month:'short',year:'numeric'})+')';
 }
 
 /* ── Chart Section factory ── */
@@ -350,7 +362,7 @@ function toggleLang(){
 function updateTimestamp(){
   // Si les données viennent du contrat JSON, afficher sa date de génération
   const d=window._generatedAt?new Date(window._generatedAt):new Date();
-  const loc=lang==='fr'?'fr-FR':'en-GB';
+  const loc=DATE_LOCALE[lang]||'fr-FR';
   document.getElementById('main-upd').textContent=t('updated')+': '+d.toLocaleDateString(loc)+' '+d.toLocaleTimeString(loc,{hour:'2-digit',minute:'2-digit'});
 }
 

@@ -4,3 +4,9 @@
 # Hygiène : restrictions referrer + API à vérifier — Tâche 8 du PROJECT.md (2026-08-07).
 barometre-synapsun.html:gcp-api-key:870
 livrables/barometre-synapsun.html:gcp-api-key:870
+# Même clé, dupliquée dans les 4 variantes linguistiques générées par
+# generate_lang_variants.py (corps JS identique au maître) — Tâche 9 (2026-09-08).
+barometre-synapsun-en.html:gcp-api-key:1029
+barometre-synapsun-de.html:gcp-api-key:1029
+barometre-synapsun-it.html:gcp-api-key:1029
+barometre-synapsun-es.html:gcp-api-key:1029
