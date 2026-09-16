@@ -414,10 +414,10 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
           loading="lazy" frameborder="0" allowtransparency="true">
         </iframe>
       </div>
-      <div class="ac">
-        <div class="ac-body">
-          <p data-i18n="s2_cell_note">Les cellules TOPCon (Tunnel Oxide Passivated Contact) représentent aujourd'hui la technologie dominante dans les appels d'offres en Europe. Leur prix est coté en USD/W et évolue en fonction des prix du wafer et de la pâte d'argent.</p>
-        </div>
+      <div class="ac" id="ac-cell_note">
+        <div class="ac-body" id="text-cell_note"><p class="sk" style="height:13px;margin-bottom:8px">&nbsp;</p><p class="sk" style="height:13px;width:82%">&nbsp;</p></div>
+        <div class="ac-date" id="date-cell_note"></div>
+        <div class="ac-sources" id="src-cell_note"></div>
       </div>
     </div>
   </section>
@@ -691,7 +691,6 @@ const STRINGS = {
     s2_step:'Étape 2 · Semi-produits',
     s2_wafer_title:'Wafers', s2_wafer_unit:'RMB / pièce',
     s2_cell_title:'Cellules', s2_cell_unit:'RMB / W',
-    s2_cell_note:'Les cellules TOPCon représentent la technologie dominante dans les appels d\'offres en Europe. Leur prix évolue en fonction des prix du wafer et de la pâte d\'argent.',
     s2_cell_label:'Cellules — USD/W',    s2_title:'Wafers & cellules',
     silver_step:'Étape 3 · Matériau stratégique',
     silver_title:'Cours de l\'argent (XAG/USD)',
@@ -750,7 +749,6 @@ const STRINGS = {
     s2_step:'Step 2 · Semi-finished',
     s2_wafer_title:'Wafers', s2_wafer_unit:'RMB / piece',
     s2_cell_title:'Cells', s2_cell_unit:'RMB / W',
-    s2_cell_note:'TOPCon cells are today the dominant technology in European tenders. Their price depends on wafer and silver paste costs.',
     s2_cell_label:'Cells — USD/W', s2_title:'Wafers & cells',
     silver_step:'Step 3 · Key material',
     silver_title:'Silver price (XAG/USD)',
@@ -809,7 +807,6 @@ const STRINGS = {
     s2_step:'Schritt 2 · Halbfertigprodukte',
     s2_wafer_title:'Wafer', s2_wafer_unit:'RMB / Stück',
     s2_cell_title:'Zellen', s2_cell_unit:'RMB / W',
-    s2_cell_note:'TOPCon-Zellen sind heute die dominierende Technologie bei europäischen Ausschreibungen. Ihr Preis hängt von den Wafer- und Silberpastenpreisen ab.',
     s2_cell_label:'Zellen — USD/W', s2_title:'Wafer & Zellen',
     silver_step:'Schritt 3 · Schlüsselmaterial',
     silver_title:'Silberpreis (XAG/USD)',
@@ -868,7 +865,6 @@ const STRINGS = {
     s2_step:'Fase 2 · Semilavorati',
     s2_wafer_title:'Wafer', s2_wafer_unit:'RMB / pezzo',
     s2_cell_title:'Celle', s2_cell_unit:'RMB / W',
-    s2_cell_note:'Le celle TOPCon rappresentano oggi la tecnologia dominante nelle gare d\'appalto europee. Il loro prezzo dipende dai prezzi del wafer e della pasta d\'argento.',
     s2_cell_label:'Celle — USD/W', s2_title:'Wafer e celle',
     silver_step:'Fase 3 · Materiale strategico',
     silver_title:'Prezzo dell\'argento (XAG/USD)',
@@ -927,7 +923,6 @@ const STRINGS = {
     s2_step:'Etapa 2 · Semiproductos',
     s2_wafer_title:'Obleas', s2_wafer_unit:'RMB / pieza',
     s2_cell_title:'Células', s2_cell_unit:'RMB / W',
-    s2_cell_note:'Las células TOPCon representan hoy la tecnología dominante en las licitaciones europeas. Su precio depende de los precios de la oblea y de la pasta de plata.',
     s2_cell_label:'Células — USD/W', s2_title:'Obleas y células',
     silver_step:'Etapa 3 · Material estratégico',
     silver_title:'Precio de la plata (XAG/USD)',
@@ -1105,7 +1100,7 @@ async function loadAnalyses() {
 }
 
 function showAnalysesError(msg) {
-  const blocks = ['polysilicon','wafer_cell','silver_price','cost_breakdown','modules_fob',
+  const blocks = ['polysilicon','wafer_cell','cell_note','silver_price','cost_breakdown','modules_fob',
                   'sea_freight','exchange_rate','modules_ddp','market_analysis'];
   blocks.forEach(key => {
     const el = document.getElementById(`text-${key}`);
