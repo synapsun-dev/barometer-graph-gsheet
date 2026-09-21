@@ -1869,25 +1869,28 @@ function initTocObserver() {
 // CSV PARSER (RFC 4180 subset)
 // ═══════════════════════════════════════════════════════════════
 function parseCSV(text) {
+  // Parseur pleine-chaine (et non ligne par ligne) : une cellule entre
+  // guillemets peut contenir un saut de ligne litteral (ex: analyse multi-
+  // paragraphes) — un split('\n') prealable casserait cette ligne en deux.
   const rows = [];
-  const lines = text.split('\n');
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    const row = [];
-    let inQuote = false, cell = '';
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"' && !inQuote) { inQuote = true; }
-      else if (c === '"' && inQuote) {
-        if (line[i+1] === '"') { cell += '"'; i++; }
+  let row = [], cell = '', inQuote = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuote) {
+      if (c === '"') {
+        if (text[i+1] === '"') { cell += '"'; i++; }
         else inQuote = false;
-      } else if (c === ',' && !inQuote) { row.push(cell); cell = ''; }
+      } else cell += c;
+    } else {
+      if (c === '"') inQuote = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\r') { /* ignore */ }
+      else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
       else cell += c;
     }
-    row.push(cell);
-    rows.push(row);
   }
-  return rows;
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => !(r.length === 1 && r[0].trim() === ''));
 }
 
 // ═══════════════════════════════════════════════════════════════
