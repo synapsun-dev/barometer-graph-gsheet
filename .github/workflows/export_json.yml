@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   export:
@@ -53,3 +54,19 @@ jobs:
           print(f"- FX figés : EUR/USD={d['fx']['eur_usd']} EUR/CNY={d['fx']['eur_cny']} XAG={d['fx']['xag_usd_oz']} USD/oz")
           print(f"- Généré : {d['generated_at']}")
           EOF
+
+      - name: Alerte pipeline — échec
+        if: failure()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: failure
+          alert-key: export-json
+          workflow-name: "Export Barometer JSON"
+
+      - name: Alerte pipeline — résolution
+        if: success()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: success
+          alert-key: export-json
+          workflow-name: "Export Barometer JSON"

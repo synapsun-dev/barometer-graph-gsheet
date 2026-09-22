@@ -1,0 +1,74 @@
+name: "Pipeline alert"
+description: >
+  Crée ou met à jour un ticket GitHub Issue quand un workflow du baromètre
+  échoue, et le referme automatiquement dès qu'un run repasse au vert.
+  Ne dépend d'aucun secret ni d'aucun réglage de notification personnel
+  (contrairement à l'email natif GitHub Actions, qui nécessite d'avoir coché
+  Settings → Notifications → Actions sur le compte concerné) : l'assignation
+  + la mention @propriétaire du repo déclenchent une notification GitHub
+  standard (participating/mentions), quasi toujours activée par défaut.
+
+inputs:
+  status:
+    description: "'failure' ou 'success' — résultat à traiter pour ce run"
+    required: true
+  alert-key:
+    description: "Identifiant court et stable du workflow (ex: pv-price-weekly) — sert de label pour ne pas mélanger les incidents de workflows différents"
+    required: true
+  workflow-name:
+    description: "Nom lisible du workflow, utilisé dans le titre/corps du ticket"
+    required: true
+  details:
+    description: "Détail libre à inclure dans le ticket (une ou deux lignes) — optionnel"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Créer / mettre à jour / fermer le ticket d'alerte
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        STATUS: ${{ inputs.status }}
+        ALERT_KEY: ${{ inputs.alert-key }}
+        WF_NAME: ${{ inputs.workflow-name }}
+        DETAILS: ${{ inputs.details }}
+        REPO: ${{ github.repository }}
+        OWNER: ${{ github.repository_owner }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: |
+        set -e
+        LABEL="pipeline-alert:${ALERT_KEY}"
+
+        gh label create "$LABEL" \
+          --repo "$REPO" \
+          --color D93F0B \
+          --description "Échec pipeline Baromètre détecté automatiquement ($WF_NAME)" \
+          2>/dev/null || true
+
+        OPEN_ISSUE=$(gh issue list --repo "$REPO" --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+
+        if [ "$STATUS" = "failure" ]; then
+          BODY=$(printf '@%s — le workflow **%s** vient d'"'"'échouer.\n\n**Run :** %s\n**Détail :** %s\n\nCe ticket est géré automatiquement (aucune action manuelle requise pour le créer) et se ferme tout seul dès qu'"'"'un prochain run de ce workflow réussit.' \
+            "$OWNER" "$WF_NAME" "$RUN_URL" "${DETAILS:-voir les logs du run ci-dessus}")
+
+          if [ -n "$OPEN_ISSUE" ]; then
+            COMMENT=$(printf '🔁 Nouvel échec — %s\n%s' "$RUN_URL" "${DETAILS:-}")
+            gh issue comment "$OPEN_ISSUE" --repo "$REPO" --body "$COMMENT"
+            echo "Commentaire ajouté au ticket #$OPEN_ISSUE (déjà ouvert)."
+          else
+            gh issue create --repo "$REPO" \
+              --title "🚨 Échec — ${WF_NAME}" \
+              --body "$BODY" \
+              --label "$LABEL" \
+              --assignee "$OWNER"
+            echo "Nouveau ticket d'alerte créé pour ${WF_NAME}."
+          fi
+        else
+          if [ -n "$OPEN_ISSUE" ]; then
+            gh issue comment "$OPEN_ISSUE" --repo "$REPO" --body "✅ Résolu — run réussi : ${RUN_URL}"
+            gh issue close "$OPEN_ISSUE" --repo "$REPO"
+            echo "Ticket #$OPEN_ISSUE refermé (run réussi)."
+          fi
+        fi

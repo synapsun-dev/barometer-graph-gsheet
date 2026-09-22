@@ -40,6 +40,21 @@ CSV_URL   = (
     f"?tqx=out:csv&sheet={SHEET_TAB}"
 )
 
+# Onglet des textes d'analyse (blocs "Analyse Synapsun" / commentaires par
+# étape du dashboard). Incident 2026-09-21 : le bloc `market_analysis`
+# ("Analyse Synapsun", pied de page du dashboard) avait cessé de se mettre à
+# jour côté navigateur (bug de parsing CSV JS) sans qu'aucun check ne le
+# détecte. On surveille ici ce bloc précis (pas les autres : plusieurs, comme
+# `modules_ddp`, sont vides par conception à ce jour — les flaguer créerait
+# une alerte permanente et non actionnable).
+ANALYSIS_SHEET_TAB   = "Analysis_Barometer"
+ANALYSIS_CSV_URL     = (
+    f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq"
+    f"?tqx=out:csv&sheet={ANALYSIS_SHEET_TAB}"
+)
+ANALYSIS_KEY_WATCHED  = "market_analysis"
+MAX_ANALYSIS_AGE_DAYS = 45  # publication ~mensuelle attendue, marge large
+
 DASHBOARD_URL = "https://synapsun-dev.github.io/barometer-graph-gsheet/"
 
 # Contrat de données JSON généré chaque vendredi 09:00 UTC par export_json.yml.
@@ -235,8 +250,75 @@ def check_barometer_json() -> str:
     )
 
 
+def check_analysis_tab() -> str:
+    """Onglet Analysis_Barometer : accessible, bien structuré, et le bloc phare
+    "Analyse Synapsun" (`market_analysis`) publié, non vide et pas trop ancien.
+    Voir commentaire de ANALYSIS_SHEET_TAB ci-dessus pour le contexte."""
+    import csv
+    import io
+    from datetime import datetime
+
+    resp = http_get(ANALYSIS_CSV_URL)
+    if resp.text.strip().startswith("<!"):
+        raise RuntimeError(
+            f"Onglet {ANALYSIS_SHEET_TAB} non accessible publiquement (page HTML renvoyée)"
+        )
+
+    rows = list(csv.reader(io.StringIO(resp.text)))
+    if len(rows) < 2:
+        raise RuntimeError(f"Onglet {ANALYSIS_SHEET_TAB} vide ou introuvable")
+
+    header = [h.strip().lower() for h in rows[0]]
+    try:
+        i_key    = header.index("block_key")
+        i_status = header.index("status")
+        i_date   = header.index("publish_date")
+        i_fr     = header.index("analysis_fr")
+        i_en     = header.index("analysis_en")
+    except ValueError as exc:
+        raise RuntimeError(f"Colonne attendue absente de {ANALYSIS_SHEET_TAB} : {exc}")
+
+    watched = None
+    for r in rows[1:]:
+        if len(r) <= max(i_key, i_status, i_date, i_fr, i_en):
+            continue  # ligne mal formée (trop courte) — ignorée, pas fatale
+        if r[i_key].strip() == ANALYSIS_KEY_WATCHED:
+            watched = r  # dernière occurrence retenue (lignes triées par date croissante)
+
+    if watched is None:
+        raise RuntimeError(f"Bloc '{ANALYSIS_KEY_WATCHED}' introuvable dans {ANALYSIS_SHEET_TAB}")
+
+    status = watched[i_status].strip().lower()
+    if status != "published":
+        raise RuntimeError(f"Bloc '{ANALYSIS_KEY_WATCHED}' status={status!r} (attendu 'published')")
+
+    if not watched[i_fr].strip() and not watched[i_en].strip():
+        raise RuntimeError(f"Bloc '{ANALYSIS_KEY_WATCHED}' publié mais analysis_fr/analysis_en vides")
+
+    raw_date = watched[i_date].strip()
+    parsed = None
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+        try:
+            parsed = datetime.strptime(raw_date, fmt)
+            break
+        except ValueError:
+            continue
+    if parsed is None:
+        raise RuntimeError(f"publish_date illisible pour '{ANALYSIS_KEY_WATCHED}' : {raw_date!r}")
+
+    age_days = (datetime.now() - parsed).days
+    if age_days > MAX_ANALYSIS_AGE_DAYS:
+        raise RuntimeError(
+            f"Bloc '{ANALYSIS_KEY_WATCHED}' non mis à jour depuis {age_days} j "
+            f"(max {MAX_ANALYSIS_AGE_DAYS}) — dernière publication {raw_date}"
+        )
+
+    return f"'{ANALYSIS_KEY_WATCHED}' publié le {raw_date} ({age_days} j), non vide"
+
+
 CHECKS = [
     ("Google Sheets CSV",        check_sheets_csv),
+    ("Analyse Synapsun (onglet)", check_analysis_tab),
     ("Dashboard GitHub Pages",   check_dashboard),
     ("Contrat JSON barometer",   check_barometer_json),
     ("API BCE (taux de change)", check_ecb),

@@ -28,6 +28,10 @@ concurrency:
   group: pv-scraper
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   scrape-and-update:
     runs-on: ubuntu-latest
@@ -53,14 +57,18 @@ jobs:
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: cd pv-price-scraper && python backfill.py --force
+        run: |
+          set -o pipefail
+          cd pv-price-scraper && python backfill.py --force 2>&1 | tee scraper_output.log
 
       - name: Run backfill complet
         if: ${{ github.event.inputs.mode == 'backfill' }}
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: cd pv-price-scraper && python backfill.py
+        run: |
+          set -o pipefail
+          cd pv-price-scraper && python backfill.py 2>&1 | tee scraper_output.log
 
       - name: Run weekly scraper
         if: ${{ github.event.inputs.mode != 'backfill' && github.event.inputs.mode != 'force' }}
@@ -68,7 +76,40 @@ jobs:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          set -o pipefail
           ARGS=""
           if [ -n "${{ github.event.inputs.week }}" ]; then ARGS="$ARGS --week ${{ github.event.inputs.week }}"; fi
           if [ -n "${{ github.event.inputs.year }}" ]; then ARGS="$ARGS --year ${{ github.event.inputs.year }}"; fi
-          cd pv-price-scraper && python taiyangnews_pv_scraper.py $ARGS
+          cd pv-price-scraper && python taiyangnews_pv_scraper.py $ARGS 2>&1 | tee scraper_output.log
+
+      - name: Extraire le détail de l'erreur (si échec)
+        id: scraper-error
+        if: failure()
+        run: |
+          DETAIL="voir les logs du run ci-dessus"
+          if [ -f pv-price-scraper/scraper_output.log ]; then
+            FOUND=$(grep -E "ERROR|WARNING" pv-price-scraper/scraper_output.log | tail -3 || true)
+            if [ -n "$FOUND" ]; then DETAIL="$FOUND"; fi
+          fi
+          {
+            echo "detail<<PIPELINE_ALERT_EOF"
+            echo "$DETAIL"
+            echo "PIPELINE_ALERT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Alerte pipeline — échec
+        if: failure()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: failure
+          alert-key: pv-price-weekly
+          workflow-name: "TaiyangNews PV Price Index (scraper hebdomadaire)"
+          details: ${{ steps.scraper-error.outputs.detail }}
+
+      - name: Alerte pipeline — résolution
+        if: success()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: success
+          alert-key: pv-price-weekly
+          workflow-name: "TaiyangNews PV Price Index (scraper hebdomadaire)"

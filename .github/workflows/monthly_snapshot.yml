@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   snapshot:
@@ -78,3 +79,19 @@ jobs:
             echo '```'
             echo "Meta proposées : voir \`snapshots/$(date -u +%Y-%m)/meta.txt\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Alerte pipeline — échec
+        if: steps.gate.outputs.run == 'true' && failure()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: failure
+          alert-key: monthly-snapshot
+          workflow-name: "Monthly Barometer Snapshot"
+
+      - name: Alerte pipeline — résolution
+        if: steps.gate.outputs.run == 'true' && success()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: success
+          alert-key: monthly-snapshot
+          workflow-name: "Monthly Barometer Snapshot"

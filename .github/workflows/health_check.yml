@@ -2,8 +2,11 @@ name: Dashboard Health Check
 
 # Vérifie quotidiennement que toutes les sources du baromètre répondent
 # (CSV Google Sheets, dashboard GitHub Pages, iframes Zoho, APIs BCE/XAG,
-# site TaiyangNews). En cas d'échec, le job échoue → GitHub envoie une
-# notification email native (Settings → Notifications → Actions).
+# site TaiyangNews). En cas d'échec, le job échoue ET ouvre/actualise un
+# ticket GitHub Issue assigné + @mention (action composite pipeline-alert,
+# incident 2026-09-18/21 : la notification email native GitHub Actions ne
+# suffit pas seule si Settings → Notifications → Actions n'est pas cochée
+# sur le compte — vérifier ce réglage reste recommandé en complément).
 
 on:
   schedule:
@@ -14,6 +17,10 @@ on:
 concurrency:
   group: health-check
   cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
   health-check:
@@ -36,4 +43,39 @@ jobs:
         run: pip install requests
 
       - name: Run health check
-        run: python pv-price-scraper/health_check.py
+        id: healthcheck
+        run: |
+          set -o pipefail
+          python pv-price-scraper/health_check.py 2>&1 | tee health_check_output.log
+
+      - name: Extraire le détail de l'erreur (si échec)
+        id: healthcheck-error
+        if: failure()
+        run: |
+          DETAIL="voir les logs du run ci-dessus"
+          if [ -f health_check_output.log ]; then
+            FOUND=$(grep -E "ÉCHEC|ERROR" health_check_output.log || true)
+            if [ -n "$FOUND" ]; then DETAIL="$FOUND"; fi
+          fi
+          {
+            echo "detail<<PIPELINE_ALERT_EOF"
+            echo "$DETAIL"
+            echo "PIPELINE_ALERT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Alerte pipeline — échec
+        if: failure()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: failure
+          alert-key: health-check
+          workflow-name: "Dashboard Health Check"
+          details: ${{ steps.healthcheck-error.outputs.detail }}
+
+      - name: Alerte pipeline — résolution
+        if: success()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: success
+          alert-key: health-check
+          workflow-name: "Dashboard Health Check"
