@@ -357,7 +357,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     <div class="split fi">
       <div class="ifr-wrap" style="height:912px">
         <iframe
-          src="index.html#polysilicon"
+          src="index.html?lang=en#polysilicon"
           height="100%"
           title="Polysilicon price index — Taiyang News / Synapsun"
           loading="lazy"
@@ -388,7 +388,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     </h3>
     <div class="split fi" style="margin-bottom:32px">
       <div class="ifr-wrap" style="height:912px">
-        <iframe src="index.html#wafer"
+        <iframe src="index.html?lang=en#wafer"
           height="100%" width="100%"
           title="Wafer price index — Taiyang News / Synapsun"
           loading="lazy" frameborder="0" allowtransparency="true">
@@ -408,7 +408,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     </h3>
     <div class="split fi">
       <div class="ifr-wrap" style="height:912px">
-        <iframe src="index.html#cell"
+        <iframe src="index.html?lang=en#cell"
           height="100%" width="100%"
           title="Cell price index — Taiyang News / Synapsun"
           loading="lazy" frameborder="0" allowtransparency="true">
@@ -436,7 +436,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <div class="chart-card">
           <div class="chart-title">
             <span data-i18n="silver_chart_title">XAG/USD — 12 derniers mois</span>
-            <span class="chart-tag" id="silver-source-tag">currency-api (J-1)</span>
+            <span class="chart-tag" id="silver-source-tag" data-i18n="silver_tag">currency-api (J-1)</span>
           </div>
           <div class="chart-wrap"><canvas id="chart-silver"></canvas></div>
           <p style="font-size:11px;color:var(--g400);margin-top:10px;font-style:italic" id="silver-src-note">Source : <a href="https://github.com/fawazahmed0/currency-api" target="_blank" style="color:var(--orange)">currency-api / COMEX</a> — cours XAG/USD hebdomadaire.</p>
@@ -448,15 +448,15 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
           <p data-i18n="silver_note">L'argent est un composant clé des busbars de cellules TOPCon. Sa valeur impacte directement le coût des cellules.</p>
           <div style="margin-top:14px;padding:12px;background:var(--g50);border-radius:8px;font-size:12px;color:var(--g600)">
             <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span style="font-weight:600;color:var(--navy)">Contenu argent / module</span>
+              <span style="font-weight:600;color:var(--navy)" data-i18n="silver_content">Contenu argent / module</span>
             </div>
             <div style="display:flex;justify-content:space-between">
               <span>TOPCon 1762×1134</span>
-              <span style="font-weight:600;color:var(--navy)">~9,9 g / module</span>
+              <span style="font-weight:600;color:var(--navy)" data-i18n="silver_g_small">~9,9 g / module</span>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:2px">
               <span>TOPCon 2382×1134</span>
-              <span style="font-weight:600;color:var(--navy)">~13,5 g / module</span>
+              <span style="font-weight:600;color:var(--navy)" data-i18n="silver_g_large">~13,5 g / module</span>
             </div>
             <div style="font-size:11px;color:var(--g400);margin-top:6px" data-i18n="silver_note_src">Source : Attestation SOREN N°010-2026_001 — 9,03 mg/Wc</div>
           </div>
@@ -587,6 +587,9 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <div class="ac-sources" id="src-modules_ddp"></div>
       </div>
     </div>
+    <div style="margin-top:20px;text-align:center">
+      <a id="price-grid-link" href="https://synapsun.com/fr/mon-compte/grille-de-prix/" target="_blank" rel="noopener" style="display:inline-block;background:var(--orange);color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600">Consulter les grilles de prix →</a>
+    </div>
   </section>
   <div class="divider"></div>
 
@@ -701,6 +704,18 @@ function loadBarometerJson() {
 // ═══════════════════════════════════════════════════════════════
 const STRINGS = {
   fr: {
+    silver_content:'Contenu argent / module',
+    silver_g_small:'~9,9 g / module',
+    silver_g_large:'~13,5 g / module',
+    kg_module:'{v} kg/module',
+    kg_ingots:'{v} kg lingots',
+    m2_module:'{v} m²/module',
+    assembly:'Assemblage',
+    mg_wp:'{v} mg/Wc',
+    silver_src_note:'Source : COMEX XAG/USD via currency-api — données mensuelles interpolées 12 mois',
+    silver_tag:'currency-api (J-1)',
+    toc_aria:'Sommaire du baromètre',
+    analyses_error:'Impossible de charger les analyses : {m}',
     hero_badge:         'Données en temps réel',
     hero_title:         'Baromètre des prix<br><span>modules photovoltaïques</span>',
     hero_sub:           'De la matière première au module livré en Europe : suivi de toute la chaîne de valeur du panneau solaire par les experts Synapsun.',
@@ -759,11 +774,23 @@ const STRINGS = {
     sources_label:'Sources :',
   },
   en: {
+    silver_content:'Silver content / module',
+    silver_g_small:'~9.9 g / module',
+    silver_g_large:'~13.5 g / module',
+    kg_module:'{v} kg/module',
+    kg_ingots:'{v} kg ingots',
+    m2_module:'{v} m²/module',
+    assembly:'Assembly',
+    mg_wp:'{v} mg/Wp',
+    silver_src_note:'Source: COMEX XAG/USD via currency-api — monthly interpolated data 12 months',
+    silver_tag:'currency-api (D-1)',
+    toc_aria:'Barometer contents',
+    analyses_error:'Unable to load the analyses: {m}',
     hero_badge:         'Live data',
     hero_title:         'PV Module<br><span>Price Barometer</span>',
     hero_sub:           'From raw material to delivered module in Europe: a full supply chain price tracker by Synapsun PV experts.',
     hero_updated:       'Last update:',
-    hero_sources:       'Sources: Taiyang News · Zoho Analytics · Banque Centrale Européenne',
+    hero_sources:       'Sources: Taiyang News · Zoho Analytics · European Central Bank',
     nav1:'Polysilicon', nav2:'Wafers & cells', intro_text:'This barometer tracks the entire PV module value chain: from raw polysilicon in China to the module delivered in Europe (DDP). Each stage — raw materials, processing, logistics, exchange rates — impacts the final price. Data is updated automatically every week from industry reference sources.',
     nav_silver:'Silver price',
     nav3:'Cost structure',
@@ -792,7 +819,7 @@ const STRINGS = {
     analysis_label:'Synapsun insight',
     kpi_live:'Live · European Central Bank',
     fx_chart_title:'EUR/USD & EUR/CNY — last 12 months',
-    fx_chart_src:'Banque Centrale Européenne',
+    fx_chart_src:'European Central Bank',
     ph_zoho_fob:'Zoho Analytics chart — FOB modules',
     ph_zoho_fob_sub:'TOPCon + Back Contact · USD/Wp · FOB Shanghai',
     ph_zoho_freight:'Zoho Analytics chart — Sea freight',
@@ -817,6 +844,18 @@ const STRINGS = {
     sources_label:'Sources:',
   },
   de: {
+    silver_content:'Silbergehalt / Modul',
+    silver_g_small:'~9,9 g / Modul',
+    silver_g_large:'~13,5 g / Modul',
+    kg_module:'{v} kg/Modul',
+    kg_ingots:'{v} kg Ingots',
+    m2_module:'{v} m²/Modul',
+    assembly:'Montage',
+    mg_wp:'{v} mg/Wp',
+    silver_src_note:'Quelle: COMEX XAG/USD über currency-api — monatlich interpolierte Daten, 12 Monate',
+    silver_tag:'currency-api (T-1)',
+    toc_aria:'Inhaltsverzeichnis des Barometers',
+    analyses_error:'Analysen konnten nicht geladen werden: {m}',
     hero_badge:         'Live-Daten',
     hero_title:         'Preisbarometer<br><span>für PV-Module</span>',
     hero_sub:           'Vom Rohstoff bis zum in Europa gelieferten Modul: die gesamte Wertschöpfungskette der Solarindustrie im Blick, von den Synapsun PV-Experten.',
@@ -875,6 +914,18 @@ const STRINGS = {
     sources_label:'Quellen:',
   },
   it: {
+    silver_content:'Contenuto di argento / modulo',
+    silver_g_small:'~9,9 g / modulo',
+    silver_g_large:'~13,5 g / modulo',
+    kg_module:'{v} kg/modulo',
+    kg_ingots:'{v} kg lingotti',
+    m2_module:'{v} m²/modulo',
+    assembly:'Assemblaggio',
+    mg_wp:'{v} mg/Wp',
+    silver_src_note:'Fonte: COMEX XAG/USD tramite currency-api — dati mensili interpolati su 12 mesi',
+    silver_tag:'currency-api (G-1)',
+    toc_aria:'Indice del barometro',
+    analyses_error:'Impossibile caricare le analisi: {m}',
     hero_badge:         'Dati in tempo reale',
     hero_title:         'Barometro dei prezzi<br><span>dei moduli fotovoltaici</span>',
     hero_sub:           'Dalla materia prima al modulo consegnato in Europa: il monitoraggio dell\'intera catena del valore del pannello solare a cura degli esperti Synapsun.',
@@ -933,6 +984,18 @@ const STRINGS = {
     sources_label:'Fonti:',
   },
   es: {
+    silver_content:'Contenido de plata / módulo',
+    silver_g_small:'~9,9 g / módulo',
+    silver_g_large:'~13,5 g / módulo',
+    kg_module:'{v} kg/módulo',
+    kg_ingots:'{v} kg lingotes',
+    m2_module:'{v} m²/módulo',
+    assembly:'Ensamblaje',
+    mg_wp:'{v} mg/Wp',
+    silver_src_note:'Fuente: COMEX XAG/USD vía currency-api — datos mensuales interpolados de 12 meses',
+    silver_tag:'currency-api (D-1)',
+    toc_aria:'Índice del barómetro',
+    analyses_error:'No se pudieron cargar los análisis: {m}',
     hero_badge:         'Datos en tiempo real',
     hero_title:         'Barómetro de precios<br><span>de módulos fotovoltaicos</span>',
     hero_sub:           'De la materia prima al módulo entregado en Europa: seguimiento de toda la cadena de valor del panel solar por los expertos de Synapsun.',
@@ -1013,8 +1076,19 @@ function detectLang() {
 function initLang() {
   currentLang = detectLang();
   applyI18n();
+  const toc = document.querySelector('nav.toc');
+  if (toc) toc.setAttribute('aria-label', STRINGS[currentLang].toc_aria);
   const heroContactLink = document.getElementById('hero-contact-link');
   if (heroContactLink) heroContactLink.href = CONTACT_URL[currentLang] || CONTACT_URL.fr;
+  const GRID = {
+    fr:['https://synapsun.com/fr/mon-compte/grille-de-prix/','Consulter les grilles de prix →'],
+    en:['https://synapsun.com/en/my-account/pricelist/','View price grids →'],
+    de:['https://synapsun.com/de/mein-konto/preisliste/','Preislisten ansehen →'],
+    it:['https://synapsun.com/it/il-mio-account/listino-prezzi/','Consulta i listini prezzi →'],
+    es:['https://synapsun.com/es/mi-cuenta/lista-de-precios/','Consultar las listas de precios →']
+  };
+  const gridLink = document.getElementById('price-grid-link');
+  if (gridLink && GRID[currentLang]) { gridLink.href = GRID[currentLang][0]; gridLink.textContent = GRID[currentLang][1]; }
   const fcLink = document.getElementById('footer-contact-link');
   if (fcLink) fcLink.href = CONTACT_URL[currentLang] || CONTACT_URL.fr;
   // Les 3 iframes index.html (polysilicon/wafer/cell) ont leur propre i18n interne
@@ -1025,6 +1099,14 @@ function initLang() {
   });
 }
 initLang();
+
+function kgLabel(spec) {
+  // spec = [clé i18n, valeur numérique?] -> texte localisé (unité + séparateur décimal selon la langue)
+  const tpl = STRINGS[currentLang][spec[0]];
+  if (spec.length < 2) return tpl;
+  const v = spec[1].toLocaleString(DATE_LOCALE[currentLang] || 'fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return tpl.replace('{v}', v);
+}
 
 function applyI18n() {
   const S = STRINGS[currentLang];
@@ -1115,11 +1197,11 @@ async function loadAnalyses() {
     if (allPubDates.length) {
       const maxDate = new Date(Math.max(...allPubDates.map(d => d.getTime())));
       const el = document.getElementById('last-update');
-      if (el) el.textContent = maxDate.toLocaleDateString(currentLang === 'en' ? 'en-GB' : 'fr-FR', {day:'numeric', month:'long', year:'numeric'});
+      if (el) el.textContent = maxDate.toLocaleDateString(DATE_LOCALE[currentLang] || 'fr-FR', {day:'numeric', month:'long', year:'numeric'});
     }
   } catch(e) {
     console.warn('Could not load analyses:', e);
-    showAnalysesError(`Impossible de charger les analyses : ${e.message}`);
+    showAnalysesError(STRINGS[currentLang].analyses_error.replace('{m}', e.message));
   }
 }
 
@@ -1372,12 +1454,12 @@ function renderFxChart(dates, usdArr, cnyArr, S) {
 const BREAKDOWN = {
   topcon: [
     // JAM54D40 @470W — Source : ECS PPE2_V2 N°022-2025_001_rev4
-    { key: 'poly',  pct: 33, kg: 0.52, label_kg: '0,52 kg/module' },
-    { key: 'wafer', pct: 26, kg: 0.52, label_kg: '0,52 kg lingots' },
-    { key: 'cell',  pct: 22, kg: null, label_kg: '1,85 m²/module' },
-    { key: 'glass', pct:  9, kg:19.81, label_kg: '19,81 kg/module' },
-    { key: 'eva',   pct:  2, kg: 1.62, label_kg: '1,62 kg/module' },
-    { key: 'other', pct:  8, kg: null, label_kg: 'Assemblage' },
+    { key: 'poly',  pct: 33, kg: 0.52, label_kg: ['kg_module', 0.52] },
+    { key: 'wafer', pct: 26, kg: 0.52, label_kg: ['kg_ingots', 0.52] },
+    { key: 'cell',  pct: 22, kg: null, label_kg: ['m2_module', 1.85] },
+    { key: 'glass', pct:  9, kg:19.81, label_kg: ['kg_module', 19.81] },
+    { key: 'eva',   pct:  2, kg: 1.62, label_kg: ['kg_module', 1.62] },
+    { key: 'other', pct:  8, kg: null, label_kg: ['assembly'] },
   ],
   topcon_large: [
     // JAM66D45 @635W — Quantités : ECS PPE2 N°022-2025_006_rev1
@@ -1386,12 +1468,12 @@ const BREAKDOWN = {
     // verre 42 g/Wc). L'ancienne base (33/14/24/13/3/13) venait des
     // contributions CO2 du certificat PPE2 (méthodologie ≠ PPE2_V2, expiré),
     // non transposables en structure de coût.
-    { key: 'poly',  pct: 33, kg: 0.71, label_kg: '0,71 kg/module' },
-    { key: 'wafer', pct: 26, kg: 0.71, label_kg: '0,71 kg lingots' },
-    { key: 'cell',  pct: 22, kg: null, label_kg: '2,52 m²/module' },
-    { key: 'glass', pct:  9, kg:26.82, label_kg: '26,82 kg/module' },
-    { key: 'eva',   pct:  2, kg: 2.20, label_kg: '2,20 kg/module' },
-    { key: 'other', pct:  8, kg: null, label_kg: 'Assemblage' },
+    { key: 'poly',  pct: 33, kg: 0.71, label_kg: ['kg_module', 0.71] },
+    { key: 'wafer', pct: 26, kg: 0.71, label_kg: ['kg_ingots', 0.71] },
+    { key: 'cell',  pct: 22, kg: null, label_kg: ['m2_module', 2.52] },
+    { key: 'glass', pct:  9, kg:26.82, label_kg: ['kg_module', 26.82] },
+    { key: 'eva',   pct:  2, kg: 2.20, label_kg: ['kg_module', 2.20] },
+    { key: 'other', pct:  8, kg: null, label_kg: ['assembly'] },
   ]
 };
 
@@ -1431,7 +1513,7 @@ function renderBreakdown() {
     const silverEur = (SILVER_MG_PER_WC * powerW / 1000) * (silverUsdOz / 31.103) / eurUsd;
     data.splice(cellIdx + 1, 0, {
       key: 'silver', pct: silverPct, kg: null,
-      label_kg: SILVER_MG_PER_WC + ' mg/Wc'
+      label_kg: ['mg_wp', SILVER_MG_PER_WC]
     });
 
     // ── Stacked bar ──
@@ -1447,7 +1529,7 @@ function renderBreakdown() {
     const legendHtml = data.map(item => {
       const color = COLORS[item.key] || COLORS.other;
       const label = S['bd_component_' + item.key] || item.key;
-      const kgStr = item.label_kg ? '<span class="bd-legend-kg">' + item.label_kg + '</span>' : '';
+      const kgStr = item.label_kg ? '<span class="bd-legend-kg">' + kgLabel(item.label_kg) + '</span>' : '';
       return '<div class="bd-legend-row">'
            + '<div class="bd-legend-dot" style="background:' + color + '"></div>'
            + '<span class="bd-legend-name">' + label + '</span>'
@@ -1566,9 +1648,7 @@ function renderSilverChart(dates, prices) {
   prices = validPairs.map(p => p.v);
   // Mettre à jour la note source
   const srcNote = document.getElementById('silver-src-note');
-  if (srcNote) srcNote.textContent = currentLang === 'fr'
-    ? 'Source : COMEX XAG/USD via currency-api — données mensuelles interpolées 12 mois'
-    : 'Source: COMEX XAG/USD via currency-api — monthly interpolated data 12 months';
+  if (srcNote) srcNote.textContent = STRINGS[currentLang].silver_src_note;
 
   const labels = dates.map((d, i) => {
     if (i % 4 !== 0 && i !== dates.length - 1) return '';

@@ -116,6 +116,7 @@ const I18N={
 const URL_LANG=new URLSearchParams(window.location.search).get('lang');
 let lang=(URL_LANG&&I18N[URL_LANG])?URL_LANG:'fr';
 function t(k){return I18N[lang][k]||k;}
+{const ld=document.querySelector('#load span'); if(ld) ld.textContent=t('loading');}
 
 let allData=null;
 
