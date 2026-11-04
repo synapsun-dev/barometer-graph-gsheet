@@ -181,23 +181,23 @@ function getUnit(n){
 function displayName(n){
   let s=n;
   if(KPI_RENAME[s])s=KPI_RENAME[s];
-  return s.replace(/\b(182|210)\s*mm\b/gi,'$1 mm');
+  return s.replace(/\s*\(raw\)/gi,'').replace(/\b(182|210R?)\s*mm\b/gi,'$1 mm');
 }
 
-// Infobulles (survol) sur RMB, Raw, 182, 210
+// Infobulles (survol) sur RMB, 182, 210/210R, µm (épaisseur)
 const TIPS={
-  fr:{RMB:'Chinese currency (renminbi, monnaie chinoise)',Raw:'Raw = « brut » : désignation TaiyangNews de cette référence',182:'M10 cells',210:'G12 cells'},
-  en:{RMB:'Chinese currency',Raw:'Raw: TaiyangNews designation for this reference',182:'M10 cells',210:'G12 cells'},
-  de:{RMB:'Chinese currency (chinesische Währung)',Raw:'Raw = „roh“: TaiyangNews-Bezeichnung dieser Referenz',182:'M10 cells',210:'G12 cells'},
-  it:{RMB:'Chinese currency (valuta cinese)',Raw:'Raw = «grezzo»: designazione TaiyangNews di questo riferimento',182:'M10 cells',210:'G12 cells'},
-  es:{RMB:'Chinese currency (moneda china)',Raw:'Raw = «bruto»: designación de TaiyangNews para esta referencia',182:'M10 cells',210:'G12 cells'}
+  fr:{RMB:'Chinese currency (renminbi, monnaie chinoise)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
+  en:{RMB:'Chinese currency',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
+  de:{RMB:'Chinese currency (chinesische Währung)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
+  it:{RMB:'Chinese currency (valuta cinese)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
+  es:{RMB:'Chinese currency (moneda china)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'}
 };
 // Texte -> HTML échappé avec <span title> sur les termes à expliquer
 function tipHtml(txt){
   const T=TIPS[lang]||TIPS.fr;
-  return escHtml(txt).replace(/\b(RMB|Raw|182|210)\b/gi,m=>{
-    const k=/^raw$/i.test(m)?'Raw':m.toUpperCase();
-    return T[k]?'<span class="tip" title="'+escHtml(T[k])+'">'+m+'</span>':m;
+  return escHtml(txt).replace(/\b(RMB|182|210R?)\b|\b\d{2,3}\s?µm/gi,m=>{
+    const k=/µm$/.test(m)?'µm':m.toUpperCase();
+    return T[k]?'<span class="tip" style="text-transform:none" title="'+escHtml(T[k])+'">'+m+'</span>':m;
   });
 }
 
