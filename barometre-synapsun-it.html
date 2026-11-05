@@ -357,7 +357,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     <div class="split fi">
       <div class="ifr-wrap" style="height:912px">
         <iframe
-          src="index.html?lang=it#polysilicon"
+          src="index.html?lang=fr#polysilicon"
           height="100%"
           title="Polysilicon price index — Taiyang News / Synapsun"
           loading="lazy"
@@ -388,7 +388,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     </h3>
     <div class="split fi" style="margin-bottom:32px">
       <div class="ifr-wrap" style="height:912px">
-        <iframe src="index.html?lang=it#wafer"
+        <iframe src="index.html?lang=fr#wafer"
           height="100%" width="100%"
           title="Wafer price index — Taiyang News / Synapsun"
           loading="lazy" frameborder="0" allowtransparency="true">
@@ -408,7 +408,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     </h3>
     <div class="split fi">
       <div class="ifr-wrap" style="height:912px">
-        <iframe src="index.html?lang=it#cell"
+        <iframe src="index.html?lang=fr#cell"
           height="100%" width="100%"
           title="Cell price index — Taiyang News / Synapsun"
           loading="lazy" frameborder="0" allowtransparency="true">
@@ -1178,6 +1178,7 @@ async function loadAnalyses() {
 
     window._analysesData = data;
     renderAnalyses(data);
+    hideEmptyMarketSection(data, 'market_analysis');
 
     // last-update : date la plus récente des publish_date du Sheet (format DD/MM/YYYY ou YYYY-MM-DD)
     const parseDMY = s => {
@@ -1203,6 +1204,21 @@ async function loadAnalyses() {
     console.warn('Could not load analyses:', e);
     showAnalysesError(STRINGS[currentLang].analyses_error.replace('{m}', e.message));
   }
+}
+
+// Pas d'analyse publiée dans le Sheet → la section « Analyse Synapsun » entière
+// (titre + séparateur + entrée de sommaire) disparaît (demande Franck 2026-11-05)
+function hideEmptyMarketSection(data, key) {
+  const item = data[key];
+  const txt = item && (item[`analysis_${currentLang}`] || item.analysis_en || item.analysis_fr);
+  if (txt && txt.trim()) return;
+  const sec = document.getElementById('market-analysis');
+  if (!sec) return;
+  sec.style.display = 'none';
+  const prev = sec.previousElementSibling;
+  if (prev && prev.classList.contains('divider')) prev.style.display = 'none';
+  const link = document.querySelector('.toc-link[href="#market-analysis"]');
+  if (link) link.style.display = 'none';
 }
 
 function showAnalysesError(msg) {
@@ -1976,6 +1992,20 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFX();
   loadSilverPrice();
   loadCostEvolution();
+});
+
+
+// Hauteur automatique des iframes index.html (message 'barometer-embed-height'
+// envoyé par le dashboard embarqué après chaque rendu) — plus de scroll interne.
+window.addEventListener('message', e => {
+  const d = e.data;
+  if (!d || d.type !== 'barometer-embed-height' || !d.cat || !d.height) return;
+  document.querySelectorAll('iframe[src*="index.html"]').forEach(f => {
+    const hash = (f.getAttribute('src').split('#')[1] || '').toLowerCase();
+    if (hash !== String(d.cat).toLowerCase()) return;
+    const wrap = f.closest('.ifr-wrap');
+    if (wrap) wrap.style.height = (Math.min(1600, d.height + 12)) + 'px';
+  });
 });
 
 // Zoho iframes responsive scale

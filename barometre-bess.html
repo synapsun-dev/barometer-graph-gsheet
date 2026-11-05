@@ -228,6 +228,8 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
 .bd-legend-pct{font-weight:700;color:var(--navy);font-size:13px}
 .bd-legend-kg{font-size:11px;color:var(--g400);margin-left:4px}
 
+.tip{text-decoration:underline dotted;text-underline-offset:3px;cursor:help}
+
 /* SKELETON */
 .sk{background:linear-gradient(90deg,var(--g100) 25%,var(--g50) 50%,var(--g100) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:5px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -307,7 +309,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     <div class="section-header">
       <div>
         <div class="section-step" data-i18n="s1_step">Étape 1 · Matière première</div>
-        <h2 class="section-title" data-i18n="s1_title">Prix du carbonate de lithium et du spodumène</h2>
+        <h2 class="section-title" data-i18n-html="s1_title_html">Prix du carbonate de lithium et du spodumène</h2>
       </div>
     </div>
     <div class="split fi">
@@ -368,15 +370,15 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
           <div class="card-body">
             <div class="bd-grid">
               <div>
-                <div class="bd-tech"><span class="t-badge">C&amp;I</span><span data-i18n="bd_ci_title">Armoire 300 kW / 1 200 kWh (4 h)</span></div>
+                <div class="bd-tech"><span class="t-badge">C&amp;I</span><span data-i18n="bd_ci_title">Armoire 125 kW / 261 kWh · LFP 314 Ah</span></div>
                 <div id="bd-ci"></div>
               </div>
               <div>
-                <div class="bd-tech"><span class="t-badge">Utility</span><span data-i18n="bd_utility_title">Centrale 60 MW / 240 MWh (4 h)</span></div>
+                <div class="bd-tech"><span class="t-badge">Utility</span><span data-i18n="bd_utility_title">Conteneur 5 MWh · LFP 314 Ah · 2 h</span></div>
                 <div id="bd-utility"></div>
               </div>
             </div>
-            <p style="font-size:12px;color:var(--g400);margin-top:16px" data-i18n="bd_note">Coût installé, hors raccordement réseau. Sources : NREL, Cost Projections for Utility-Scale Battery Storage — 2025 Update (NREL/TP-6A40-93281, juin 2025, fig. 1, 2024 $/kWh) ; NREL, U.S. Solar PV System and Energy Storage Cost Benchmarks Q1 2022 (NREL/TP-7A40-83586, fig. 19, MSP, 2021 $). Benchmarks États-Unis : les parts relatives servent de repère, les prix européens diffèrent.</p>
+            <p style="font-size:12px;color:var(--g400);margin-top:16px" data-i18n="bd_note">Prix sortie usine Chine, hors transport et hors installation, en RMB/Wh. Utility : décomposition calculée chaque semaine à partir des prix moyens InfoLink (cellule 314 Ah, bloc DC 2 h, système AC 2 h). C&amp;I : cellule au prix InfoLink de la semaine ; le reste est réparti selon la structure de coût des armoires C&amp;I en Chine (compilation iypower d'après CESA / GGII / base d'appels d'offres, avril 2026 — prix d'adjudication moyen pondéré 0,916 RMB/Wh, mars 2026).</p>
           </div>
         </div>
         <div class="ac" id="ac-bess_cost_breakdown">
@@ -385,15 +387,10 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
           <div class="ac-sources" id="src-bess_cost_breakdown"></div>
         </div>
       </div>
-      <div class="kpi-row" style="margin-top:20px">
-        <div class="kpi"><div class="kpi-label" data-i18n="kpi_cell_share">Part de la cellule · système AC 2 h</div><div class="kpi-val" id="kpi-cell-share">…</div><div class="kpi-delta flat" id="delta-cell-share">—</div><div class="kpi-sub" data-i18n="kpi_infolink_src">InfoLink · Chine · cellule 314 Ah vs système AC 2 h</div></div>
-        <div class="kpi"><div class="kpi-label" data-i18n="kpi_dc_block">Bloc DC 2 h · RMB/Wh</div><div class="kpi-val" id="kpi-dc-block">…</div><div class="kpi-delta flat" id="delta-dc-block">—</div><div class="kpi-sub" data-i18n="kpi_dc_sub">Cellules + pack, BMS, thermique, enveloppe (sans PCS)</div></div>
-        <div class="kpi"><div class="kpi-label" data-i18n="kpi_ac_system">Système AC 2 h · RMB/Wh</div><div class="kpi-val" id="kpi-ac-system">…</div><div class="kpi-delta flat" id="delta-ac-system">—</div><div class="kpi-sub" data-i18n="kpi_ac_sub">Bloc DC + PCS, transformateur, intégration AC</div></div>
-      </div>
       <div class="card">
         <div class="card-body">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-            <div style="font-size:13px;font-weight:600;color:var(--navy)" data-i18n="bd_evol_title">Composition du prix d'un système AC 2 h en Chine — 52 dernières semaines (InfoLink)</div>
+            <div style="font-size:13px;font-weight:600;color:var(--navy)" data-i18n="bd_evol_title">Conteneur utility 5 MWh (AC 2 h, Chine) — composition du prix sur 52 semaines (InfoLink)</div>
             <div style="display:flex;flex-wrap:wrap;gap:10px" id="cost-evol-legend"></div>
           </div>
           <div style="position:relative;height:320px"><canvas id="chart-cost-evolution"></canvas></div>
@@ -426,6 +423,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <div class="ac-sources" id="src-bess_system"></div>
       </div>
     </div>
+    <p style="font-size:12px;color:var(--g400);margin-top:12px" data-i18n="s4_note">Prix d'adjudication (winning bids) relevés chaque semaine par InfoLink : les intégrateurs les ajustent par paliers, d'où des plateaux de plusieurs mois (+20 % entre août 2025 et avril 2026, stables depuis) alors que cellules et lithium bougent chaque semaine. Élargir la période (sélecteurs « Du / Au ») pour voir les paliers.</p>
   </section>
   <div class="divider"></div>
 
@@ -657,8 +655,8 @@ const STRINGS = {
     s6_step:'Étape 6 · Change',           s6_title:'Taux de change',
     s7_step:'Étape 7 · Prix livré Europe',s7_title:'Prix des batteries FCA Europe (hors transport) — €/kWh',
     s8_title:'Analyse Synapsun',
-    bd_ci_title:'Armoire 300 kW / 1 200 kWh (4 h)', bd_utility_title:'Centrale 60 MW / 240 MWh (4 h)',
-    bd_note:'Coût installé, hors raccordement réseau. Sources : NREL, Cost Projections for Utility-Scale Battery Storage — 2025 Update (NREL/TP-6A40-93281, juin 2025, fig. 1, 2024 $/kWh) ; NREL, U.S. Solar PV System and Energy Storage Cost Benchmarks Q1 2022 (NREL/TP-7A40-83586, fig. 19, MSP, 2021 $). Benchmarks États-Unis : les parts relatives servent de repère, les prix européens diffèrent.',
+    bd_ci_title:'Armoire 125 kW / 261 kWh · LFP 314 Ah', bd_utility_title:'Conteneur 5 MWh · LFP 314 Ah · 2 h',
+    bd_note:'Prix sortie usine Chine, hors transport et hors installation, en RMB/Wh. Utility : décomposition calculée chaque semaine à partir des prix moyens InfoLink (cellule 314 Ah, bloc DC 2 h, système AC 2 h). C&I : cellule au prix InfoLink de la semaine ; le reste est réparti selon la structure de coût des armoires C&I en Chine (compilation iypower d\'après CESA / GGII / base d\'appels d\'offres, avril 2026 — prix d\'adjudication moyen pondéré 0,916 RMB/Wh, mars 2026).',
     bd_component_batt:'Armoires / conteneurs batterie (cellules, BMS, thermique, enveloppe)',
     bd_component_pcs:'PCS (onduleur bidirectionnel)',
     bd_component_bos:'BOS électrique & structurel',
@@ -669,7 +667,7 @@ const STRINGS = {
     kpi_dc_block:'Bloc DC 2 h · RMB/Wh', kpi_dc_sub:'Cellules + pack, BMS, thermique, enveloppe (sans PCS)',
     kpi_ac_system:'Système AC 2 h · RMB/Wh', kpi_ac_sub:'Bloc DC + PCS, transformateur, intégration AC',
     kpi_wow:'vs semaine précédente',
-    bd_evol_title:'Composition du prix d\'un système AC 2 h en Chine — 52 dernières semaines (InfoLink)',
+    bd_evol_title:'Conteneur utility 5 MWh (AC 2 h, Chine) — composition du prix sur 52 semaines (InfoLink)',
     bd_evol_note:'Parts calculées chaque semaine à partir des prix moyens InfoLink : cellule 314 Ah ÷ système AC 2 h ; bloc DC 2 h − cellule ; système AC 2 h − bloc DC 2 h.',
     evol_cell:'Cellules LFP 314 Ah', evol_dc:'Pack, BMS, thermique, enveloppe (bloc DC)', evol_ac:'PCS & intégration AC',
     freight_note:'Un conteneur BESS de 5 MWh voyage en 20\' spécial (classe 9, UN 3536) ; une armoire C&I de 261 kWh part en 40\'HC. Le fret pèse de l\'ordre de quelques €/kWh sur un système utility, davantage sur du C&I.',
@@ -687,6 +685,13 @@ const STRINGS = {
     cta_sub:'Nos experts BESS sont disponibles pour vous accompagner dans vos projets de stockage.',
     cta_btn:'Prendre rendez-vous', sources_label:'Sources :',
     grid_link:'Consulter les grilles de prix →',
+    s1_title_html:'Prix du <span class="tip" title="Li₂CO₃ — sel de lithium raffiné (qualité batterie ≥ 99,5 %), matière première de la cathode LFP ; prix spot Chine en RMB par tonne">carbonate de lithium</span> et du <span class="tip" title="Minerai de lithium (LiAlSi₂O₆) concentré à 6 % Li₂O (SC6), surtout australien, transformé en carbonate de lithium en Chine ; prix CIF Chine en USD par tonne">spodumène</span>',
+    s4_note:'Prix d\'adjudication (winning bids) relevés chaque semaine par InfoLink : les intégrateurs les ajustent par paliers, d\'où des plateaux de plusieurs mois (+20 % entre août 2025 et avril 2026, stables depuis) alors que cellules et lithium bougent chaque semaine. Élargir la période (sélecteurs « Du / Au ») pour voir les paliers.',
+    bd_c_cell:'Cellules LFP 314 Ah', bd_c_dcrest:'Pack, BMS, thermique, enveloppe, sécurité (bloc DC hors cellules)', bd_c_acrest:'PCS, transformateur, intégration AC',
+    bd_c_pack:'Modules & pack (hors cellules)', bd_c_pcs:'PCS 125 kW', bd_c_bms:'BMS & EMS', bd_c_enclosure:'Armoire, câblage, thermique, sécurité incendie', bd_c_integration:'Intégration, tests, transport usine',
+    bd_ci_ref:'Référence prix armoire C&I Chine : {p} RMB/Wh (adjudications, moyenne pondérée {d}) · cellule = {c} % au prix InfoLink {w}',
+    bd_ut_ref:'Système AC 2 h : {a} RMB/Wh · bloc DC 2 h : {dc} RMB/Wh · cellule 314 Ah : {c} RMB/Wh (InfoLink {w})',
+    rmb_wh:'{v} RMB/Wh', bd_unavailable:'Décomposition indisponible (séries InfoLink injoignables).',
   },
   en: {
     toc_aria:'Barometer contents',
@@ -708,8 +713,8 @@ const STRINGS = {
     s6_step:'Step 6 · FX', s6_title:'Exchange rates',
     s7_step:'Step 7 · Delivered price', s7_title:'Battery prices FCA Europe (excl. transport) — €/kWh',
     s8_title:'Synapsun Analysis',
-    bd_ci_title:'Cabinet 300 kW / 1,200 kWh (4 h)', bd_utility_title:'Plant 60 MW / 240 MWh (4 h)',
-    bd_note:'Installed cost, excluding grid connection. Sources: NREL, Cost Projections for Utility-Scale Battery Storage — 2025 Update (NREL/TP-6A40-93281, June 2025, fig. 1, 2024 $/kWh); NREL, U.S. Solar PV System and Energy Storage Cost Benchmarks Q1 2022 (NREL/TP-7A40-83586, fig. 19, MSP, 2021 $). US benchmarks: relative shares are indicative, European prices differ.',
+    bd_ci_title:'Cabinet 125 kW / 261 kWh · LFP 314 Ah', bd_utility_title:'Container 5 MWh · LFP 314 Ah · 2 h',
+    bd_note:'China factory-gate prices, excl. transport and installation, in RMB/Wh. Utility: breakdown computed weekly from InfoLink average prices (314 Ah cell, DC 2 h block, AC 2 h system). C&I: cell at the week\'s InfoLink price; the remainder is split according to the cost structure of C&I cabinets in China (iypower compilation from CESA / GGII / tender database, April 2026 — weighted average winning bid 0.916 RMB/Wh, March 2026).',
     bd_component_batt:'Battery cabinets / containers (cells, BMS, thermal, enclosure)',
     bd_component_pcs:'PCS (bi-directional inverter)',
     bd_component_bos:'Electrical & structural BOS',
@@ -720,7 +725,7 @@ const STRINGS = {
     kpi_dc_block:'DC block 2 h · RMB/Wh', kpi_dc_sub:'Cells + pack, BMS, thermal, enclosure (no PCS)',
     kpi_ac_system:'AC system 2 h · RMB/Wh', kpi_ac_sub:'DC block + PCS, transformer, AC integration',
     kpi_wow:'vs previous week',
-    bd_evol_title:'Price composition of an AC 2 h system in China — last 52 weeks (InfoLink)',
+    bd_evol_title:'Utility container 5 MWh (AC 2 h, China) — price composition over 52 weeks (InfoLink)',
     bd_evol_note:'Shares computed weekly from InfoLink average prices: 314 Ah cell ÷ AC 2 h system; DC 2 h block − cell; AC 2 h system − DC 2 h block.',
     evol_cell:'LFP 314 Ah cells', evol_dc:'Pack, BMS, thermal, enclosure (DC block)', evol_ac:'PCS & AC integration',
     freight_note:'A 5 MWh BESS container ships as a special 20\' (class 9, UN 3536); a 261 kWh C&I cabinet goes in a 40\'HC. Freight weighs a few €/kWh on a utility system, more on C&I.',
@@ -738,6 +743,13 @@ const STRINGS = {
     cta_sub:'Our BESS experts are available to support your storage projects.',
     cta_btn:'Book a meeting', sources_label:'Sources:',
     grid_link:'View price grids →',
+    s1_title_html:'<span class="tip" title="Li₂CO₃ — refined lithium salt (battery grade ≥ 99.5%), raw material of the LFP cathode; China spot price in RMB per tonne">Lithium carbonate</span> and <span class="tip" title="Lithium ore (LiAlSi₂O₆) concentrated to 6% Li₂O (SC6), mostly Australian, converted into lithium carbonate in China; CIF China price in USD per tonne">spodumene</span> prices',
+    s4_note:'Winning-bid prices surveyed weekly by InfoLink: integrators adjust them in steps, hence multi-month plateaus (+20% between August 2025 and April 2026, flat since) while cells and lithium move every week. Widen the period (From / To selectors) to see the steps.',
+    bd_c_cell:'LFP 314 Ah cells', bd_c_dcrest:'Pack, BMS, thermal, enclosure, safety (DC block excl. cells)', bd_c_acrest:'PCS, transformer, AC integration',
+    bd_c_pack:'Modules & pack (excl. cells)', bd_c_pcs:'PCS 125 kW', bd_c_bms:'BMS & EMS', bd_c_enclosure:'Cabinet, cabling, thermal, fire safety', bd_c_integration:'Integration, testing, factory transport',
+    bd_ci_ref:'C&I cabinet price reference, China: {p} RMB/Wh (winning bids, weighted average {d}) · cell = {c}% at InfoLink price {w}',
+    bd_ut_ref:'AC 2 h system: {a} RMB/Wh · DC 2 h block: {dc} RMB/Wh · 314 Ah cell: {c} RMB/Wh (InfoLink {w})',
+    rmb_wh:'{v} RMB/Wh', bd_unavailable:'Breakdown unavailable (InfoLink series unreachable).',
   },
   de: {
     toc_aria:'Inhaltsverzeichnis des Barometers',
@@ -759,8 +771,8 @@ const STRINGS = {
     s6_step:'Schritt 6 · Wechselkurs', s6_title:'Wechselkurse',
     s7_step:'Schritt 7 · Lieferpreis', s7_title:'Batteriepreise FCA Europa (ohne Transport) — €/kWh',
     s8_title:'Synapsun-Analyse',
-    bd_ci_title:'Schrank 300 kW / 1.200 kWh (4 h)', bd_utility_title:'Anlage 60 MW / 240 MWh (4 h)',
-    bd_note:'Installierte Kosten ohne Netzanschluss. Quellen: NREL, Cost Projections for Utility-Scale Battery Storage — 2025 Update (NREL/TP-6A40-93281, Juni 2025, Abb. 1, 2024 $/kWh); NREL, U.S. Solar PV System and Energy Storage Cost Benchmarks Q1 2022 (NREL/TP-7A40-83586, Abb. 19, MSP, 2021 $). US-Benchmarks: die Anteile dienen als Richtwert, europäische Preise weichen ab.',
+    bd_ci_title:'Schrank 125 kW / 261 kWh · LFP 314 Ah', bd_utility_title:'Container 5 MWh · LFP 314 Ah · 2 h',
+    bd_note:'Werksabgabepreise China, ohne Transport und Installation, in RMB/Wh. Utility: wöchentlich aus den InfoLink-Durchschnittspreisen berechnet (Zelle 314 Ah, DC-Block 2 h, AC-System 2 h). C&I: Zelle zum InfoLink-Wochenpreis; der Rest wird nach der Kostenstruktur chinesischer C&I-Schränke verteilt (iypower-Zusammenstellung nach CESA / GGII / Ausschreibungsdatenbank, April 2026 — gewichteter Zuschlagspreis 0,916 RMB/Wh, März 2026).',
     bd_component_batt:'Batterieschränke / -container (Zellen, BMS, Thermik, Gehäuse)',
     bd_component_pcs:'PCS (bidirektionaler Wechselrichter)',
     bd_component_bos:'Elektrische & strukturelle BOS',
@@ -771,7 +783,7 @@ const STRINGS = {
     kpi_dc_block:'DC-Block 2 h · RMB/Wh', kpi_dc_sub:'Zellen + Pack, BMS, Thermik, Gehäuse (ohne PCS)',
     kpi_ac_system:'AC-System 2 h · RMB/Wh', kpi_ac_sub:'DC-Block + PCS, Trafo, AC-Integration',
     kpi_wow:'ggü. Vorwoche',
-    bd_evol_title:'Preiszusammensetzung eines AC-Systems 2 h in China — letzte 52 Wochen (InfoLink)',
+    bd_evol_title:'Utility-Container 5 MWh (AC 2 h, China) — Preiszusammensetzung über 52 Wochen (InfoLink)',
     bd_evol_note:'Anteile wöchentlich aus den InfoLink-Durchschnittspreisen berechnet: 314-Ah-Zelle ÷ AC-System 2 h; DC-Block 2 h − Zelle; AC-System 2 h − DC-Block 2 h.',
     evol_cell:'LFP-Zellen 314 Ah', evol_dc:'Pack, BMS, Thermik, Gehäuse (DC-Block)', evol_ac:'PCS & AC-Integration',
     freight_note:'Ein 5-MWh-BESS-Container reist als Spezial-20\' (Klasse 9, UN 3536); ein 261-kWh-C&I-Schrank im 40\'HC. Die Fracht macht bei Utility-Systemen wenige €/kWh aus, bei C&I mehr.',
@@ -789,6 +801,13 @@ const STRINGS = {
     cta_sub:'Unsere BESS-Experten stehen Ihnen bei Ihren Speicherprojekten zur Seite.',
     cta_btn:'Termin vereinbaren', sources_label:'Quellen:',
     grid_link:'Preislisten ansehen →',
+    s1_title_html:'Preise für <span class="tip" title="Li₂CO₃ — raffiniertes Lithiumsalz (Batteriequalität ≥ 99,5 %), Rohstoff der LFP-Kathode; Spotpreis China in RMB je Tonne">Lithiumcarbonat</span> und <span class="tip" title="Lithiumerz (LiAlSi₂O₆), auf 6 % Li₂O konzentriert (SC6), meist aus Australien, in China zu Lithiumcarbonat verarbeitet; CIF-Preis China in USD je Tonne">Spodumen</span>',
+    s4_note:'Von InfoLink wöchentlich erhobene Zuschlagspreise (winning bids): Integratoren passen sie stufenweise an, daher monatelange Plateaus (+20 % zwischen August 2025 und April 2026, seitdem stabil), während Zellen und Lithium wöchentlich schwanken. Zeitraum erweitern (Von / Bis), um die Stufen zu sehen.',
+    bd_c_cell:'LFP-Zellen 314 Ah', bd_c_dcrest:'Pack, BMS, Thermik, Gehäuse, Sicherheit (DC-Block ohne Zellen)', bd_c_acrest:'PCS, Trafo, AC-Integration',
+    bd_c_pack:'Module & Pack (ohne Zellen)', bd_c_pcs:'PCS 125 kW', bd_c_bms:'BMS & EMS', bd_c_enclosure:'Schrank, Verkabelung, Thermik, Brandschutz', bd_c_integration:'Integration, Tests, Werkstransport',
+    bd_ci_ref:'Referenzpreis C&I-Schrank China: {p} RMB/Wh (Zuschläge, gewichteter Durchschnitt {d}) · Zelle = {c} % zum InfoLink-Preis {w}',
+    bd_ut_ref:'AC-System 2 h: {a} RMB/Wh · DC-Block 2 h: {dc} RMB/Wh · Zelle 314 Ah: {c} RMB/Wh (InfoLink {w})',
+    rmb_wh:'{v} RMB/Wh', bd_unavailable:'Aufschlüsselung nicht verfügbar (InfoLink-Reihen nicht erreichbar).',
   },
   it: {
     toc_aria:'Indice del barometro',
@@ -810,8 +829,8 @@ const STRINGS = {
     s6_step:'Fase 6 · Cambio', s6_title:'Tassi di cambio',
     s7_step:'Fase 7 · Prezzo consegnato', s7_title:'Prezzi delle batterie FCA Europa (trasporto escluso) — €/kWh',
     s8_title:'Analisi Synapsun',
-    bd_ci_title:'Armadio 300 kW / 1.200 kWh (4 h)', bd_utility_title:'Impianto 60 MW / 240 MWh (4 h)',
-    bd_note:'Costo installato, escluso l\'allacciamento alla rete. Fonti: NREL, Cost Projections for Utility-Scale Battery Storage — 2025 Update (NREL/TP-6A40-93281, giugno 2025, fig. 1, 2024 $/kWh); NREL, U.S. Solar PV System and Energy Storage Cost Benchmarks Q1 2022 (NREL/TP-7A40-83586, fig. 19, MSP, 2021 $). Benchmark USA: le quote relative sono indicative, i prezzi europei differiscono.',
+    bd_ci_title:'Armadio 125 kW / 261 kWh · LFP 314 Ah', bd_utility_title:'Container 5 MWh · LFP 314 Ah · 2 h',
+    bd_note:'Prezzi franco fabbrica Cina, trasporto e installazione esclusi, in RMB/Wh. Utility: scomposizione calcolata ogni settimana dai prezzi medi InfoLink (cella 314 Ah, blocco DC 2 h, sistema AC 2 h). C&I: cella al prezzo InfoLink della settimana; il resto è ripartito secondo la struttura dei costi degli armadi C&I in Cina (compilazione iypower da CESA / GGII / banca dati gare, aprile 2026 — prezzo di aggiudicazione medio ponderato 0,916 RMB/Wh, marzo 2026).',
     bd_component_batt:'Armadi / container batteria (celle, BMS, termico, involucro)',
     bd_component_pcs:'PCS (inverter bidirezionale)',
     bd_component_bos:'BOS elettrico e strutturale',
@@ -822,7 +841,7 @@ const STRINGS = {
     kpi_dc_block:'Blocco DC 2 h · RMB/Wh', kpi_dc_sub:'Celle + pack, BMS, termico, involucro (senza PCS)',
     kpi_ac_system:'Sistema AC 2 h · RMB/Wh', kpi_ac_sub:'Blocco DC + PCS, trasformatore, integrazione AC',
     kpi_wow:'vs settimana precedente',
-    bd_evol_title:'Composizione del prezzo di un sistema AC 2 h in Cina — ultime 52 settimane (InfoLink)',
+    bd_evol_title:'Container utility 5 MWh (AC 2 h, Cina) — composizione del prezzo su 52 settimane (InfoLink)',
     bd_evol_note:'Quote calcolate ogni settimana dai prezzi medi InfoLink: cella 314 Ah ÷ sistema AC 2 h; blocco DC 2 h − cella; sistema AC 2 h − blocco DC 2 h.',
     evol_cell:'Celle LFP 314 Ah', evol_dc:'Pack, BMS, termico, involucro (blocco DC)', evol_ac:'PCS e integrazione AC',
     freight_note:'Un container BESS da 5 MWh viaggia in 20\' speciale (classe 9, UN 3536); un armadio C&I da 261 kWh in 40\'HC. Il trasporto pesa pochi €/kWh su un sistema utility, di più sul C&I.',
@@ -840,6 +859,13 @@ const STRINGS = {
     cta_sub:'I nostri esperti BESS sono a disposizione per supportare i vostri progetti di accumulo.',
     cta_btn:'Prenota un appuntamento', sources_label:'Fonti:',
     grid_link:'Consulta i listini prezzi →',
+    s1_title_html:'Prezzi del <span class="tip" title="Li₂CO₃ — sale di litio raffinato (grado batteria ≥ 99,5 %), materia prima del catodo LFP; prezzo spot Cina in RMB per tonnellata">carbonato di litio</span> e dello <span class="tip" title="Minerale di litio (LiAlSi₂O₆) concentrato al 6 % Li₂O (SC6), per lo più australiano, trasformato in carbonato di litio in Cina; prezzo CIF Cina in USD per tonnellata">spodumene</span>',
+    s4_note:'Prezzi di aggiudicazione (winning bids) rilevati ogni settimana da InfoLink: gli integratori li adeguano a scalini, da cui plateau di diversi mesi (+20 % tra agosto 2025 e aprile 2026, stabili da allora) mentre celle e litio si muovono ogni settimana. Allargare il periodo (selettori Dal / Al) per vedere gli scalini.',
+    bd_c_cell:'Celle LFP 314 Ah', bd_c_dcrest:'Pack, BMS, termico, involucro, sicurezza (blocco DC senza celle)', bd_c_acrest:'PCS, trasformatore, integrazione AC',
+    bd_c_pack:'Moduli e pack (senza celle)', bd_c_pcs:'PCS 125 kW', bd_c_bms:'BMS ed EMS', bd_c_enclosure:'Armadio, cablaggio, termico, antincendio', bd_c_integration:'Integrazione, collaudo, trasporto fabbrica',
+    bd_ci_ref:'Riferimento prezzo armadio C&I Cina: {p} RMB/Wh (aggiudicazioni, media ponderata {d}) · cella = {c} % al prezzo InfoLink {w}',
+    bd_ut_ref:'Sistema AC 2 h: {a} RMB/Wh · blocco DC 2 h: {dc} RMB/Wh · cella 314 Ah: {c} RMB/Wh (InfoLink {w})',
+    rmb_wh:'{v} RMB/Wh', bd_unavailable:'Scomposizione non disponibile (serie InfoLink irraggiungibili).',
   },
   es: {
     toc_aria:'Índice del barómetro',
@@ -861,8 +887,8 @@ const STRINGS = {
     s6_step:'Etapa 6 · Cambio', s6_title:'Tipos de cambio',
     s7_step:'Etapa 7 · Precio entregado', s7_title:'Precios de baterías FCA Europa (sin transporte) — €/kWh',
     s8_title:'Análisis Synapsun',
-    bd_ci_title:'Armario 300 kW / 1.200 kWh (4 h)', bd_utility_title:'Planta 60 MW / 240 MWh (4 h)',
-    bd_note:'Costo instalado, sin conexión a red. Fuentes: NREL, Cost Projections for Utility-Scale Battery Storage — 2025 Update (NREL/TP-6A40-93281, junio 2025, fig. 1, 2024 $/kWh); NREL, U.S. Solar PV System and Energy Storage Cost Benchmarks Q1 2022 (NREL/TP-7A40-83586, fig. 19, MSP, 2021 $). Benchmarks de EE. UU.: las cuotas relativas son orientativas, los precios europeos difieren.',
+    bd_ci_title:'Armario 125 kW / 261 kWh · LFP 314 Ah', bd_utility_title:'Contenedor 5 MWh · LFP 314 Ah · 2 h',
+    bd_note:'Precios en fábrica China, sin transporte ni instalación, en RMB/Wh. Utility: desglose calculado cada semana a partir de los precios medios InfoLink (célula 314 Ah, bloque DC 2 h, sistema AC 2 h). C&I: célula al precio InfoLink de la semana; el resto se reparte según la estructura de costos de los armarios C&I en China (compilación iypower a partir de CESA / GGII / base de licitaciones, abril de 2026 — precio de adjudicación medio ponderado 0,916 RMB/Wh, marzo de 2026).',
     bd_component_batt:'Armarios / contenedores de batería (células, BMS, térmico, envolvente)',
     bd_component_pcs:'PCS (inversor bidireccional)',
     bd_component_bos:'BOS eléctrico y estructural',
@@ -873,7 +899,7 @@ const STRINGS = {
     kpi_dc_block:'Bloque DC 2 h · RMB/Wh', kpi_dc_sub:'Células + pack, BMS, térmico, envolvente (sin PCS)',
     kpi_ac_system:'Sistema AC 2 h · RMB/Wh', kpi_ac_sub:'Bloque DC + PCS, transformador, integración AC',
     kpi_wow:'vs semana anterior',
-    bd_evol_title:'Composición del precio de un sistema AC 2 h en China — últimas 52 semanas (InfoLink)',
+    bd_evol_title:'Contenedor utility 5 MWh (AC 2 h, China) — composición del precio en 52 semanas (InfoLink)',
     bd_evol_note:'Cuotas calculadas cada semana a partir de los precios medios InfoLink: célula 314 Ah ÷ sistema AC 2 h; bloque DC 2 h − célula; sistema AC 2 h − bloque DC 2 h.',
     evol_cell:'Células LFP 314 Ah', evol_dc:'Pack, BMS, térmico, envolvente (bloque DC)', evol_ac:'PCS e integración AC',
     freight_note:'Un contenedor BESS de 5 MWh viaja en 20\' especial (clase 9, UN 3536); un armario C&I de 261 kWh en 40\'HC. El flete pesa unos pocos €/kWh en un sistema utility, más en C&I.',
@@ -891,6 +917,13 @@ const STRINGS = {
     cta_sub:'Nuestros expertos BESS están disponibles para acompañarle en sus proyectos de almacenamiento.',
     cta_btn:'Concertar una cita', sources_label:'Fuentes:',
     grid_link:'Consultar las listas de precios →',
+    s1_title_html:'Precios del <span class="tip" title="Li₂CO₃ — sal de litio refinada (grado batería ≥ 99,5 %), materia prima del cátodo LFP; precio spot China en RMB por tonelada">carbonato de litio</span> y de la <span class="tip" title="Mineral de litio (LiAlSi₂O₆) concentrado al 6 % Li₂O (SC6), sobre todo australiano, transformado en carbonato de litio en China; precio CIF China en USD por tonelada">espodumena</span>',
+    s4_note:'Precios de adjudicación (winning bids) relevados cada semana por InfoLink: los integradores los ajustan por escalones, de ahí mesetas de varios meses (+20 % entre agosto de 2025 y abril de 2026, estables desde entonces) mientras células y litio se mueven cada semana. Ampliar el período (selectores Desde / Hasta) para ver los escalones.',
+    bd_c_cell:'Células LFP 314 Ah', bd_c_dcrest:'Pack, BMS, térmico, envolvente, seguridad (bloque DC sin células)', bd_c_acrest:'PCS, transformador, integración AC',
+    bd_c_pack:'Módulos y pack (sin células)', bd_c_pcs:'PCS 125 kW', bd_c_bms:'BMS y EMS', bd_c_enclosure:'Armario, cableado, térmico, protección contra incendios', bd_c_integration:'Integración, pruebas, transporte de fábrica',
+    bd_ci_ref:'Referencia precio armario C&I China: {p} RMB/Wh (adjudicaciones, media ponderada {d}) · célula = {c} % al precio InfoLink {w}',
+    bd_ut_ref:'Sistema AC 2 h: {a} RMB/Wh · bloque DC 2 h: {dc} RMB/Wh · célula 314 Ah: {c} RMB/Wh (InfoLink {w})',
+    rmb_wh:'{v} RMB/Wh', bd_unavailable:'Desglose no disponible (series InfoLink inaccesibles).',
   }
 };
 
@@ -1008,7 +1041,22 @@ async function loadAnalyses() {
   }
   window._analysesData = data;
   renderAnalyses(data);
+  hideEmptyMarketSection(data, 'bess_market_analysis');
   updateLastUpdate(data);
+}
+
+// Pas d'analyse publiée dans le Sheet → la section entière (titre + séparateur) disparaît
+function hideEmptyMarketSection(data, key) {
+  const item = data[key];
+  const txt = item && (item[`analysis_${currentLang}`] || item.analysis_en || item.analysis_fr);
+  if (txt && txt.trim()) return;
+  const sec = document.getElementById('market-analysis');
+  if (!sec) return;
+  sec.style.display = 'none';
+  const prev = sec.previousElementSibling;
+  if (prev && prev.classList.contains('divider')) prev.style.display = 'none';
+  const link = document.querySelector('.toc-link[href="#market-analysis"]');
+  if (link) link.style.display = 'none';
 }
 
 function updateLastUpdate(data) {
@@ -1152,53 +1200,77 @@ function renderFxChart(dates, usdArr, cnyArr) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COST BREAKDOWN — référence NREL (statique, sourcée) C&I vs Utility
+// COST BREAKDOWN — C&I 261 kWh vs Utility 5 MWh (prix Chine, RMB/Wh)
 // ═══════════════════════════════════════════════════════════════
-// Utility : NREL/TP-6A40-93281 (juin 2025), fig. 1 — 4 h, 2024 $/kWh, total 334 $/kWh
-//   cabinets 210 · inverter 26 · SBOS 5 · EBOS 44 · installation labor 2 + permitting 2
-//   · sales tax 17 + contingency 7 + EPC overhead 6 + profit 14
-// C&I : NREL/TP-7A40-83586 (Q1 2022), fig. 19 MSP — 300 kW / 1 200 kWh, k$ 2021
-//   cabinets 332 · inverter 23 · structural BOS 15 · electrical BOS 83 · installation 79
-//   · EPC overhead 58 · sales tax 26 · developer 106  (÷ 1 200 kWh pour le $/kWh)
-const BREAKDOWN = {
-  ci: [
-    { key: 'batt',    usd_kwh: 277 },   // 332 k$ / 1 200 kWh
-    { key: 'pcs',     usd_kwh: 19  },   // 23
-    { key: 'bos',     usd_kwh: 82  },   // 15 + 83
-    { key: 'install', usd_kwh: 66  },   // 79
-    { key: 'soft',    usd_kwh: 158 },   // 58 + 26 + 106
-  ],
-  utility: [
-    { key: 'batt',    usd_kwh: 210 },
-    { key: 'pcs',     usd_kwh: 26  },
-    { key: 'bos',     usd_kwh: 49  },   // 5 + 44
-    { key: 'install', usd_kwh: 4   },   // 2 + 2
-    { key: 'soft',    usd_kwh: 44  },   // 17 + 7 + 6 + 14
-  ]
+// Utility (conteneur 5 MWh, 314 Ah, 2 h) : 100 % InfoLink, recalculé chaque semaine
+//   cellules = prix cellule 314 Ah ; bloc DC hors cellules = DC 2 h − cellule ;
+//   PCS & intégration AC = AC 2 h − DC 2 h.
+// C&I (armoire 125 kW / 261 kWh, 314 Ah) : InfoLink ne publie pas de prix d'armoire.
+//   Référence prix armoire = moyenne pondérée des adjudications C&I en Chine
+//   (mars 2026, compilation iypower d'après CESA / GGII / base d'appels d'offres,
+//   avril 2026) ; cellule = prix InfoLink de la semaine ; le reste est réparti
+//   selon la structure de coût de cette même compilation (hors cellules).
+const CI_REF = {
+  price_rmb_wh: 0.916,
+  date: '2026-03',
+  url: 'https://www.iypower.com/home/article/detail/id/503.html',
+  // parts (% du prix total) de la compilation : pack 55-65 (cellules incluses), PCS 10-15,
+  // BMS+EMS 8-12, armoire/câblage/auxiliaires 7-10, intégration/tests/transport 5-8
+  // → milieu de fourchette, pack hors cellules = 60 − part cellule (calculée)
+  split: { pcs: 12.5, bms: 10, enclosure: 8.5, integration: 6.5 },
+  pack_total_pct: 60,
 };
-const BD_COLORS = { batt:'#0d1f3c', pcs:'#f97316', bos:'#3b82f6', install:'#10b981', soft:'#9ca3af' };
+const BD_COLORS = { cell:'#0d1f3c', dcrest:'#3b82f6', acrest:'#f97316',
+                    pack:'#3b82f6', pcs:'#f97316', bms:'#7c3aed', enclosure:'#10b981', integration:'#9ca3af' };
 
-function renderBreakdown() {
+function fmtRmb(v) { return v.toLocaleString(DATE_LOCALE[currentLang] || 'fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }); }
+
+function stackHtml(S, items, total) {
+  const data = items.map(it => ({ ...it, pct: Math.round(it.v / total * 100) }));
+  data[0].pct += 100 - data.reduce((a, b) => a + b.pct, 0);
+  const bar = data.map(it =>
+    '<div class="bd-stack-seg" style="flex:' + it.pct + ';background:' + BD_COLORS[it.key] + '" title="' + escHtml(S['bd_c_' + it.key]) + ' : ' + it.pct + '%">'
+    + (it.pct >= 6 ? '<span class="bd-stack-label">' + it.pct + '%</span>' : '') + '</div>').join('');
+  const legend = data.map(it =>
+    '<div class="bd-legend-row"><div class="bd-legend-dot" style="background:' + BD_COLORS[it.key] + '"></div>'
+    + '<span class="bd-legend-name">' + escHtml(S['bd_c_' + it.key]) + '</span>'
+    + '<span class="bd-legend-kg">' + escHtml(S.rmb_wh.replace('{v}', fmtRmb(it.v))) + '</span>'
+    + '<span class="bd-legend-pct">' + it.pct + '%</span></div>').join('');
+  return '<div class="bd-stack-wrap">' + bar + '</div><div class="bd-legend">' + legend + '</div>';
+}
+
+function renderBreakdown(rows) {
   const S = STRINGS[currentLang];
-  ['ci','utility'].forEach(seg => {
-    const el = document.getElementById('bd-' + seg);
-    if (!el) return;
-    const items = BREAKDOWN[seg];
-    const total = items.reduce((s, i) => s + i.usd_kwh, 0);
-    const data = items.map(i => ({ ...i, pct: Math.round(i.usd_kwh / total * 100) }));
-    const sum = data.reduce((s, i) => s + i.pct, 0);
-    data[0].pct += 100 - sum;   // corriger l'arrondi sur le premier poste
-    const stackHtml = data.map(item =>
-      '<div class="bd-stack-seg" style="flex:' + item.pct + ';background:' + BD_COLORS[item.key] + '" title="' + escHtml(S['bd_component_' + item.key]) + ' : ' + item.pct + '%">'
-      + (item.pct >= 6 ? '<span class="bd-stack-label">' + item.pct + '%</span>' : '') + '</div>').join('');
-    const legendHtml = data.map(item =>
-      '<div class="bd-legend-row"><div class="bd-legend-dot" style="background:' + BD_COLORS[item.key] + '"></div>'
-      + '<span class="bd-legend-name">' + escHtml(S['bd_component_' + item.key]) + '</span>'
-      + '<span class="bd-legend-kg">' + escHtml(S.usd_kwh.replace('{v}', item.usd_kwh)) + '</span>'
-      + '<span class="bd-legend-pct">' + item.pct + '%</span></div>').join('');
-    el.innerHTML = '<div class="bd-stack-wrap">' + stackHtml + '</div><div class="bd-legend">' + legendHtml + '</div>'
-      + '<div style="font-size:11px;color:var(--g400);margin-top:8px">Total : ' + total + ' $/kWh</div>';
-  });
+  const elCi = document.getElementById('bd-ci'), elUt = document.getElementById('bd-utility');
+  if (!rows || !rows.length) {
+    [elCi, elUt].forEach(el => { if (el) el.innerHTML = '<p style="font-size:12px;color:var(--g400)">' + escHtml(S.bd_unavailable) + '</p>'; });
+    return;
+  }
+  const last = rows[rows.length - 1];
+
+  // ── Utility 5 MWh : InfoLink pur ──
+  const ut = [
+    { key: 'cell',   v: last.cell },
+    { key: 'dcrest', v: Math.max(0, last.dc - last.cell) },
+    { key: 'acrest', v: Math.max(0, last.ac - last.dc) },
+  ];
+  if (elUt) elUt.innerHTML = stackHtml(S, ut, last.ac)
+    + '<div style="font-size:11px;color:var(--g400);margin-top:8px">' + escHtml(S.bd_ut_ref
+        .replace('{a}', fmtRmb(last.ac)).replace('{dc}', fmtRmb(last.dc)).replace('{c}', fmtRmb(last.cell)).replace('{w}', last.week)) + '</div>';
+
+  // ── C&I 261 kWh : cellule InfoLink + référence armoire + structure compilée ──
+  const ref = CI_REF.price_rmb_wh;
+  const cellPct = last.cell / ref * 100;
+  const packPct = Math.max(0, CI_REF.pack_total_pct - cellPct);
+  const parts = { pack: packPct, ...CI_REF.split };
+  const restTotal = Object.values(parts).reduce((a, b) => a + b, 0);
+  const restPct = 100 - cellPct;   // le reste absorbe l'écart entre cellule du jour et référence
+  const ci = [{ key: 'cell', v: last.cell }].concat(
+    ['pack', 'pcs', 'bms', 'enclosure', 'integration'].map(k => ({ key: k, v: ref * (restPct / 100) * parts[k] / restTotal })));
+  if (elCi) elCi.innerHTML = stackHtml(S, ci, ref)
+    + '<div style="font-size:11px;color:var(--g400);margin-top:8px">' + escHtml(S.bd_ci_ref
+        .replace('{p}', fmtRmb(ref)).replace('{d}', CI_REF.date).replace('{c}', Math.round(cellPct)).replace('{w}', last.week))
+    + ' · <a href="' + CI_REF.url + '" target="_blank" rel="noopener" style="color:var(--orange)">source</a></div>';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1232,11 +1304,12 @@ async function loadCostEvolution() {
       console.warn('Cost composition load failed:', e.message);
       if (costEvolChart) { costEvolChart.destroy(); costEvolChart = null; }
       showChartUnavailable('chart-cost-evolution');
+      renderBreakdown(null);
       return;
     }
   }
   window._bessRows = rows;
-  renderCompositionKpis(rows);
+  renderBreakdown(rows);
   renderCostEvolutionChart(rows);
 }
 
@@ -1252,26 +1325,6 @@ function rowsFromProducts(weeks, products) {
   }
   if (rows.length < 2) throw new Error('Pas assez de points');
   return rows;
-}
-
-function renderCompositionKpis(rows) {
-  const S = STRINGS[currentLang];
-  const last = rows[rows.length - 1], prev = rows[rows.length - 2];
-  const share = v => Math.round(v.cell / v.ac * 100);
-  const setKpi = (idVal, idDelta, val, prevVal, fmtV, unit) => {
-    const el = document.getElementById(idVal), de = document.getElementById(idDelta);
-    if (el) el.innerHTML = fmtV(val) + (unit ? '<sup> ' + unit + '</sup>' : '');
-    if (de) {
-      const diff = val - prevVal;
-      const pct = prevVal ? (diff / prevVal * 100) : 0;
-      const cls = Math.abs(pct) < 0.05 ? 'flat' : (diff > 0 ? 'up' : 'down');
-      de.className = 'kpi-delta ' + cls;
-      de.textContent = (cls === 'flat' ? '● ' : (diff > 0 ? '▲ ' : '▼ ')) + (cls === 'flat' ? '0,0' : pct.toFixed(1).replace('.', ',')) + ' % ' + S.kpi_wow + ' (' + last.week + ')';
-    }
-  };
-  setKpi('kpi-cell-share', 'delta-cell-share', share(last), share(prev), v => v + '<sup> %</sup>', '');
-  setKpi('kpi-dc-block', 'delta-dc-block', last.dc, prev.dc, v => v.toFixed(2), 'RMB/Wh');
-  setKpi('kpi-ac-system', 'delta-ac-system', last.ac, prev.ac, v => v.toFixed(2), 'RMB/Wh');
 }
 
 let costEvolChart = null;
@@ -1421,12 +1474,25 @@ function formatDate(dateStr) {
 // INIT
 // ═══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  renderBreakdown();
   initTocObserver();
   loadBessJson().then(() => loadAnalyses());
   loadFX();
   loadCostEvolution();
   loadFca();
+});
+
+
+// Hauteur automatique des iframes index.html (message 'barometer-embed-height'
+// envoyé par le dashboard embarqué après chaque rendu) — plus de scroll interne.
+window.addEventListener('message', e => {
+  const d = e.data;
+  if (!d || d.type !== 'barometer-embed-height' || !d.cat || !d.height) return;
+  document.querySelectorAll('iframe[src*="index.html"]').forEach(f => {
+    const hash = (f.getAttribute('src').split('#')[1] || '').toLowerCase();
+    if (hash !== String(d.cat).toLowerCase()) return;
+    const wrap = f.closest('.ifr-wrap');
+    if (wrap) wrap.style.height = (Math.min(1600, d.height + 12)) + 'px';
+  });
 });
 
 // Zoho iframes responsive scale (identique au baromètre modules)

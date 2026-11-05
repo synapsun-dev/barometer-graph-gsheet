@@ -117,6 +117,30 @@ if(EMBED_CAT){document.body.style.padding='12px';}
 
 const KPI_RENAME={'Granular Silicon (RMB/kg)':'FBR Granular Silicon (RMB/kg)'};
 
+// Mode iframe : signale sa hauteur réelle à la page parente (barometre-*.html)
+// pour que l'iframe s'ajuste sans barre de défilement interne.
+function postEmbedHeight(){
+  if(!EMBED_CAT||window.parent===window)return;
+  // Hauteur = bas du dernier élément visible (pas scrollHeight : le canvas Chart.js
+  // garde une taille intrinsèque plus grande que son rendu → bande blanche).
+  let bottom=0;
+  ['main-upd','main-leg','main-chart','main-ctrls','main-stats'].forEach(id=>{
+    const el=document.getElementById(id); if(!el||el.offsetParent===null)return;
+    bottom=Math.max(bottom,el.getBoundingClientRect().bottom+window.scrollY);
+  });
+  if(!bottom)return;
+  const h=Math.ceil(bottom+24);
+  if(h===postEmbedHeight._last)return;
+  postEmbedHeight._last=h;
+  try{window.parent.postMessage({type:'barometer-embed-height',cat:EMBED_CAT,src:URL_SRC||'pv',height:h},'*');}catch(_){}
+}
+window.addEventListener('resize',()=>setTimeout(postEmbedHeight,150));
+window.addEventListener('load',()=>{setTimeout(postEmbedHeight,300);setTimeout(postEmbedHeight,1200);});
+if(EMBED_CAT&&window.ResizeObserver){
+  let _t=null;
+  new ResizeObserver(()=>{clearTimeout(_t);_t=setTimeout(postEmbedHeight,120);}).observe(document.body);
+}
+
 const I18N={
   // Les catégories BESS (Lithium / Cell / System) sont libellées via DATASETS.bess.labels
   fr:{Polysilicon:'Polysilicium',Wafer:'Wafers',Cell:'Cellules',Module:'Modules',Glass:'Verre solaire',
@@ -220,16 +244,26 @@ function displayName(n){
 
 // Infobulles (survol) sur RMB, 182, 210/210R, µm (épaisseur)
 const TIPS={
-  fr:{RMB:'Chinese currency (renminbi, monnaie chinoise)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumene concentrate 6% Li2O',CIF:'Cost, Insurance & Freight (rendu port Chine)',LFP:'Lithium fer phosphate',DC:'Bloc batterie DC (sans PCS)',AC:'Système AC complet (avec PCS)'},
-  en:{RMB:'Chinese currency',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumene concentrate 6% Li2O',CIF:'Cost, Insurance & Freight (delivered China port)',LFP:'Lithium iron phosphate',DC:'DC battery block (no PCS)',AC:'Complete AC system (with PCS)'},
-  de:{RMB:'Chinese currency (chinesische Währung)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumen-Konzentrat 6% Li2O',CIF:'Cost, Insurance & Freight (Hafen China)',LFP:'Lithium-Eisenphosphat',DC:'DC-Batterieblock (ohne PCS)',AC:'Komplettes AC-System (mit PCS)'},
-  it:{RMB:'Chinese currency (valuta cinese)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Concentrato di spodumene 6% Li2O',CIF:'Cost, Insurance & Freight (porto Cina)',LFP:'Litio ferro fosfato',DC:'Blocco batteria DC (senza PCS)',AC:'Sistema AC completo (con PCS)'},
-  es:{RMB:'Chinese currency (moneda china)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Concentrado de espodumena 6% Li2O',CIF:'Cost, Insurance & Freight (puerto China)',LFP:'Litio hierro fosfato',DC:'Bloque batería DC (sin PCS)',AC:'Sistema AC completo (con PCS)'}
+  fr:{RMB:'Chinese currency (renminbi, monnaie chinoise)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumene concentrate 6% Li2O',CIF:'Cost, Insurance & Freight (rendu port Chine)',LFP:'Lithium fer phosphate',DC:'Bloc batterie DC (sans PCS)',AC:'Système AC complet (avec PCS)',
+      'LITHIUM CARBONATE':'Li₂CO₃ — sel de lithium raffiné (qualité batterie ≥ 99,5 %), matière première de la cathode LFP ; prix spot Chine, en RMB par tonne',
+      'SPODUMENE CONCENTRATE':'Minerai de lithium (LiAlSi₂O₆) concentré à 6 % Li₂O (SC6), surtout australien, transformé en carbonate de lithium en Chine ; prix CIF Chine, en USD par tonne'},
+  en:{RMB:'Chinese currency',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumene concentrate 6% Li2O',CIF:'Cost, Insurance & Freight (delivered China port)',LFP:'Lithium iron phosphate',DC:'DC battery block (no PCS)',AC:'Complete AC system (with PCS)',
+      'LITHIUM CARBONATE':'Li₂CO₃ — refined lithium salt (battery grade ≥ 99.5%), raw material of the LFP cathode; China spot price, RMB per tonne',
+      'SPODUMENE CONCENTRATE':'Lithium ore (LiAlSi₂O₆) concentrated to 6% Li₂O (SC6), mostly Australian, converted into lithium carbonate in China; CIF China price, USD per tonne'},
+  de:{RMB:'Chinese currency (chinesische Währung)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumen-Konzentrat 6% Li2O',CIF:'Cost, Insurance & Freight (Hafen China)',LFP:'Lithium-Eisenphosphat',DC:'DC-Batterieblock (ohne PCS)',AC:'Komplettes AC-System (mit PCS)',
+      'LITHIUM CARBONATE':'Li₂CO₃ — raffiniertes Lithiumsalz (Batteriequalität ≥ 99,5 %), Rohstoff der LFP-Kathode; Spotpreis China in RMB je Tonne',
+      'SPODUMENE CONCENTRATE':'Lithiumerz (LiAlSi₂O₆), auf 6 % Li₂O konzentriert (SC6), meist aus Australien, in China zu Lithiumcarbonat verarbeitet; CIF-Preis China in USD je Tonne'},
+  it:{RMB:'Chinese currency (valuta cinese)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Concentrato di spodumene 6% Li2O',CIF:'Cost, Insurance & Freight (porto Cina)',LFP:'Litio ferro fosfato',DC:'Blocco batteria DC (senza PCS)',AC:'Sistema AC completo (con PCS)',
+      'LITHIUM CARBONATE':'Li₂CO₃ — sale di litio raffinato (grado batteria ≥ 99,5 %), materia prima del catodo LFP; prezzo spot Cina in RMB per tonnellata',
+      'SPODUMENE CONCENTRATE':'Minerale di litio (LiAlSi₂O₆) concentrato al 6 % Li₂O (SC6), per lo più australiano, trasformato in carbonato di litio in Cina; prezzo CIF Cina in USD per tonnellata'},
+  es:{RMB:'Chinese currency (moneda china)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Concentrado de espodumena 6% Li2O',CIF:'Cost, Insurance & Freight (puerto China)',LFP:'Litio hierro fosfato',DC:'Bloque batería DC (sin PCS)',AC:'Sistema AC completo (con PCS)',
+      'LITHIUM CARBONATE':'Li₂CO₃ — sal de litio refinada (grado batería ≥ 99,5 %), materia prima del cátodo LFP; precio spot China en RMB por tonelada',
+      'SPODUMENE CONCENTRATE':'Mineral de litio (LiAlSi₂O₆) concentrado al 6 % Li₂O (SC6), sobre todo australiano, transformado en carbonato de litio en China; precio CIF China en USD por tonelada'}
 };
 // Texte -> HTML échappé avec <span title> sur les termes à expliquer
 function tipHtml(txt){
   const T=TIPS[lang]||TIPS.fr;
-  return escHtml(txt).replace(/\b(RMB|182|210R?|SC6|CIF|LFP|DC|AC)\b|\b\d{2,3}\s?µm/g,m=>{
+  return escHtml(txt).replace(/\b(Lithium Carbonate|Spodumene Concentrate|RMB|182|210R?|SC6|CIF|LFP|DC|AC)\b|\b\d{2,3}\s?µm/g,m=>{
     const k=/µm$/.test(m)?'µm':m.toUpperCase();
     return T[k]?'<span class="tip" style="text-transform:none" title="'+escHtml(T[k])+'">'+m+'</span>':m;
   });
@@ -308,6 +342,7 @@ function createSection(id,cat,isMain){
       leg.querySelectorAll('.li').forEach(el=>{el.onclick=()=>{const n=el.dataset.n;state.hidden.has(n)?state.hidden.delete(n):state.hidden.add(n);draw();}});
     }
     buildKPI();
+    postEmbedHeight();
   }
 
   function populateWeeks(){
