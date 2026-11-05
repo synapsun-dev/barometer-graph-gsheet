@@ -273,10 +273,17 @@ def get_sheet():
     sh = gspread.authorize(creds).open_by_key(SHEET_ID)
     ensure_aux_tabs(sh)
     try:
-        return sh.worksheet(SHEET_TAB)
+        ws = sh.worksheet(SHEET_TAB)
     except gspread.exceptions.WorksheetNotFound:
         logger.info("Onglet '%s' absent — création", SHEET_TAB)
-        return sh.add_worksheet(title=SHEET_TAB, rows=60, cols=400)
+        ws = sh.add_worksheet(title=SHEET_TAB, rows=60, cols=400)
+    # Ligne 1 figée : l'export CSV gviz (lu par export_json.py / index.html) prend
+    # les lignes figées comme en-tête ; sans cela il fusionne lignes 1 et 2
+    # ("W34-2025 https://…") et les colonnes semaine deviennent invalides.
+    if ws.frozen_row_count != 1:
+        ws.freeze(rows=1)
+        logger.info("Ligne 1 figée sur '%s' (en-tête gviz)", SHEET_TAB)
+    return ws
 
 
 def existing_headers(ws) -> list:
