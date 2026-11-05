@@ -43,9 +43,12 @@ SCHEMA_VERSION = 1
 
 SHEET_ID  = "1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw"
 SHEET_TAB = "taiyangnews_scrapping"
+# headers=1 : force gviz à ne prendre QUE la ligne 1 comme en-tête (sinon il
+# fusionne les lignes 1-2 d'un onglet dont la ligne 2 est entièrement textuelle,
+# ex. "W34-2025 https://…" sur bess_scrapping — vérifié sans effet sur l'onglet modules)
 CSV_URL   = (
     f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq"
-    f"?tqx=out:csv&sheet={SHEET_TAB}"
+    f"?tqx=out:csv&sheet={SHEET_TAB}&headers=1"
 )
 
 # FX : Frankfurter (données BCE, sans clé) puis open.er-api.com en secours
@@ -266,7 +269,7 @@ def main() -> int:
 
     SHEET_TAB = args.tab
     CSV_URL = (f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq"
-               f"?tqx=out:csv&sheet={SHEET_TAB}")
+               f"?tqx=out:csv&sheet={SHEET_TAB}&headers=1")
 
     csv_text = args.csv.read_text(encoding="utf-8") if args.csv else fetch_csv()
     weeks, products = parse_sheet(csv_text)

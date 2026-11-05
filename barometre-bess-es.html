@@ -958,7 +958,7 @@ const ALL_BLOCKS = ['bess_lithium','bess_cell','bess_cost_breakdown','bess_syste
                     'exchange_rate','bess_fca','bess_market_analysis'];
 
 async function fetchAnalysisTab(tab) {
-  const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}`;
   const resp = await fetch(csvUrl);
   if (!resp.ok) throw new Error(`Sheet fetch failed: HTTP ${resp.status}`);
   const text = await resp.text();
@@ -1216,7 +1216,7 @@ async function loadCostEvolution() {
   if (!rows) {
     // Repli : CSV gviz de l'onglet bess_scrapping
     try {
-      const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(BESS_CSV_TAB)}`;
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(BESS_CSV_TAB)}`;
       const resp = await fetch(csvUrl);
       if (!resp.ok) throw new Error('Sheet not reachable: ' + resp.status);
       const text = await resp.text();
@@ -1310,7 +1310,7 @@ let fcaChart = null;
 async function loadFca() {
   const S = STRINGS[currentLang];
   try {
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(FCA_TAB)}`;
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(FCA_TAB)}`;
     const resp = await fetch(csvUrl);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();

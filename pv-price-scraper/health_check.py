@@ -91,7 +91,7 @@ TAIYANGNEWS_URL = "https://taiyangnews.info/price-index"
 BESS_SHEET_TAB = "bess_scrapping"
 BESS_CSV_URL   = (
     f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq"
-    f"?tqx=out:csv&sheet={BESS_SHEET_TAB}"
+    f"?tqx=out:csv&sheet={BESS_SHEET_TAB}&headers=1"
 )
 BESS_JSON_URL  = DASHBOARD_URL + "data/bess.json"
 BESS_PAGE_URL  = DASHBOARD_URL + "barometre-bess.html"
