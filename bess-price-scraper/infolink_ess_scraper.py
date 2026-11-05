@@ -283,6 +283,11 @@ def get_sheet():
     if ws.frozen_row_count != 1:
         ws.freeze(rows=1)
         logger.info("Ligne 1 figée sur '%s' (en-tête gviz)", SHEET_TAB)
+    # Marqueur « url | url | NO » en A2:C2 (cf. upsert_week) — rattrapage d'un onglet
+    # créé avant ce correctif
+    if ws.acell("A1").value and ws.acell("A2").value != "url":
+        ws.update(values=[["url", "url", "NO"]], range_name="A2")
+        logger.info("Marqueur 'url | url | NO' écrit en A2:C2 de '%s'", SHEET_TAB)
     return ws
 
 
@@ -329,7 +334,11 @@ def upsert_week(ws, prices: dict, header: str, page_url: str, force: bool = Fals
     is_empty = not all_values or all(all(c == "" for c in row) for row in all_values)
 
     if is_empty:
-        rows = [["Category", "Product", "Show in Barometer", header], ["", "", "", page_url]]
+        # Ligne 2 = « url | url | NO | <URL de la semaine> » comme l'onglet modules :
+        # l'export CSV gviz n'y voit pas une 2e ligne d'en-tête (sinon il fusionne
+        # "W34-2025 https://…" et export_json.py / index.html échouent) ;
+        # export_json.py ignore la catégorie "url", index.html ignore Show = NO.
+        rows = [["Category", "Product", "Show in Barometer", header], ["url", "url", "NO", page_url]]
         for name, p in prices.items():
             rows.append([p["category"], name, p["show"], p["value"]])
         ws.update(values=rows, range_name="A1")
