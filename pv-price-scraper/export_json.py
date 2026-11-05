@@ -251,12 +251,22 @@ def build_payload(weeks: list[str], products: list[dict], fx: dict) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Exporte data/barometer.json")
+    global SHEET_TAB, CSV_URL
+    parser = argparse.ArgumentParser(description="Exporte data/barometer.json (ou un autre onglet → autre JSON)")
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT,
                         help=f"Fichier de sortie (défaut : {DEFAULT_OUT})")
     parser.add_argument("--csv", type=Path, default=None,
                         help="CSV local (test hors ligne) au lieu du Sheet")
+    # Même contrat JSON pour le baromètre batteries (onglet bess_scrapping → data/bess.json)
+    parser.add_argument("--tab", default=SHEET_TAB,
+                        help=f"Onglet du Sheet à exporter (défaut : {SHEET_TAB})")
+    parser.add_argument("--source", default=None,
+                        help="Libellé de la source écrit dans le JSON (défaut : TaiyangNews…)")
     args = parser.parse_args()
+
+    SHEET_TAB = args.tab
+    CSV_URL = (f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq"
+               f"?tqx=out:csv&sheet={SHEET_TAB}")
 
     csv_text = args.csv.read_text(encoding="utf-8") if args.csv else fetch_csv()
     weeks, products = parse_sheet(csv_text)
@@ -267,6 +277,9 @@ def main() -> int:
                 fx["eur_usd"], fx["eur_cny"], fx["xag_usd_oz"])
 
     payload = build_payload(weeks, products, fx)
+    if args.source:
+        payload["source"] = args.source
+    payload["sheet_tab"] = SHEET_TAB
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(

@@ -1,0 +1,129 @@
+# Baromètre batteries / BESS — scraper hebdomadaire InfoLink + export data/bess.json
+#
+# InfoLink publie son commentaire « ESS spot price » chaque mercredi (chinois)
+# et chaque jeudi (anglais) depuis mai 2026 → on tourne le vendredi 06:00 UTC.
+# Le scraper rattrape seul jusqu'à 3 semaines manquantes (publication en retard,
+# run raté) et échoue (→ ticket GitHub Issue) si le retard dépasse 3 semaines.
+#
+# Pipeline (même Sheet que le baromètre modules, onglet `bess_scrapping`) :
+#   InfoLink (HTML) → bess-price-scraper/infolink_ess_scraper.py → Google Sheet
+#   → pv-price-scraper/export_json.py --tab bess_scrapping → data/bess.json (GitHub Pages)
+name: InfoLink BESS Price Index
+
+on:
+  schedule:
+    - cron: "0 6 * * 5"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode d'exécution"
+        required: false
+        default: "weekly"
+        type: choice
+        options:
+          - weekly
+          - backfill
+          - force
+
+concurrency:
+  group: bess-scraper
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  scrape-and-export:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r bess-price-scraper/requirements.txt
+
+      - name: Scraper InfoLink → Google Sheet
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+        run: |
+          set -o pipefail
+          ARGS=""
+          if [ "${{ github.event.inputs.mode }}" = "backfill" ]; then ARGS="--backfill"; fi
+          if [ "${{ github.event.inputs.mode }}" = "force" ]; then ARGS="--backfill --force"; fi
+          cd bess-price-scraper && python infolink_ess_scraper.py $ARGS 2>&1 | tee scraper_output.log
+
+      - name: Export data/bess.json
+        run: |
+          python pv-price-scraper/export_json.py \
+            --tab bess_scrapping \
+            --out data/bess.json \
+            --source "InfoLink Consulting — ESS spot price (via Google Sheets Synapsun)"
+
+      - name: Committer si changement
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/bess.json
+          if git diff --cached --quiet; then
+            echo "Aucun changement — rien à committer"
+          else
+            git commit -m "auto: export bess.json ($(date -u +%F))"
+            git pull --rebase origin main
+            git push
+          fi
+
+      - name: Résumé
+        run: |
+          echo "## Export bess.json" >> "$GITHUB_STEP_SUMMARY"
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          d = json.load(open('data/bess.json', encoding='utf-8'))
+          vis = [p for p in d['products'] if p['show_in_barometer']]
+          print(f"- Dernière semaine : **{d['last_week']}**")
+          print(f"- Séries : {len(d['products'])} ({len(vis)} visibles)")
+          for p in vis:
+              l = p.get('latest') or {}
+              print(f"  - {p['name']} : {l.get('value')} ({l.get('week')})")
+          print(f"- Généré : {d['generated_at']}")
+          EOF
+
+      - name: Extraire le détail de l'erreur (si échec)
+        id: scraper-error
+        if: failure()
+        run: |
+          DETAIL="voir les logs du run ci-dessus"
+          if [ -f bess-price-scraper/scraper_output.log ]; then
+            FOUND=$(grep -E "ERROR|WARNING" bess-price-scraper/scraper_output.log | tail -3 || true)
+            if [ -n "$FOUND" ]; then DETAIL="$FOUND"; fi
+          fi
+          {
+            echo "detail<<PIPELINE_ALERT_EOF"
+            echo "$DETAIL"
+            echo "PIPELINE_ALERT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Alerte pipeline — échec
+        if: failure()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: failure
+          alert-key: bess-price-weekly
+          workflow-name: "InfoLink BESS Price Index (scraper hebdomadaire)"
+          details: ${{ steps.scraper-error.outputs.detail }}
+
+      - name: Alerte pipeline — résolution
+        if: success()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: success
+          alert-key: bess-price-weekly
+          workflow-name: "InfoLink BESS Price Index (scraper hebdomadaire)"

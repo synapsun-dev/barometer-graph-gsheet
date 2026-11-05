@@ -15,6 +15,8 @@ Sort avec un code != 0 si au moins un check échoue → le workflow GitHub Actio
 Aucun secret requis : toutes les URLs sont publiques.
 """
 
+import csv
+import io
 import logging
 import os
 import re
@@ -84,6 +86,18 @@ XAG_URLS = [
 ]
 
 TAIYANGNEWS_URL = "https://taiyangnews.info/price-index"
+
+# ── Baromètre batteries / BESS (onglet bess_scrapping, source InfoLink) ──────
+BESS_SHEET_TAB = "bess_scrapping"
+BESS_CSV_URL   = (
+    f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq"
+    f"?tqx=out:csv&sheet={BESS_SHEET_TAB}"
+)
+BESS_JSON_URL  = DASHBOARD_URL + "data/bess.json"
+BESS_PAGE_URL  = DASHBOARD_URL + "barometre-bess.html"
+INFOLINK_URL   = "https://www.infolink-group.com/energy/energy-storage-supply-chain"
+# InfoLink publie chaque semaine depuis mai 2026 (bimensuel avant) → marge 3 semaines
+BESS_MAX_WEEK_LAG = 3
 
 # Retard max toléré pour la dernière colonne du Sheet (en semaines ISO).
 # Le scraper tourne le lundi ; TaiyangNews publie parfois avec quelques jours
@@ -316,6 +330,76 @@ def check_analysis_tab() -> str:
     return f"'{ANALYSIS_KEY_WATCHED}' publié le {raw_date} ({age_days} j), non vide"
 
 
+def check_bess_sheets_csv() -> str:
+    """Onglet bess_scrapping : accessible, ≥ 5 séries visibles, dernière semaine récente."""
+    resp = http_get(BESS_CSV_URL)
+    text = resp.text
+    if text.lstrip().startswith("<!"):
+        raise RuntimeError("L'onglet bess_scrapping renvoie du HTML — Sheet non public ou onglet absent")
+    rows = list(csv.reader(io.StringIO(text)))
+    if len(rows) < 3:
+        raise RuntimeError(f"Onglet bess_scrapping trop court : {len(rows)} ligne(s)")
+    weeks = [w.strip() for w in rows[0][3:] if w.strip()]
+    visible = [r for r in rows[2:] if len(r) > 2 and r[2].strip().upper() == "YES"]
+    if len(visible) < 5:
+        raise RuntimeError(f"Seulement {len(visible)} série(s) visibles (attendu ≥ 5)")
+    latest = None
+    for w in weeks:
+        m = re.match(r"^W(\d{1,2})-(\d{4})$", w)
+        if m:
+            k = (int(m.group(2)), int(m.group(1)))
+            latest = max(latest, k) if latest else k
+    if not latest:
+        raise RuntimeError("Aucune colonne semaine valide")
+    lag = week_lag(latest[1], latest[0])
+    if lag > BESS_MAX_WEEK_LAG:
+        raise RuntimeError(
+            f"DONNÉES BESS PÉRIMÉES : dernière semaine W{latest[1]}-{latest[0]} "
+            f"({lag} sem. de retard, max {BESS_MAX_WEEK_LAG}) — vérifier bess_price_weekly.yml / InfoLink"
+        )
+    return f"dernière semaine W{latest[1]}-{latest[0]} ({lag} sem.), {len(visible)} séries visibles"
+
+
+def check_bess_json() -> str:
+    """Contrat data/bess.json : accessible, schéma valide, régénéré récemment."""
+    from datetime import datetime, timezone
+
+    resp = http_get(BESS_JSON_URL)
+    try:
+        data = resp.json()
+    except ValueError as exc:
+        raise RuntimeError(f"JSON invalide : {exc}")
+    if data.get("schema_version") != 1 or not data.get("products"):
+        raise RuntimeError("Schéma bess.json inattendu ou vide")
+    generated_at = data.get("generated_at", "")
+    try:
+        generated = datetime.strptime(generated_at, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    except ValueError:
+        raise RuntimeError(f"generated_at illisible : {generated_at!r}")
+    age_days = (datetime.now(timezone.utc) - generated).days
+    if age_days > MAX_JSON_AGE_DAYS:
+        raise RuntimeError(
+            f"EXPORT BESS EN PANNE : bess.json généré il y a {age_days} jours "
+            f"(max {MAX_JSON_AGE_DAYS}) — vérifier le workflow bess_price_weekly.yml"
+        )
+    return f"last_week={data.get('last_week')}, {len(data['products'])} séries, généré il y a {age_days} j"
+
+
+def check_bess_page() -> str:
+    resp = http_get(BESS_PAGE_URL)
+    if "barometre-bess" not in resp.text and "BESS" not in resp.text:
+        raise RuntimeError("Page barometre-bess.html inattendue")
+    return f"HTTP {resp.status_code}, {len(resp.text)//1024} Ko"
+
+
+def check_infolink() -> str:
+    resp = http_get(INFOLINK_URL)
+    slugs = sorted(set(re.findall(r"ess-spot-price-(\d{8})", resp.text)))
+    if not slugs:
+        raise RuntimeError("Aucune publication ess-spot-price trouvée — structure InfoLink changée ?")
+    return f"HTTP {resp.status_code}, dernière publication {slugs[-1]}"
+
+
 CHECKS = [
     ("Google Sheets CSV",        check_sheets_csv),
     ("Analyse Synapsun (onglet)", check_analysis_tab),
@@ -324,6 +408,10 @@ CHECKS = [
     ("API BCE (taux de change)", check_ecb),
     ("API XAG (argent)",         check_xag),
     ("TaiyangNews price-index",  check_taiyangnews),
+    ("BESS — Google Sheets CSV", check_bess_sheets_csv),
+    ("BESS — Contrat JSON",      check_bess_json),
+    ("BESS — Page GitHub Pages", check_bess_page),
+    ("BESS — InfoLink (source)", check_infolink),
 ] + [(name, make_zoho_check(url)) for name, url in ZOHO_IFRAMES.items()]
 
 

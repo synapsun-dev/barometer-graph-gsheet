@@ -78,16 +78,38 @@
 <!-- Individual category charts rendered here -->
 <div id="cat-sections"></div>
 
-<p style="text-align:center;color:#9ca3af;font-size:.72rem;margin-top:24px">Source: <a href="https://taiyangnews.info/" target="_blank" style="color:#6b7280;text-decoration:underline">taiyangnews.info</a></p>
+<p style="text-align:center;color:#9ca3af;font-size:.72rem;margin-top:24px">Source: <a id="src-link" href="https://taiyangnews.info/" target="_blank" style="color:#6b7280;text-decoration:underline">taiyangnews.info</a></p>
 
 <script>
 const SHEET_ID='1uZeF8NfStd_j7_rBL9pmAcT-RrOM4xQ7PE--Siekidw';
 const PAL=['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#db2777','#0891b2','#ea580c','#0d9488','#9333ea','#e11d48','#65a30d','#0284c7','#c026d3','#f43f5e','#059669','#4f46e5','#ca8a04'];
-const CATS=['Polysilicon','Wafer','Cell','Module','Glass'];
+
+// ── Jeux de données ─────────────────────────────────────────────────────────
+// ?src=pv (défaut) : baromètre modules (TaiyangNews, onglet taiyangnews_scrapping)
+// ?src=bess        : baromètre batteries (InfoLink ESS spot price, onglet bess_scrapping)
+// Même contrat JSON (export_json.py), même layout d'onglet — seules les
+// catégories, les libellés et les sources changent.
+const DATASETS={
+  pv:{json:'data/barometer.json',csv:'gid=0',cats:['Polysilicon','Wafer','Cell','Module','Glass'],
+      start:{Module:'W38-2024'},hidden:['Chinese 9N'],title:'TaiyangNews PV Price Index',
+      srcName:'taiyangnews.info',srcUrl:'https://taiyangnews.info/'},
+  bess:{json:'data/bess.json',csv:'sheet=bess_scrapping',cats:['Lithium','Cell','System'],
+      start:{},hidden:[],title:'InfoLink ESS Price Index',
+      srcName:'infolink-group.com',srcUrl:'https://www.infolink-group.com/energy/energy-storage-supply-chain',
+      // Libellés de catégorie propres au jeu BESS (la clé « Cell » est partagée avec le PV)
+      labels:{fr:{Lithium:'Lithium',Cell:'Cellules LFP ESS',System:'Systèmes BESS (Chine)'},
+              en:{Lithium:'Lithium',Cell:'LFP ESS cells',System:'BESS systems (China)'},
+              de:{Lithium:'Lithium',Cell:'LFP-ESS-Zellen',System:'BESS-Systeme (China)'},
+              it:{Lithium:'Litio',Cell:'Celle LFP ESS',System:'Sistemi BESS (Cina)'},
+              es:{Lithium:'Litio',Cell:'Células LFP ESS',System:'Sistemas BESS (China)'}}}
+};
+const URL_SRC=new URLSearchParams(window.location.search).get('src');
+const DS=DATASETS[URL_SRC]||DATASETS.pv;
+const CATS=DS.cats;
 const MODULE_START_WEEK='W38-2024';
 
 // Produits masqués dans l'affichage (restent dans le Sheet)
-const HIDDEN_PRODUCTS=['Chinese 9N'];
+const HIDDEN_PRODUCTS=DS.hidden;
 
 // Mode intégration iframe : activé quand l'URL contient un hash correspondant à une catégorie
 const EMBED_CAT=(()=>{const h=window.location.hash.replace('#','');return CATS.find(c=>c.toLowerCase()===h.toLowerCase())||null;})();
@@ -96,6 +118,7 @@ if(EMBED_CAT){document.body.style.padding='12px';}
 const KPI_RENAME={'Granular Silicon (RMB/kg)':'FBR Granular Silicon (RMB/kg)'};
 
 const I18N={
+  // Les catégories BESS (Lithium / Cell / System) sont libellées via DATASETS.bess.labels
   fr:{Polysilicon:'Polysilicium',Wafer:'Wafers',Cell:'Cellules',Module:'Modules',Glass:'Verre solaire',
       from:'Du',to:'Au',week:'sem.',total:'periode',loading:'Chargement des donnees...',
       updated:'Derniere mise a jour',error:'Erreur de chargement',errorSub:'Verifiez que le Google Sheet est partage en lecture publique.'},
@@ -116,8 +139,14 @@ const I18N={
 // pour les iframes embarquées) ; repli sur 'fr' pour une visite directe de index.html.
 const URL_LANG=new URLSearchParams(window.location.search).get('lang');
 let lang=(URL_LANG&&I18N[URL_LANG])?URL_LANG:'fr';
-function t(k){return I18N[lang][k]||k;}
+function t(k){
+  const L=DS.labels&&(DS.labels[lang]||DS.labels.fr);
+  if(L&&L[k])return L[k];
+  return I18N[lang][k]||k;
+}
 {const ld=document.querySelector('#load span'); if(ld) ld.textContent=t('loading');}
+{const h=document.querySelector('.logo h1'); if(h) h.textContent=DS.title; document.title=DS.title+' - SynapSun';
+ const sl=document.getElementById('src-link'); if(sl){sl.href=DS.srcUrl; sl.textContent=DS.srcName;}}
 
 let allData=null;
 
@@ -173,6 +202,9 @@ function weekToDate(w){
 function getUnit(n){
   if(n.includes('RMB/kg')||n.includes('USD/kg'))return n.includes('USD')?'USD/kg':'RMB/kg';
   if(n.includes('RMB/piece'))return'RMB/pc';
+  if(n.includes('RMB/Wh'))return'RMB/Wh';
+  if(n.includes('RMB/MT'))return'RMB/t';
+  if(n.includes('USD/MT'))return'USD/t';
   if(n.includes('RMB/W'))return'RMB/W';
   if(n.includes('RMB/m2'))return'RMB/m²';
   return'';
@@ -181,21 +213,23 @@ function getUnit(n){
 function displayName(n){
   let s=n;
   if(KPI_RENAME[s])s=KPI_RENAME[s];
+  // Jeu BESS : l'unité est déjà affichée à côté de la valeur → on l'enlève du libellé
+  if(DS!==DATASETS.pv)s=s.replace(/\s*\((RMB|USD)\/[^)]+\)\s*$/,'');
   return s.replace(/\s*\(raw\)/gi,'').replace(/\b(182|210R?)\s*mm\b/gi,'$1 mm');
 }
 
 // Infobulles (survol) sur RMB, 182, 210/210R, µm (épaisseur)
 const TIPS={
-  fr:{RMB:'Chinese currency (renminbi, monnaie chinoise)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
-  en:{RMB:'Chinese currency',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
-  de:{RMB:'Chinese currency (chinesische Währung)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
-  it:{RMB:'Chinese currency (valuta cinese)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'},
-  es:{RMB:'Chinese currency (moneda china)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness'}
+  fr:{RMB:'Chinese currency (renminbi, monnaie chinoise)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumene concentrate 6% Li2O',CIF:'Cost, Insurance & Freight (rendu port Chine)',LFP:'Lithium fer phosphate',DC:'Bloc batterie DC (sans PCS)',AC:'Système AC complet (avec PCS)'},
+  en:{RMB:'Chinese currency',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumene concentrate 6% Li2O',CIF:'Cost, Insurance & Freight (delivered China port)',LFP:'Lithium iron phosphate',DC:'DC battery block (no PCS)',AC:'Complete AC system (with PCS)'},
+  de:{RMB:'Chinese currency (chinesische Währung)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Spodumen-Konzentrat 6% Li2O',CIF:'Cost, Insurance & Freight (Hafen China)',LFP:'Lithium-Eisenphosphat',DC:'DC-Batterieblock (ohne PCS)',AC:'Komplettes AC-System (mit PCS)'},
+  it:{RMB:'Chinese currency (valuta cinese)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Concentrato di spodumene 6% Li2O',CIF:'Cost, Insurance & Freight (porto Cina)',LFP:'Litio ferro fosfato',DC:'Blocco batteria DC (senza PCS)',AC:'Sistema AC completo (con PCS)'},
+  es:{RMB:'Chinese currency (moneda china)',182:'M10 cells',210:'G12 cells','210R':'G12 cells',µm:'Thickness',SC6:'Concentrado de espodumena 6% Li2O',CIF:'Cost, Insurance & Freight (puerto China)',LFP:'Litio hierro fosfato',DC:'Bloque batería DC (sin PCS)',AC:'Sistema AC completo (con PCS)'}
 };
 // Texte -> HTML échappé avec <span title> sur les termes à expliquer
 function tipHtml(txt){
   const T=TIPS[lang]||TIPS.fr;
-  return escHtml(txt).replace(/\b(RMB|182|210R?)\b|\b\d{2,3}\s?µm/gi,m=>{
+  return escHtml(txt).replace(/\b(RMB|182|210R?|SC6|CIF|LFP|DC|AC)\b|\b\d{2,3}\s?µm/g,m=>{
     const k=/µm$/.test(m)?'µm':m.toUpperCase();
     return T[k]?'<span class="tip" style="text-transform:none" title="'+escHtml(T[k])+'">'+m+'</span>':m;
   });
@@ -227,8 +261,9 @@ function createSection(id,cat,isMain){
   }
 
   function getDefaultStart(){
-    if(state.curCat==='Module'){
-      const idx=allData.weeks.indexOf(MODULE_START_WEEK);
+    const sw=DS.start[state.curCat];
+    if(sw){
+      const idx=allData.weeks.indexOf(sw);
       return idx>=0?idx:0;
     }
     return 0;
@@ -408,12 +443,12 @@ function fromJson(j){
 }
 
 function loadFromCsv(){
-  return fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid=0')
+  return fetch('https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&'+DS.csv)
     .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
     .then(csv=>{window._generatedAt=null;return parseCSV(csv);});
 }
 
-fetch('data/barometer.json',{cache:'no-cache'})
+fetch(DS.json,{cache:'no-cache'})
   .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
   .then(j=>{
     if(!j||j.schema_version!==1||!Array.isArray(j.products))throw new Error('bad schema');
@@ -421,7 +456,7 @@ fetch('data/barometer.json',{cache:'no-cache'})
     return fromJson(j);
   })
   .catch(e=>{
-    console.warn('barometer.json indisponible, fallback CSV :',e.message);
+    console.warn(DS.json+' indisponible, fallback CSV :',e.message);
     return loadFromCsv();
   })
   .then(data=>{

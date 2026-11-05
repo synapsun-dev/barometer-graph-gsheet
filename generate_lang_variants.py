@@ -12,14 +12,15 @@ l'attribut <html lang="..."> diffèrent d'un fichier à l'autre.
 Usage :
     python generate_lang_variants.py
 
-Ne JAMAIS éditer barometre-synapsun-{en,de,it,es}.html à la main : éditer
-barometre-synapsun.html (le corps/JS partagé, ou la section HEADS ci-dessous
+Ne JAMAIS éditer barometre-synapsun-{en,de,it,es}.html ni
+barometre-bess-{en,de,it,es}.html à la main : éditer le maître FR correspondant (le corps/JS partagé, ou la section HEADS ci-dessous
 pour le SEO) puis relancer ce script.
 """
 import re
 from pathlib import Path
 
 MASTER = Path(__file__).parent / "barometre-synapsun.html"
+MASTER_BESS = Path(__file__).parent / "barometre-bess.html"   # baromètre batteries (mêmes règles)
 
 BANNER = (
     "<!-- GÉNÉRÉ AUTOMATIQUEMENT depuis barometre-synapsun.html "
@@ -161,9 +162,141 @@ HEADS = {
     },
 }
 
+# ── Baromètre batteries / BESS (barometre-bess.html → barometre-bess-{lang}.html) ──
+HEADS_BESS = {
+    "en": {
+        "title": "Battery & Storage (BESS) Price Barometer 2026 | Synapsun",
+        "description": "Weekly tracking of energy storage prices: lithium carbonate, LFP 314 Ah cells, BESS systems in China, C&I vs utility cost structure, sea freight, exchange rates and FCA Europe prices in EUR/kWh. By Synapsun.",
+        "keywords": "BESS battery price, energy storage price barometer, lithium carbonate price, LFP cell price 314Ah, 5 MWh battery container price, 261 kWh C&I cabinet, BESS price EUR/kWh, FCA Europe, sea freight, EUR USD CNY, Synapsun",
+        "canonical": "https://synapsun.com/battery-barometer",
+        "og_title": "Battery & Storage (BESS) Price Barometer | Synapsun",
+        "og_description": "Weekly energy storage price tracking, from lithium to the system delivered in Europe: LFP cells, C&I and utility systems, freight, FX, EUR/kWh FCA.",
+        "og_locale": "en_GB",
+        "twitter_title": "Battery & Storage (BESS) Price Barometer | Synapsun",
+        "twitter_description": "Weekly BESS price tracking: lithium, LFP cells, C&I and utility systems, sea freight and exchange rates.",
+        "ld_name": "Battery & Storage (BESS) Price Barometer",
+        "ld_description": "Weekly time series of energy storage prices: lithium, LFP cells, BESS systems, sea freight, exchange rates and FCA Europe prices.",
+        "ld_inLanguage": "en-GB",
+        "breadcrumb_home": "Home",
+        "breadcrumb_modules": "BESS Storage",
+        "breadcrumb_modules_url": "https://synapsun.com/en/bess-storage",
+        "breadcrumb_barometer": "Battery Barometer",
+        "dataset_name": "Synapsun Barometer — BESS Battery Prices",
+        "dataset_description": "Weekly time series of storage value chain prices: lithium carbonate, spodumene, LFP ESS cells, BESS systems in China, sea freight, EUR/USD/CNY exchange rates and FCA Europe prices.",
+        "license": "https://synapsun.com/en/legal-notice",
+        "keywords_list": '["BESS", "energy storage", "lithium price", "LFP cell", "314 Ah", "C&I", "utility-scale", "sea freight", "exchange rate"]',
+        "variable_measured": [
+            "Battery-grade lithium carbonate price (RMB/t)",
+            "Spodumene SC6 CIF price (USD/t)",
+            "LFP ESS cell prices 100/280/314 Ah (RMB/Wh)",
+            "BESS system prices China DC 2h, AC 1h/2h/4h (RMB/Wh)",
+            "Shanghai-Europe sea freight (USD/40HC)",
+            "EUR/USD rate",
+            "EUR/CNY rate",
+            "FCA Europe battery prices C&I and utility (EUR/kWh)",
+        ],
+    },
+    "de": {
+        "title": "Preisbarometer Batterien & Speicher (BESS) 2026 | Synapsun",
+        "description": "Wöchentliche Verfolgung der Speicherpreise: Lithiumcarbonat, LFP-Zellen 314 Ah, BESS-Systeme China, Kostenstruktur C&I vs Utility, Seefracht, Wechselkurse und FCA-Preise Europa in EUR/kWh. Von Synapsun.",
+        "keywords": "BESS Batteriepreis, Preisbarometer Energiespeicher, Lithiumcarbonatpreis, LFP-Zellenpreis 314Ah, Batteriecontainer 5 MWh Preis, C&I-Schrank 261 kWh, BESS Preis EUR/kWh, FCA Europa, Seefracht, EUR USD CNY, Synapsun",
+        "canonical": "https://synapsun.com/de/battery-barometer",
+        "og_title": "Preisbarometer Batterien & Speicher (BESS) | Synapsun",
+        "og_description": "Wöchentliche Verfolgung der Speicherpreise vom Lithium bis zum in Europa gelieferten System: LFP-Zellen, C&I- und Utility-Systeme, Fracht, Wechselkurse, EUR/kWh FCA.",
+        "og_locale": "de_DE",
+        "twitter_title": "Preisbarometer Batterien & Speicher (BESS) | Synapsun",
+        "twitter_description": "Wöchentliche BESS-Preisverfolgung: Lithium, LFP-Zellen, C&I- und Utility-Systeme, Seefracht und Wechselkurse.",
+        "ld_name": "Preisbarometer Batterien & Speicher (BESS)",
+        "ld_description": "Wöchentliche Zeitreihen der Speicherpreise: Lithium, LFP-Zellen, BESS-Systeme, Seefracht, Wechselkurse und FCA-Preise Europa.",
+        "ld_inLanguage": "de-DE",
+        "breadcrumb_home": "Startseite",
+        "breadcrumb_modules": "BESS-Speicher",
+        "breadcrumb_modules_url": "https://synapsun.com/de/bess-speicher",
+        "breadcrumb_barometer": "Batterie-Barometer",
+        "dataset_name": "Synapsun-Barometer — BESS-Batteriepreise",
+        "dataset_description": "Wöchentliche Zeitreihen der Speicher-Wertschöpfungskette: Lithiumcarbonat, Spodumen, LFP-ESS-Zellen, BESS-Systeme China, Seefracht, EUR/USD/CNY-Wechselkurse und FCA-Preise Europa.",
+        "license": "https://synapsun.com/de/impressum",
+        "keywords_list": '["BESS", "Energiespeicher", "Lithiumpreis", "LFP-Zelle", "314 Ah", "C&I", "Utility-Scale", "Seefracht", "Wechselkurs"]',
+        "variable_measured": [
+            "Preis Lithiumcarbonat Batteriequalität (RMB/t)",
+            "Preis Spodumen SC6 CIF (USD/t)",
+            "Preise LFP-ESS-Zellen 100/280/314 Ah (RMB/Wh)",
+            "Preise BESS-Systeme China DC 2h, AC 1h/2h/4h (RMB/Wh)",
+            "Seefracht Shanghai-Europa (USD/40HC)",
+            "Wechselkurs EUR/USD",
+            "Wechselkurs EUR/CNY",
+            "FCA-Batteriepreise Europa C&I und Utility (EUR/kWh)",
+        ],
+    },
+    "it": {
+        "title": "Barometro dei prezzi batterie e accumulo (BESS) 2026 | Synapsun",
+        "description": "Monitoraggio settimanale dei prezzi dell'accumulo: carbonato di litio, celle LFP 314 Ah, sistemi BESS Cina, struttura dei costi C&I vs utility, trasporto marittimo, tassi di cambio e prezzi FCA Europa in EUR/kWh. A cura di Synapsun.",
+        "keywords": "prezzo batteria BESS, barometro prezzi accumulo, prezzo carbonato di litio, prezzo cella LFP 314Ah, prezzo container batteria 5 MWh, armadio C&I 261 kWh, prezzo BESS EUR/kWh, FCA Europa, trasporto marittimo, EUR USD CNY, Synapsun",
+        "canonical": "https://synapsun.com/it/battery-barometer",
+        "og_title": "Barometro dei prezzi batterie e accumulo (BESS) | Synapsun",
+        "og_description": "Monitoraggio settimanale dei prezzi dell'accumulo dal litio al sistema consegnato in Europa: celle LFP, sistemi C&I e utility, trasporto, cambio, EUR/kWh FCA.",
+        "og_locale": "it_IT",
+        "twitter_title": "Barometro dei prezzi batterie e accumulo (BESS) | Synapsun",
+        "twitter_description": "Monitoraggio settimanale dei prezzi BESS: litio, celle LFP, sistemi C&I e utility, trasporto marittimo e tassi di cambio.",
+        "ld_name": "Barometro dei prezzi batterie e accumulo (BESS)",
+        "ld_description": "Serie storiche settimanali dei prezzi dell'accumulo: litio, celle LFP, sistemi BESS, trasporto marittimo, tassi di cambio e prezzi FCA Europa.",
+        "ld_inLanguage": "it-IT",
+        "breadcrumb_home": "Home",
+        "breadcrumb_modules": "Accumulo BESS",
+        "breadcrumb_modules_url": "https://synapsun.com/it/accumulo-bess",
+        "breadcrumb_barometer": "Barometro batterie",
+        "dataset_name": "Barometro Synapsun — Prezzi batterie BESS",
+        "dataset_description": "Serie storiche settimanali della filiera accumulo: carbonato di litio, spodumene, celle LFP ESS, sistemi BESS Cina, trasporto marittimo, tassi di cambio EUR/USD/CNY e prezzi FCA Europa.",
+        "license": "https://synapsun.com/it/note-legali",
+        "keywords_list": '["BESS", "accumulo di energia", "prezzo litio", "cella LFP", "314 Ah", "C&I", "utility-scale", "trasporto marittimo", "tasso di cambio"]',
+        "variable_measured": [
+            "Prezzo carbonato di litio grado batteria (RMB/t)",
+            "Prezzo spodumene SC6 CIF (USD/t)",
+            "Prezzi celle LFP ESS 100/280/314 Ah (RMB/Wh)",
+            "Prezzi sistemi BESS Cina DC 2h, AC 1h/2h/4h (RMB/Wh)",
+            "Trasporto marittimo Shanghai-Europa (USD/40HC)",
+            "Tasso EUR/USD",
+            "Tasso EUR/CNY",
+            "Prezzi batterie FCA Europa C&I e utility (EUR/kWh)",
+        ],
+    },
+    "es": {
+        "title": "Barómetro de precios de baterías y almacenamiento (BESS) 2026 | Synapsun",
+        "description": "Seguimiento semanal de los precios del almacenamiento: carbonato de litio, células LFP 314 Ah, sistemas BESS China, estructura de costos C&I vs utility, transporte marítimo, tipos de cambio y precios FCA Europa en EUR/kWh. Por Synapsun.",
+        "keywords": "precio batería BESS, barómetro precios almacenamiento, precio carbonato de litio, precio célula LFP 314Ah, precio contenedor batería 5 MWh, armario C&I 261 kWh, precio BESS EUR/kWh, FCA Europa, transporte marítimo, EUR USD CNY, Synapsun",
+        "canonical": "https://synapsun.com/es/battery-barometer",
+        "og_title": "Barómetro de precios de baterías y almacenamiento (BESS) | Synapsun",
+        "og_description": "Seguimiento semanal de los precios del almacenamiento desde el litio hasta el sistema entregado en Europa: células LFP, sistemas C&I y utility, flete, cambio, EUR/kWh FCA.",
+        "og_locale": "es_ES",
+        "twitter_title": "Barómetro de precios de baterías y almacenamiento (BESS) | Synapsun",
+        "twitter_description": "Seguimiento semanal de precios BESS: litio, células LFP, sistemas C&I y utility, transporte marítimo y tipos de cambio.",
+        "ld_name": "Barómetro de precios de baterías y almacenamiento (BESS)",
+        "ld_description": "Series temporales semanales de los precios del almacenamiento: litio, células LFP, sistemas BESS, transporte marítimo, tipos de cambio y precios FCA Europa.",
+        "ld_inLanguage": "es-ES",
+        "breadcrumb_home": "Inicio",
+        "breadcrumb_modules": "Almacenamiento BESS",
+        "breadcrumb_modules_url": "https://synapsun.com/es/almacenamiento-bess",
+        "breadcrumb_barometer": "Barómetro baterías",
+        "dataset_name": "Barómetro Synapsun — Precios de baterías BESS",
+        "dataset_description": "Series temporales semanales de la cadena de valor del almacenamiento: carbonato de litio, espodumena, células LFP ESS, sistemas BESS China, transporte marítimo, tipos de cambio EUR/USD/CNY y precios FCA Europa.",
+        "license": "https://synapsun.com/es/aviso-legal",
+        "keywords_list": '["BESS", "almacenamiento de energía", "precio litio", "célula LFP", "314 Ah", "C&I", "utility-scale", "transporte marítimo", "tipo de cambio"]',
+        "variable_measured": [
+            "Precio carbonato de litio grado batería (RMB/t)",
+            "Precio espodumena SC6 CIF (USD/t)",
+            "Precios células LFP ESS 100/280/314 Ah (RMB/Wh)",
+            "Precios sistemas BESS China DC 2h, AC 1h/2h/4h (RMB/Wh)",
+            "Transporte marítimo Shanghái-Europa (USD/40HC)",
+            "Tipo EUR/USD",
+            "Tipo EUR/CNY",
+            "Precios baterías FCA Europa C&I y utility (EUR/kWh)",
+        ],
+    },
+}
 
-def build_head(lang: str, master_head: str, hreflang_block: str) -> str:
-    d = HEADS[lang]
+
+def build_head(lang: str, master_head: str, hreflang_block: str, heads: dict = HEADS) -> str:
+    d = heads[lang]
     vm = ",\n".join(f'        "{v}"' for v in d["variable_measured"])
     all_locales = {"fr": "fr_FR", "en": "en_GB", "de": "de_DE", "it": "it_IT", "es": "es_ES"}
     alt_locales = "\n".join(
@@ -258,17 +391,17 @@ def build_head(lang: str, master_head: str, hreflang_block: str) -> str:
 """
 
 
-def main():
-    master = MASTER.read_text(encoding="utf-8")
+def generate(master: Path, heads: dict) -> None:
+    master_text = master.read_text(encoding="utf-8")
 
-    m = re.search(r'<html lang="fr">\n<head>\n(.*?)\n<style>', master, re.S)
+    m = re.search(r'<html lang="fr">\n<head>\n(.*?)\n<style>', master_text, re.S)
     if not m:
-        raise SystemExit("Impossible de localiser le bloc <head> du master.")
+        raise SystemExit(f"Impossible de localiser le bloc <head> de {master.name}.")
     master_head = m.group(1)
 
     hm = re.search(r"(<link rel=\"alternate\".*?x-default[^\n]*\n)", master_head, re.S)
     if not hm:
-        raise SystemExit("Bloc hreflang introuvable dans le master.")
+        raise SystemExit(f"Bloc hreflang introuvable dans {master.name}.")
     hreflang_block = hm.group(1).rstrip("\n")
     # Retire le commentaire "URL par langue" déjà présent juste avant, pour ne
     # pas le dupliquer (il est réinjecté par build_head).
@@ -277,16 +410,24 @@ def main():
         "",
     )
 
-    head_start = master.index('<html lang="fr">')
-    style_start = master.index("<style>", head_start)
-    rest_of_file = master[style_start:]  # <style> ... jusqu'à la fin du fichier
+    head_start = master_text.index('<html lang="fr">')
+    style_start = master_text.index("<style>", head_start)
+    rest_of_file = master_text[style_start:]  # <style> ... jusqu'à la fin du fichier
+    stem = master.stem  # barometre-synapsun / barometre-bess
 
+    banner = BANNER.replace("barometre-synapsun.html", master.name)
     for lang in ("en", "de", "it", "es"):
-        new_head = build_head(lang, master_head, hreflang_block)
-        out = BANNER + new_head + rest_of_file
-        out_path = MASTER.parent / f"barometre-synapsun-{lang}.html"
+        new_head = build_head(lang, master_head, hreflang_block, heads)
+        out = banner + new_head + rest_of_file
+        out_path = master.parent / f"{stem}-{lang}.html"
         out_path.write_text(out, encoding="utf-8")
         print(f"Généré : {out_path.name} ({len(out)} octets)")
+
+
+def main():
+    generate(MASTER, HEADS)
+    if MASTER_BESS.exists():
+        generate(MASTER_BESS, HEADS_BESS)
 
 
 if __name__ == "__main__":
