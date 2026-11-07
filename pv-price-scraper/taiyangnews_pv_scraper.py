@@ -147,6 +147,12 @@ def build_url(week: int, year: int) -> str:
 def col_header(week: int, year: int) -> str:
     return f"W{week}-{year}"
 
+def header_key(h: str):
+    """'W12-2026' → (2026, 12) pour trier chronologiquement ; None sinon."""
+    m = re.match(r"^W(\d{1,2})-(\d{4})$", (h or "").strip())
+    return (int(m.group(2)), int(m.group(1))) if m else None
+
+
 
 def prev_week(week: int, year: int) -> tuple:
     if week == 1:
@@ -633,8 +639,26 @@ def upsert_week(ws, prices: dict, header: str, page_url: str, force: bool = Fals
     # Strip trailing empty headers before computing next column index.
     # get_all_values() pads rows to equal width, which can produce hundreds of
     # phantom empty columns that would push new weeks far to the right.
-    last_real_col = len([h for h in headers if h.strip()])
+    real_headers = list(headers)
+    while real_headers and not real_headers[-1].strip():
+        real_headers.pop()
+    last_real_col = len(real_headers)
+
+    # Position chronologique : juste avant la première semaine postérieure.
+    # Un rattrapage (--week N) s'insère donc entre ses voisines au lieu d'être
+    # collé en fin de feuille (export_json.py / index.html lisent l'ordre
+    # des colonnes tel quel — une colonne hors séquence fausserait last_week).
+    key = header_key(header)
     new_col_idx = last_real_col + 1
+    for i, h in enumerate(real_headers[3:], start=4):
+        k = header_key(h)
+        if key and k and k > key:
+            new_col_idx = i
+            break
+    if new_col_idx <= last_real_col:
+        ws.insert_cols([[]], col=new_col_idx)
+        logger.info("Column inserted at %s (chronological order, before '%s')",
+                    col_index_to_letter(new_col_idx), real_headers[new_col_idx - 1])
     col_letter = col_index_to_letter(new_col_idx)
     logger.info("Writing column '%s' at %s", header, col_letter)
 
