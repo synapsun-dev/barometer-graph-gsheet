@@ -55,7 +55,7 @@ ANALYSIS_CSV_URL     = (
     f"?tqx=out:csv&sheet={ANALYSIS_SHEET_TAB}"
 )
 ANALYSIS_KEY_WATCHED  = "market_analysis"
-MAX_ANALYSIS_AGE_DAYS = 45  # publication ~mensuelle attendue, marge large
+MAX_ANALYSIS_AGE_DAYS = 60  # publication ~mensuelle attendue, marge large (45 → 60 le 2026-11-08)
 
 DASHBOARD_URL = "https://synapsun-dev.github.io/barometer-graph-gsheet/"
 
