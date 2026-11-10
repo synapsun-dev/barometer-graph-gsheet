@@ -1110,9 +1110,46 @@ async function loadFX() {
   const end   = new Date();
   const start = new Date(); start.setMonth(end.getMonth() - 12);
   const fmt = d => d.toISOString().split('T')[0];
+  const fetchT = (url, ms) => fetch(url, { signal: AbortSignal.timeout(ms) });
   let liveUsd = null, liveCny = null;
+  // ── 2. Historique : Frankfurter (taux de référence BCE, 1 requête rapide) puis API BCE en secours ──
+  // Délai max par appel : l'API BCE répond parfois en 30 s puis 504 (constaté 2026-11-10).
+  // Lancé AVANT le taux live pour que les deux appels partent en parallèle.
+  const historyP = (async () => {
+    const mapUsd = {}, mapCny = {};
+    try {
+      const r = await fetchT(`https://api.frankfurter.dev/v1/${fmt(start)}..${fmt(end)}?base=EUR&symbols=USD,CNY`, 6000);
+      if (!r.ok) throw new Error('Frankfurter API error');
+      const j = await r.json();
+      for (const [d, v] of Object.entries(j.rates || {})) { if (v.USD) mapUsd[d] = v.USD; if (v.CNY) mapCny[d] = v.CNY; }
+      if (!Object.keys(mapUsd).length) throw new Error('Frankfurter vide');
+      return { mapUsd, mapCny };
+    } catch (frkErr) {
+      console.warn('Frankfurter indisponible, fallback BCE:', frkErr);
+      const ecb = cur => `https://data-api.ecb.europa.eu/service/data/EXR/D.${cur}.EUR.SP00.A?startPeriod=${fmt(start)}&endPeriod=${fmt(end)}&format=csvdata`;
+      const [respUsd, respCny] = await Promise.all([fetchT(ecb('USD'), 10000), fetchT(ecb('CNY'), 10000)]);
+      if (!respUsd.ok || !respCny.ok) throw new Error('ECB API error');
+      const [csvUsd, csvCny] = await Promise.all([respUsd.text(), respCny.text()]);
+      // Parse CSV BCE : colonnes TIME_PERIOD, OBS_VALUE
+      const parseEcbCsv = csv => {
+        const rows = csv.trim().split('\n');
+        const hdr  = rows[0].split(',').map(h => h.trim().replace(/"/g,''));
+        const iDate = hdr.indexOf('TIME_PERIOD'), iVal = hdr.indexOf('OBS_VALUE');
+        const out = {};
+        for (let i = 1; i < rows.length; i++) {
+          const cols = rows[i].split(',');
+          const d = cols[iDate]?.trim().replace(/"/g,''); const v = parseFloat(cols[iVal]);
+          if (d && !isNaN(v)) out[d] = v;
+        }
+        return out;
+      };
+      return { mapUsd: parseEcbCsv(csvUsd), mapCny: parseEcbCsv(csvCny) };
+    }
+  })();
+  historyP.catch(() => {});  // évite un rejet non géré pendant l'attente du taux live
+
   try {
-    const resp = await fetch('https://open.er-api.com/v6/latest/EUR');
+    const resp = await fetchT('https://open.er-api.com/v6/latest/EUR', 5000);
     if (!resp.ok) throw new Error();
     const json = await resp.json();
     liveUsd = json.rates.USD; liveCny = json.rates.CNY;
@@ -1131,34 +1168,7 @@ async function loadFX() {
     window._liveEurUsd = liveUsd; window._liveEurCny = liveCny;
   }
   try {
-    let mapUsd = {}, mapCny = {};
-    try {
-      const [respUsd, respCny] = await Promise.all([
-        fetch(`https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?startPeriod=${fmt(start)}&endPeriod=${fmt(end)}&format=csvdata`),
-        fetch(`https://data-api.ecb.europa.eu/service/data/EXR/D.CNY.EUR.SP00.A?startPeriod=${fmt(start)}&endPeriod=${fmt(end)}&format=csvdata`)
-      ]);
-      if (!respUsd.ok || !respCny.ok) throw new Error('ECB API error');
-      const [csvUsd, csvCny] = await Promise.all([respUsd.text(), respCny.text()]);
-      const parseEcbCsv = csv => {
-        const rows = csv.trim().split('\n');
-        const hdr  = rows[0].split(',').map(h => h.trim().replace(/"/g,''));
-        const iDate = hdr.indexOf('TIME_PERIOD'), iVal = hdr.indexOf('OBS_VALUE');
-        const out = {};
-        for (let i = 1; i < rows.length; i++) {
-          const cols = rows[i].split(',');
-          const d = cols[iDate]?.trim().replace(/"/g,''); const v = parseFloat(cols[iVal]);
-          if (d && !isNaN(v)) out[d] = v;
-        }
-        return out;
-      };
-      mapUsd = parseEcbCsv(csvUsd); mapCny = parseEcbCsv(csvCny);
-    } catch (ecbErr) {
-      console.warn('ECB indisponible, fallback Frankfurter:', ecbErr);
-      const r = await fetch(`https://api.frankfurter.dev/v1/${fmt(start)}..${fmt(end)}?base=EUR&symbols=USD,CNY`);
-      if (!r.ok) throw new Error('Frankfurter API error');
-      const j = await r.json();
-      for (const [d, v] of Object.entries(j.rates || {})) { if (v.USD) mapUsd[d] = v.USD; if (v.CNY) mapCny[d] = v.CNY; }
-    }
+    const { mapUsd, mapCny } = await historyP;
     const allDates = Object.keys(mapUsd).filter(d => mapCny[d]).sort();
     const dates    = allDates.filter((_, i) => i % 7 === 0 || i === allDates.length - 1);
     const usdArr   = dates.map(d => mapUsd[d]);
