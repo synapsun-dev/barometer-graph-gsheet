@@ -2,19 +2,17 @@
 #
 # Les vues `open-view` de Zoho mettent 30 s à plus de 2 min à générer leur PNG
 # (mesuré le 2026-11-23) : en iframe, les sections restaient vides. On télécharge
-# les PNG ici, 3 fois par jour (8h, 13h, 22h heure de Paris), et les pages les
-# affichent depuis GitHub Pages.
+# les PNG ici, 3 fois par jour, et les pages les affichent depuis GitHub Pages.
 # Échec ponctuel de Zoho : l'image précédente reste en ligne, pas d'alerte.
 # Alerte (ticket GitHub) seulement si une image a plus de 8 jours.
 #
-# Le cron GitHub est en UTC : on le déclenche aux deux décalages possibles
-# (hiver UTC+1, été UTC+2) et le job `gate` ne laisse passer que les runs
-# tombant à 8h, 13h ou 22h à Paris → horaire juste toute l'année.
+# Cron en UTC : 7h, 12h, 21h UTC = 8h, 13h, 22h à Paris l'hiver,
+# 9h, 14h, 23h l'été (décalage d'une heure accepté par Franck le 2026-11-23).
 name: Zoho Charts Cache
 
 on:
   schedule:
-    - cron: "0 6,7,11,12,20,21 * * *"
+    - cron: "0 7,12,21 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -26,25 +24,7 @@ permissions:
   issues: write
 
 jobs:
-  gate:
-    runs-on: ubuntu-latest
-    outputs:
-      run: ${{ steps.check.outputs.run }}
-    steps:
-      - name: Ne tourner qu'à 8h, 13h ou 22h heure de Paris (sauf déclenchement manuel)
-        id: check
-        run: |
-          H=$(TZ=Europe/Paris date +%H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$H" = "08" ] || [ "$H" = "13" ] || [ "$H" = "22" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Il est ${H}h à Paris — pas un créneau de mise à jour, rien à faire."
-          fi
-
   fetch:
-    needs: gate
-    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
