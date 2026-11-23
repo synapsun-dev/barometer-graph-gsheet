@@ -1,0 +1,88 @@
+# Cache des graphiques Zoho Analytics (fret maritime, DDP Europe) → data/zoho/*.png
+#
+# Les vues `open-view` de Zoho mettent 30 s à plus de 2 min à générer leur PNG
+# (mesuré le 2026-11-23) : en iframe, les sections restaient vides. On télécharge
+# les PNG ici, une fois par jour, et les pages les affichent depuis GitHub Pages.
+# Échec ponctuel de Zoho : l'image précédente reste en ligne, pas d'alerte.
+# Alerte (ticket GitHub) seulement si une image a plus de 8 jours.
+name: Zoho Charts Cache
+
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: zoho-charts-cache
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Télécharger les PNG Zoho
+        run: |
+          set -o pipefail
+          python pv-price-scraper/fetch_zoho_charts.py 2>&1 | tee zoho_output.log
+
+      - name: Committer si changement
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/zoho/*.png data/zoho/meta.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Aucun changement — rien à committer"
+          else
+            git commit -m "auto: cache graphiques Zoho ($(date -u +%F))"
+            git pull --rebase origin main
+            git push
+          fi
+
+      - name: Extraire le détail de l'erreur (si échec)
+        id: zoho-error
+        if: failure()
+        run: |
+          DETAIL="voir les logs du run ci-dessus"
+          if [ -f zoho_output.log ]; then
+            FOUND=$(grep -E "ERROR|échouée" zoho_output.log | tail -3 || true)
+            if [ -n "$FOUND" ]; then DETAIL="$FOUND"; fi
+          fi
+          {
+            echo "detail<<PIPELINE_ALERT_EOF"
+            echo "$DETAIL"
+            echo "PIPELINE_ALERT_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Alerte pipeline — échec
+        if: failure()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: failure
+          alert-key: zoho-charts-cache
+          workflow-name: "Zoho Charts Cache (graphiques fret / DDP)"
+          details: ${{ steps.zoho-error.outputs.detail }}
+
+      - name: Alerte pipeline — résolution
+        if: success()
+        uses: ./.github/actions/pipeline-alert
+        with:
+          status: success
+          alert-key: zoho-charts-cache
+          workflow-name: "Zoho Charts Cache (graphiques fret / DDP)"

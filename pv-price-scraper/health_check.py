@@ -4,7 +4,7 @@ Health check quotidien — Baromètre Synapsun
 Vérifie que toutes les sources de données et iframes du dashboard répondent :
   1. CSV Google Sheets (disponibilité + fraîcheur des données — dernière semaine)
   2. Dashboard GitHub Pages (synapsun-dev.github.io/barometer-graph-gsheet)
-  3. Iframes Zoho Analytics (sea freight, etc.)
+  3. Graphiques Zoho Analytics en cache (data/zoho/, fraîcheur ≤ 8 j)
   4. API BCE (taux de change EUR/USD, EUR/CNY)
   5. API argent XAG (jsDelivr + fallback Cloudflare Pages)
   6. Site TaiyangNews (source du scraping hebdomadaire)
@@ -65,15 +65,12 @@ DASHBOARD_URL = "https://synapsun-dev.github.io/barometer-graph-gsheet/"
 BAROMETER_JSON_URL = DASHBOARD_URL + "data/barometer.json"
 MAX_JSON_AGE_DAYS = 9
 
-ZOHO_IFRAMES = {
-    "Zoho Analytics — Sea freight": (
-        "https://analytics.zoho.com/open-view/1373627000027120086/"
-        "d6435972ee5651e23d81649703e4b2320b5f037c5a75c8bb38c908c5e858f431"
-    ),
-    "Zoho Analytics — Vue 2": (
-        "https://analytics.zoho.com/open-view/1373627000030138796"
-    ),
-}
+# Graphiques Zoho Analytics : depuis le 2026-11-23, les pages affichent un PNG mis
+# en cache par zoho_charts_cache.yml (Zoho met 30 s à 2 min à le générer). On
+# surveille donc le cache servi par GitHub Pages, pas Zoho en direct.
+ZOHO_CACHE_META_URL = DASHBOARD_URL + "data/zoho/meta.json"
+ZOHO_CACHE_KEYS = ("sea_freight", "ddp_europe")
+MAX_ZOHO_CACHE_AGE_DAYS = 8
 
 ECB_URL = (
     "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A"
@@ -190,10 +187,24 @@ def check_dashboard() -> str:
     return f"{len(resp.text)} octets, canvas présents"
 
 
-def make_zoho_check(url: str):
+def make_zoho_check(key: str):
     def check() -> str:
-        resp = http_get(url)
-        return f"HTTP 200 ({len(resp.text)} octets)"
+        from datetime import datetime, timezone
+
+        meta = http_get(ZOHO_CACHE_META_URL).json().get(key)
+        if not meta:
+            raise RuntimeError(f"{key} absent de data/zoho/meta.json")
+        fetched = datetime.strptime(meta["fetched_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        age_days = (datetime.now(timezone.utc) - fetched).days
+        if age_days > MAX_ZOHO_CACHE_AGE_DAYS:
+            raise RuntimeError(
+                f"CACHE PÉRIMÉ : {key}.png téléchargé il y a {age_days} jours "
+                f"(max {MAX_ZOHO_CACHE_AGE_DAYS}) — vérifier zoho_charts_cache.yml"
+            )
+        resp = http_get(DASHBOARD_URL + f"data/zoho/{key}.png")
+        if not resp.content.startswith(b"\x89PNG"):
+            raise RuntimeError(f"data/zoho/{key}.png n'est pas un PNG")
+        return f"PNG {len(resp.content)} octets, téléchargé il y a {age_days} j"
     return check
 
 
@@ -412,7 +423,7 @@ CHECKS = [
     ("BESS — Contrat JSON",      check_bess_json),
     ("BESS — Page GitHub Pages", check_bess_page),
     ("BESS — InfoLink (source)", check_infolink),
-] + [(name, make_zoho_check(url)) for name, url in ZOHO_IFRAMES.items()]
+] + [(f"Zoho Analytics (cache) — {key}", make_zoho_check(key)) for key in ZOHO_CACHE_KEYS]
 
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────

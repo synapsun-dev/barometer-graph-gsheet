@@ -435,11 +435,11 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
         <h2 class="section-title" data-i18n="s5_title">Fret maritime Shanghai → Europe</h2>
       </div>
     </div>
-    <div class="split fi">
-      <div class="ifr-wrap zoho-responsive" style="--iframe-w:800;--iframe-h:600;--scale-w:499;--scale-h:530">
-        <iframe src="https://analytics.zoho.com/open-view/1373627000027120086/d6435972ee5651e23d81649703e4b2320b5f037c5a75c8bb38c908c5e858f431"
-          scrolling="no" loading="lazy"
-          title="Zoho Analytics — Sea freight rates"></iframe>
+    <div class="split fi" style="grid-template-columns:1fr">
+      <div class="ifr-wrap">
+        <!-- PNG Zoho Analytics mis en cache chaque jour par zoho_charts_cache.yml (Zoho met 30 s à 2 min à le générer) -->
+        <img src="data/zoho/sea_freight.png" width="960" height="480" loading="lazy"
+          alt="Sea freight price evolution Shanghai – Europe (Zoho Analytics)" style="display:block;width:100%;height:auto">
       </div>
       <div class="ac" id="ac-sea_freight">
         <div class="ac-body" id="text-sea_freight"><p class="sk" style="height:13px;margin-bottom:8px">&nbsp;</p><p class="sk" style="height:13px;width:82%">&nbsp;</p></div>
@@ -505,11 +505,11 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
           <div class="chart-wrap"><canvas id="chart-fca"></canvas></div>
           <!--
             Alternative « Zoho Analytics » (même pattern que la section DDP du baromètre modules) :
-            remplacer le bloc .chart-card ci-dessus par
-              <div class="ifr-wrap zoho-responsive" style="--iframe-w:500;--iframe-h:460;--scale-w:500;--scale-h:500">
-                <iframe src="https://analytics.zoho.com/open-view/<ID_VUE_FCA_BESS>" scrolling="no" loading="lazy" title="Zoho Analytics — FCA Europe BESS"></iframe>
-              </div>
-            dès qu'une vue publique « FCA Europe BESS » existe dans Zoho Analytics.
+            dès qu'une vue publique « FCA Europe BESS » existe dans Zoho Analytics, l'ajouter à
+            CHARTS dans pv-price-scraper/fetch_zoho_charts.py (clé fca_bess) et remplacer le bloc
+            .chart-card ci-dessus par
+              <div class="ifr-wrap"><img src="data/zoho/fca_bess.png" width="960" height="480" loading="lazy" alt="…" style="display:block;width:100%;height:auto"></div>
+            Pas d'iframe Zoho directe : la vue met 30 s à 2 min à se générer.
             En attendant, la série est lue dans l'onglet Google Sheet `bess_fca_europe`
             (colonnes : date | ci_eur_kwh | utility_eur_kwh | note).
           -->
@@ -1505,37 +1505,6 @@ window.addEventListener('message', e => {
   });
 });
 
-// Zoho iframes responsive scale (identique au baromètre modules)
-function scaleZohoIframes() {
-  document.querySelectorAll('.ifr-wrap.zoho-responsive').forEach(wrap => {
-    const iframe = wrap.querySelector('iframe');
-    if (!iframe) return;
-    const scaleW = parseFloat(getComputedStyle(wrap).getPropertyValue('--scale-w'));
-    const scaleH = parseFloat(getComputedStyle(wrap).getPropertyValue('--scale-h'));
-    const ifrW = scaleW || parseFloat(getComputedStyle(wrap).getPropertyValue('--iframe-w')) || 800;
-    const containerW = wrap.getBoundingClientRect().width;
-    const scale = containerW / ifrW;
-    iframe.style.transform = `scale(${scale})`;
-    iframe.style.transformOrigin = 'left top';
-    if (scaleW && scaleH) { wrap.style.height = (scaleH * scale) + 'px'; wrap.style.maxHeight = 'none'; }
-  });
-}
-window.addEventListener('load', scaleZohoIframes);
-window.addEventListener('resize', scaleZohoIframes);
-scaleZohoIframes();
-window.addEventListener('message', e => {
-  if (!e.origin.includes('zoho.com')) return;
-  const data = (typeof e.data === 'string') ? (() => { try { return JSON.parse(e.data); } catch(_) { return null; } })() : e.data;
-  if (!data) return;
-  const height = data.height || data.frameHeight || data.iframeHeight || data.h;
-  if (!height) return;
-  document.querySelectorAll('.ifr-wrap.zoho-responsive').forEach(wrap => {
-    const iframe = wrap.querySelector('iframe');
-    if (!iframe || !iframe.src.includes(e.origin.replace('https://', ''))) return;
-    wrap.style.setProperty('--scale-h', height);
-    scaleZohoIframes();
-  });
-});
 </script>
 </body>
 </html>

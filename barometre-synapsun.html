@@ -523,10 +523,10 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi" style="grid-template-columns:1fr">
-      <div class="ifr-wrap zoho-responsive" style="--iframe-w:960;--iframe-h:480;--scale-w:960;--scale-h:480">
-        <iframe src="https://analytics.zoho.com/open-view/1373627000027120086/d6435972ee5651e23d81649703e4b2320b5f037c5a75c8bb38c908c5e858f431"
-          scrolling="no" loading="lazy"
-          title="Zoho Analytics — Sea freight rates"></iframe>
+      <div class="ifr-wrap">
+        <!-- PNG Zoho Analytics mis en cache chaque jour par zoho_charts_cache.yml (Zoho met 30 s à 2 min à le générer) -->
+        <img src="data/zoho/sea_freight.png" width="960" height="480" loading="lazy"
+          alt="Sea freight price evolution Shanghai – Europe (Zoho Analytics)" style="display:block;width:100%;height:auto">
       </div>
       <div class="ac" id="ac-sea_freight">
         <div class="ac-body" id="text-sea_freight"><p class="sk" style="height:13px;margin-bottom:8px">&nbsp;</p><p class="sk" style="height:13px;width:82%">&nbsp;</p></div>
@@ -578,10 +578,10 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
       </div>
     </div>
     <div class="split fi" style="grid-template-columns:1fr">
-      <div class="ifr-wrap zoho-responsive" style="--iframe-w:960;--iframe-h:480;--scale-w:960;--scale-h:480">
-        <iframe frameborder="0" width="500" height="500" src="https://analytics.zoho.com/open-view/1373627000030138796"
-          scrolling="no" loading="lazy"
-          title="Zoho Analytics — DDP Europe prices"></iframe>
+      <div class="ifr-wrap">
+        <!-- PNG Zoho Analytics mis en cache chaque jour par zoho_charts_cache.yml -->
+        <img src="data/zoho/ddp_europe.png" width="960" height="480" loading="lazy"
+          alt="DDP Europe module prices (Zoho Analytics)" style="display:block;width:100%;height:auto">
       </div>
       <div class="ac" id="ac-modules_ddp">
         <div class="ac-body" id="text-modules_ddp"><p class="sk" style="height:13px;margin-bottom:8px">&nbsp;</p><p class="sk" style="height:13px;width:88%">&nbsp;</p></div>
@@ -2010,48 +2010,6 @@ window.addEventListener('message', e => {
   });
 });
 
-// Zoho iframes responsive scale
-function scaleZohoIframes() {
-  document.querySelectorAll('.ifr-wrap.zoho-responsive').forEach(wrap => {
-    const iframe = wrap.querySelector('iframe');
-    if (!iframe) return;
-    const scaleW = parseFloat(getComputedStyle(wrap).getPropertyValue('--scale-w'));
-    const scaleH = parseFloat(getComputedStyle(wrap).getPropertyValue('--scale-h'));
-    const ifrW = scaleW || parseFloat(getComputedStyle(wrap).getPropertyValue('--iframe-w')) || 800;
-    const containerW = wrap.getBoundingClientRect().width;
-    const scale = containerW / ifrW;
-    iframe.style.transform = `scale(${scale})`;
-    iframe.style.transformOrigin = 'left top';
-    if (scaleW && scaleH) {
-      wrap.style.height = (scaleH * scale) + 'px';
-      wrap.style.maxHeight = 'none';
-    }
-  });
-}
-window.addEventListener('load', scaleZohoIframes);
-window.addEventListener('resize', scaleZohoIframes);
-scaleZohoIframes();
-
-// Écoute les postMessage de Zoho Analytics — si Zoho envoie la hauteur du chart,
-// on met à jour --scale-h automatiquement et on relance le scale.
-window.addEventListener('message', e => {
-  if (!e.origin.includes('zoho.com')) return;
-  console.log('[Zoho postMessage]', e.data);
-  const data = (typeof e.data === 'string') ? (() => { try { return JSON.parse(e.data); } catch(_) { return null; } })() : e.data;
-  if (!data) return;
-  // Cherche une hauteur dans les champs courants des SDK Zoho
-  const height = data.height || data.frameHeight || data.iframeHeight || data.h;
-  if (!height) return;
-  document.querySelectorAll('.ifr-wrap.zoho-responsive').forEach(wrap => {
-    const iframe = wrap.querySelector('iframe');
-    if (!iframe) return;
-    // Associe le message à l'iframe dont l'URL correspond à l'origine
-    if (!iframe.src.includes(e.origin.replace('https://', ''))) return;
-    wrap.style.setProperty('--scale-h', height);
-    console.log('[Zoho auto-resize] --scale-h mis à jour :', height);
-    scaleZohoIframes();
-  });
-});
 </script>
 </body>
 </html>
