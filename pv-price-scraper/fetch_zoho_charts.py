@@ -17,6 +17,7 @@ Règles :
 
 Usage : python pv-price-scraper/fetch_zoho_charts.py
 """
+import hashlib
 import json
 import struct
 import sys
@@ -41,6 +42,7 @@ RETRY_DELAY = 30
 MIN_BYTES = 10_000
 MAX_AGE_DAYS = 8
 META_REFRESH_DAYS = 3
+KNOWN_VARIANTS = 4     # empreintes des dernières variantes de rendu Zoho mémorisées
 PNG_SIG = b"\x89PNG\r\n\x1a\n"
 FMT = "%Y-%m-%dT%H:%M:%SZ"
 
@@ -86,16 +88,23 @@ def main() -> int:
         path = OUT_DIR / f"{key}.png"
         entry = meta.get(key, {})
         if data is not None:
-            changed = not path.exists() or path.read_bytes() != data
+            # Zoho a plusieurs serveurs de rendu : à données égales, l'image peut
+            # différer d'un pixel (constaté 2026-11-23 sur le fret, 2 variantes).
+            # Une variante déjà vue n'est donc pas une mise à jour.
+            digest = hashlib.sha256(data).hexdigest()
+            known = entry.get("known_sha256", [])
+            changed = not path.exists() or (digest not in known and path.read_bytes() != data)
             if changed:
                 tmp = path.with_suffix(".tmp")
                 tmp.write_bytes(data)
                 tmp.replace(path)
             last = entry.get("fetched_at")
             old = not last or (now - datetime.strptime(last, FMT).replace(tzinfo=timezone.utc)).days >= META_REFRESH_DAYS
-            if changed or old:
+            if changed or old or digest not in known:
                 w, h = png_size(data)
-                meta[key] = {"fetched_at": now.strftime(FMT), "width": w, "height": h, "source": CHARTS[key]}
+                known = ([digest] + [k for k in known if k != digest])[:KNOWN_VARIANTS]
+                meta[key] = {"fetched_at": now.strftime(FMT), "width": w, "height": h,
+                             "source": CHARTS[key], "known_sha256": known}
                 meta_changed = True
             print(f"[{key}] image {'mise à jour' if changed else 'inchangée'}")
         else:
