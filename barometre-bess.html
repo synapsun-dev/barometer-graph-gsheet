@@ -438,7 +438,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
     <div class="split fi" style="grid-template-columns:1fr">
       <div class="ifr-wrap">
         <!-- PNG Zoho Analytics mis en cache chaque jour par zoho_charts_cache.yml (Zoho met 30 s à 2 min à le générer) -->
-        <img src="data/zoho/sea_freight.png" width="960" height="480" loading="lazy"
+        <img src="https://synapsun-dev.github.io/barometer-graph-gsheet/data/zoho/sea_freight.png" width="960" height="480" loading="lazy"
           alt="Sea freight price evolution Shanghai – Europe (Zoho Analytics)" style="display:block;width:100%;height:auto">
       </div>
       <div class="ac" id="ac-sea_freight">
@@ -508,7 +508,7 @@ body{font-family:var(--body);color:var(--g800);background:var(--g50);line-height
             dès qu'une vue publique « FCA Europe BESS » existe dans Zoho Analytics, l'ajouter à
             CHARTS dans pv-price-scraper/fetch_zoho_charts.py (clé fca_bess) et remplacer le bloc
             .chart-card ci-dessus par
-              <div class="ifr-wrap"><img src="data/zoho/fca_bess.png" width="960" height="480" loading="lazy" alt="…" style="display:block;width:100%;height:auto"></div>
+              <div class="ifr-wrap"><img src="https://synapsun-dev.github.io/barometer-graph-gsheet/data/zoho/fca_bess.png" width="960" height="480" loading="lazy" alt="…" style="display:block;width:100%;height:auto"></div>
             Pas d'iframe Zoho directe : la vue met 30 s à 2 min à se générer.
             En attendant, la série est lue dans l'onglet Google Sheet `bess_fca_europe`
             (colonnes : date | ci_eur_kwh | utility_eur_kwh | note).
