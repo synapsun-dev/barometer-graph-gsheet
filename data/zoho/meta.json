@@ -1,20 +1,22 @@
 {
   "sea_freight": {
-    "fetched_at": "2026-11-23T11:48:26Z",
+    "fetched_at": "2026-11-25T17:47:58Z",
     "width": 960,
     "height": 480,
     "source": "https://analytics.zoho.com/open-view/1373627000027120086/d6435972ee5651e23d81649703e4b2320b5f037c5a75c8bb38c908c5e858f431",
     "known_sha256": [
+      "7ce5261fe8e1743c80fa02c09ea6bb27c9be5d7ad248ad14eea111f22749612d",
       "3fadb960f31ddf05ef9ceb73b4ef5ea7064fdffb0fb0c8c5a7a2b5a9f7dfbc7e",
       "8dfd9aa09831ca4238f372bc9b3fb8c2d56803d4a269dc6a57087c93cee2aa1c"
     ]
   },
   "ddp_europe": {
-    "fetched_at": "2026-11-23T11:21:47Z",
+    "fetched_at": "2026-11-25T17:47:58Z",
     "width": 960,
     "height": 480,
     "source": "https://analytics.zoho.com/open-view/1373627000030138796",
     "known_sha256": [
+      "5b95b1a6627ece84f1bacc3fe8ddbc84e28106cbb314de6ea8e7e4b7fda21303",
       "16d5c45004ee12045efcaa49daea5d5a11e80ad3936cb3c831c08ed8e2cbe8d9",
       "0990f5516c5e62613dc57ffb0e57bfe8218a9c9455a9a81e77a07ff864e14ead"
     ]
